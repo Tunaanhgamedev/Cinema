@@ -10,6 +10,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -98,6 +99,15 @@ public class BookingSeatServlet extends HttpServlet {
 			try (Connection con = DBConnection.getConnection()) {
 				int roomId = bookingDAO.findRoomIdByShowtime(con, showtimeIdInt);
 				seatList = seatDAO.getSeatsByRoom(roomId);
+				
+				// Extract unique rows for the JSP grid
+				if (seatList != null) {
+					Set<String> rowSet = new TreeSet<>();
+					for (Seat s : seatList) {
+						rowSet.add(String.valueOf(s.getSeatRow()));
+					}
+					req.setAttribute("rows", rowSet);
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 				req.setAttribute("error", "Không tải được danh sách ghế.");
@@ -139,6 +149,7 @@ public class BookingSeatServlet extends HttpServlet {
 		String showtimeIdStr = trim(req.getParameter("showtimeId"));
 		String ticketQtyStr = trim(req.getParameter("ticketQty"));
 		String[] seats = req.getParameterValues("seats");
+		String ticketType = trim(req.getParameter("ticketType"));
 
 		Integer showtimeId = parseIntOrNull(showtimeIdStr);
 		if (showtimeId == null) {

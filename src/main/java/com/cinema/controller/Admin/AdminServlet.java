@@ -17,6 +17,12 @@ public class AdminServlet extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		com.cinema.dao.MovieDAO movieDAO = new com.cinema.dao.MovieDAO();
+		com.cinema.dao.BookingAdminDAO bookingDAO = new com.cinema.dao.BookingAdminDAO();
+
+		req.setAttribute("totalMovies", movieDAO.countTotalMovies());
+		req.setAttribute("totalBookings", bookingDAO.countTotalBookings());
+		req.setAttribute("totalRevenue", bookingDAO.calculateTotalRevenue());
 
 		req.getRequestDispatcher("/pages/admin/dashboard.jsp").forward(req, resp);
 	}

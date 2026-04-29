@@ -1,4 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -44,14 +46,14 @@
         <div class="row g-3">
           <div class="col-md-4">
             <div class="cardx p-3">
-              <div class="text-white-50">Combo</div>
-              <div class="fs-4 fw-bold"></div>
+              <div class="text-white-50">Tổng doanh thu</div>
+              <div class="fs-4 fw-bold"><fmt:formatNumber value="${totalRevenue}" type="currency" currencySymbol="₫" maxFractionDigits="0" /></div>
             </div>
           </div>
           <div class="col-md-4">
             <div class="cardx p-3">
               <div class="text-white-50">Phim</div>
-              <div class="fs-4 fw-bold">Coming</div>
+              <div class="fs-4 fw-bold">${totalMovies}</div>
             </div>
           </div>
           <div class="col-md-4">

@@ -53,6 +53,16 @@ public class BookingSeatServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
+		String ajax = trim(req.getParameter("ajax"));
+		if ("showtimes".equals(ajax)) {
+			handleAjaxShowtimes(req, resp);
+			return;
+		}
+		if ("seats".equals(ajax)) {
+			handleAjaxSeats(req, resp);
+			return;
+		}
+
 		// ===== Giữ form values =====
 		String movieId = trim(req.getParameter("movieId"));
 		String showDateRaw = trim(req.getParameter("showDate"));
@@ -306,4 +316,84 @@ public class BookingSeatServlet extends HttpServlet {
 			return s.replace('/', '-'); // yyyy/MM/dd
 		return s;
 	}
+	private void handleAjaxShowtimes(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		resp.setContentType("application/json");
+		resp.setCharacterEncoding("UTF-8");
+
+		Integer movieId = parseIntOrNull(req.getParameter("movieId"));
+		String showDate = normalizeToSqlDate(req.getParameter("showDate"));
+
+		if (movieId == null || showDate.isEmpty()) {
+			resp.getWriter().write("[]");
+			return;
+		}
+
+		List<com.cinema.dao.ShowtimeDAO.ShowtimeView> list = showtimeDAO.findByMovieAndDate(movieId, showDate);
+		StringBuilder json = new StringBuilder("[");
+		for (int i = 0; i < list.size(); i++) {
+			com.cinema.dao.ShowtimeDAO.ShowtimeView st = list.get(i);
+			java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm");
+			String timeRange = sdf.format(st.getStartTime()) + " - " + sdf.format(st.getEndTime());
+
+			json.append("{").append("\"id\":").append(st.getShowtimeId()).append(",").append("\"time\":\"")
+					.append(timeRange).append("\",").append("\"room\":\"").append(st.getRoomName()).append("\"")
+					.append("}");
+			if (i < list.size() - 1)
+				json.append(",");
+		}
+		json.append("]");
+		resp.getWriter().write(json.toString());
+	}
+
+	private void handleAjaxSeats(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		resp.setContentType("application/json");
+		resp.setCharacterEncoding("UTF-8");
+
+		Integer showtimeId = parseIntOrNull(req.getParameter("showtimeId"));
+		if (showtimeId == null) {
+			resp.getWriter().write("{}");
+			return;
+		}
+
+		Set<String> booked = bookingSeatDAO.findBookedSeatCodesByShowtime(showtimeId, HOLD_MINUTES);
+		Set<String> rowSet = new TreeSet<>();
+
+		try (Connection con = DBConnection.getConnection()) {
+			int roomId = bookingDAO.findRoomIdByShowtime(con, showtimeId);
+			List<Seat> seatList = seatDAO.getSeatsByRoom(roomId);
+			if (seatList != null) {
+				for (Seat s : seatList) {
+					rowSet.add(String.valueOf(s.getSeatRow()));
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		StringBuilder json = new StringBuilder("{");
+
+		// rows
+		json.append("\"rows\":[");
+		int idx = 0;
+		for (String r : rowSet) {
+			json.append("\"").append(r).append("\"");
+			if (++idx < rowSet.size())
+				json.append(",");
+		}
+		json.append("],");
+
+		// booked
+		json.append("\"booked\":[");
+		idx = 0;
+		for (String b : booked) {
+			json.append("\"").append(b).append("\"");
+			if (++idx < booked.size())
+				json.append(",");
+		}
+		json.append("]");
+
+		json.append("}");
+		resp.getWriter().write(json.toString());
+	}
+
 }

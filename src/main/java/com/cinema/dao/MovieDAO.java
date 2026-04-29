@@ -142,4 +142,50 @@ public class MovieDAO {
 		return 0;
 	}
 
+	public boolean insert(Movie m) {
+		String sql = "INSERT INTO movies (title, description, duration, release_date, rating, poster, status) VALUES (?,?,?,?,?,?,?)";
+		try (Connection cn = DBConnection.getConnection(); PreparedStatement ps = cn.prepareStatement(sql)) {
+			ps.setString(1, m.getTitle());
+			ps.setString(2, m.getDescription());
+			ps.setInt(3, m.getDuration());
+			ps.setDate(4, m.getReleaseDate());
+			ps.setString(5, String.valueOf(m.getRating()));
+			ps.setString(6, m.getPoster());
+			ps.setString(7, m.getStatus() != null ? m.getStatus().name() : "NOW_SHOWING");
+			return ps.executeUpdate() > 0;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	public boolean update(Movie m) {
+		String sql = "UPDATE movies SET title=?, description=?, duration=?, release_date=?, rating=?, poster=?, status=? WHERE movie_id=?";
+		try (Connection cn = DBConnection.getConnection(); PreparedStatement ps = cn.prepareStatement(sql)) {
+			ps.setString(1, m.getTitle());
+			ps.setString(2, m.getDescription());
+			ps.setInt(3, m.getDuration());
+			ps.setDate(4, m.getReleaseDate());
+			ps.setString(5, String.valueOf(m.getRating()));
+			ps.setString(6, m.getPoster());
+			ps.setString(7, m.getStatus() != null ? m.getStatus().name() : "NOW_SHOWING");
+			ps.setInt(8, m.getMovieId());
+			return ps.executeUpdate() > 0;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	public boolean delete(int movieId) {
+		String sql = "DELETE FROM movies WHERE movie_id = ?";
+		try (Connection cn = DBConnection.getConnection(); PreparedStatement ps = cn.prepareStatement(sql)) {
+			ps.setInt(1, movieId);
+			return ps.executeUpdate() > 0;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
 }

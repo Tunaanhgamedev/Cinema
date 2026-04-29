@@ -163,7 +163,7 @@ public class ShowtimeDAO {
 	}
 
 	public int findRoomIdByShowtime(int showtimeId) {
-		String sql = "SELECT room_id FROM showtime WHERE showtime_id = ?";
+		String sql = "SELECT room_id FROM showtimes WHERE showtime_id = ?";
 		try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 			ps.setInt(1, showtimeId);
 			ResultSet rs = ps.executeQuery();

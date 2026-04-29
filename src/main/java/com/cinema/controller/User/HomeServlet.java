@@ -23,10 +23,12 @@ public class HomeServlet extends HttpServlet {
 		}
 
 		BannerDAO bannerDAO = new BannerDAO();
+		com.cinema.dao.MovieDAO movieDAO = new com.cinema.dao.MovieDAO();
 
 		request.setAttribute("leftBanner", bannerDAO.getActiveBannerByPosition("LEFT"));
 
 		request.setAttribute("rightBanner", bannerDAO.getActiveBannerByPosition("RIGHT"));
+		request.setAttribute("nowShowingMovies", movieDAO.findNowShowing());
 
 		request.getRequestDispatcher("/pages/clients/home.jsp").forward(request, response);
 	}

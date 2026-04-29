@@ -1,5 +1,5 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -71,52 +71,24 @@
         </div>
 
         <div class="movie-grid wow-grid">
-            <div class="movie-item wow-card">
-                <div class="movie-poster">
-                    <img src="${pageContext.request.contextPath}/assets/images/movies/movie1.jpg" alt="Avengers">
-                    <span class="movie-badge">HOT</span>
-                </div>
-                <div class="movie-body">
-                    <h3>Avengers: Endgame</h3>
-                    <div class="movie-meta">Hành động • 120 phút • 9.1/10</div>
-                    <div class="movie-actions">
-                        <a href="#" class="btn-buy btn-wow">Mua vé</a>
-                        <a href="https://youtu.be/TcMBFSGVi1c?si=xC_nSgqxLovxX6ld" class="btn-trailer" target="_blank">Trailer</a>
+            <c:forEach var="m" items="${nowShowingMovies}">
+                <div class="movie-item wow-card">
+                    <div class="movie-poster">
+                        <img src="${pageContext.request.contextPath}/${m.poster}" alt="${m.title}">
+                        <c:if test="${m.rating >= 9}">
+                            <span class="movie-badge">HOT</span>
+                        </c:if>
+                    </div>
+                    <div class="movie-body">
+                        <h3>${m.title}</h3>
+                        <div class="movie-meta">${m.duration} phút • ${m.rating}/10</div>
+                        <div class="movie-actions">
+                            <a href="${pageContext.request.contextPath}/booking-seat?movieId=${m.movieId}" class="btn-buy btn-wow">Mua vé</a>
+                            <a href="${pageContext.request.contextPath}/movie?id=${m.movieId}" class="btn-trailer">Chi tiết</a>
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="movie-item wow-card">
-                <div class="movie-poster">
-                    <img src="${pageContext.request.contextPath}/assets/images/movies/movie2.jpg" alt="Avatar">
-                    <span class="movie-badge badge-blue">NEW</span>
-                </div>
-                <div class="movie-body">
-                    <h3>Avatar</h3>
-                    <div class="movie-meta">Phiêu lưu • 150 phút • 8.8/10</div>
-                    <div class="movie-actions">
-                        <a href="#" class="btn-buy btn-wow">Mua vé</a>
-                        <a href="https://youtu.be/nb_fFj_0rq8" class="btn-trailer" target="_blank">Trailer</a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="movie-item wow-card">
-                <div class="movie-poster">
-                    <img src="${pageContext.request.contextPath}/assets/images/movies/spiderman.jpg" alt="Avatar">
-                    <span class="movie-badge badge-blue">NEW</span>
-                </div>
-                <div class="movie-body">
-                    <h3>Spiderman: No Way Home</h3>
-                    <div class="movie-meta">Hành Động • 148 phút • 8.8/10</div>
-                    <div class="movie-actions">
-                        <a href="#" class="btn-buy btn-wow">Mua vé</a>
-                        <a href="https://youtu.be/JfVOs4VSpmA?si=utUVmZMbHhwna2ad" class="btn-trailer" target="_blank">Trailer</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Bạn có thể nhân thêm card ở đây -->
+            </c:forEach>
         </div>
     </section>
 

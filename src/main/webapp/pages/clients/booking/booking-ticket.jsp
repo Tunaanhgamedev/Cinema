@@ -51,6 +51,21 @@
     .dot.free{ background:#0f1627; border:1px solid rgba(255,255,255,.25); }
     .dot.sel{ background:rgba(231,26,15,.65); }
     .dot.bok{ background:#444; }
+    .dot.other{ background: #ffa500; } /* Orange for others */
+    
+    .seat-label.other-selected { 
+      background: rgba(255, 165, 0, 0.2); 
+      border-color: rgba(255, 165, 0, 0.5); 
+      cursor: not-allowed;
+      position: relative;
+    }
+    .seat-label.other-selected::after {
+      content: "👤";
+      font-size: 10px;
+      position: absolute;
+      top: 2px;
+      right: 2px;
+    }
 
     .alert{ padding:12px 14px; border-radius:14px; border:1px solid rgba(231,26,15,.5); background:rgba(231,26,15,.12); font-weight:800; }
     .top-actions{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
@@ -138,7 +153,7 @@
 
   <!-- FORM POST: tạo booking PENDING + giữ ghế + redirect qua combo -->
   <div class="card">
-    <form id="bookingForm" method="post" action="${pageContext.request.contextPath}/booking/combo">
+    <form id="bookingForm" method="post" action="${pageContext.request.contextPath}/booking-seat">
       <input type="hidden" name="movieId" value="${movieId}"/>
       <input type="hidden" name="showDate" value="${showDate}"/>
       <input type="hidden" name="cinemaId" value="1"/>
@@ -209,6 +224,7 @@
         <span class="badge"><span class="dot free"></span>Trống</span>
         <span class="badge"><span class="dot sel"></span>Đang chọn</span>
         <span class="badge"><span class="dot bok"></span>Đã đặt/đang giữ</span>
+        <span class="badge"><span class="dot other"></span>Người khác đang chọn</span>
         <span class="badge counter">Đã chọn: <span id="pickedCount">0</span>/<span id="maxCount">0</span></span>
       </div>
 
@@ -268,6 +284,54 @@
 
     seats.forEach(s => s.addEventListener('change', update));
     update();
+
+    // === REAL-TIME WEBSOCKET ===
+    const showtimeId = "${showtimeId}";
+    if (showtimeId) {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = protocol + '//' + window.location.host + '${pageContext.request.contextPath}/ws/seat?showtimeId=' + showtimeId;
+        const socket = new WebSocket(wsUrl);
+
+        socket.onopen = () => console.log('Connected to SeatWebSocket');
+        
+        socket.onmessage = (event) => {
+            const [stId, seatCode, action] = event.data.split(':');
+            if (stId === showtimeId) {
+                const seatInput = document.getElementById('s_' + seatCode);
+                const seatLabel = document.querySelector('label[for="s_' + seatCode + '"]');
+                
+                if (seatInput && seatLabel) {
+                    if (action === 'select') {
+                        seatInput.disabled = true;
+                        seatLabel.classList.add('other-selected');
+                    } else if (action === 'deselect') {
+                        // Only re-enable if it's not already booked or selected by this user
+                        if (!seatLabel.classList.contains('booked') && !seatInput.checked) {
+                            seatInput.disabled = false;
+                            seatLabel.classList.remove('other-selected');
+                        }
+                    }
+                }
+            }
+        };
+
+        // Notify others when we select/deselect
+        seats.forEach(s => {
+            s.addEventListener('change', function() {
+                const action = this.checked ? 'select' : 'deselect';
+                const seatCode = this.value;
+                socket.send(showtimeId + ':' + seatCode + ':' + action);
+            });
+        });
+
+        window.onbeforeunload = () => {
+            // Unselect all our seats on leave to notify others
+            seats.filter(s => s.checked).forEach(s => {
+                socket.send(showtimeId + ':' + s.value + ':deselect');
+            });
+            socket.close();
+        };
+    }
   })();
 </script>
 

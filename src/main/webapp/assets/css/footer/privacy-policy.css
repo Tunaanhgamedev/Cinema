@@ -1,0 +1,236 @@
+/* ===================== PRIVACY WOW THEME ===================== */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap');
+
+:root{
+  --bg0:#070a12;
+  --bg1:#0b1220;
+  --card: rgba(255,255,255,0.92);
+  --text:#0f172a;
+  --muted: rgba(15,23,42,0.70);
+
+  --p1:#ff006a;
+  --p2:#7c3aed;
+  --p3:#00d4ff;
+  --p4:#22c55e;
+
+  --shadow: 0 22px 55px rgba(2,6,23,0.35);
+  --shadow2: 0 18px 45px rgba(2,6,23,0.22);
+}
+
+*{ font-family: Poppins, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+html{ scroll-behavior: smooth; }
+
+body{
+  background:
+    radial-gradient(1200px 500px at 10% 10%, rgba(255,0,106,0.18), transparent 60%),
+    radial-gradient(900px 450px at 90% 25%, rgba(0,212,255,0.14), transparent 55%),
+    radial-gradient(900px 500px at 40% 90%, rgba(124,58,237,0.16), transparent 60%),
+    linear-gradient(180deg, var(--bg0), var(--bg1));
+}
+
+/* ===== Hero: gradient animated + glass ===== */
+.terms-hero{
+  position: relative;
+  padding: 78px 0;
+  color: #fff;
+  overflow: hidden;
+  background: linear-gradient(120deg, var(--p1), var(--p2), var(--p3));
+  background-size: 300% 300%;
+  animation: gradMove 9s ease infinite;
+}
+
+@keyframes gradMove{
+  0%{ background-position: 0% 50%; }
+  50%{ background-position: 100% 50%; }
+  100%{ background-position: 0% 50%; }
+}
+
+.terms-hero::before{
+  content:"";
+  position:absolute;
+  inset:-80px;
+  background:
+    radial-gradient(80px 80px at 15% 40%, rgba(255,255,255,0.35), transparent 65%),
+    radial-gradient(140px 140px at 70% 20%, rgba(255,255,255,0.22), transparent 70%),
+    radial-gradient(180px 180px at 85% 75%, rgba(255,255,255,0.18), transparent 75%);
+  filter: blur(1px);
+  opacity: .9;
+  pointer-events:none;
+}
+
+.terms-hero-box{
+  position: relative;
+  border-radius: 26px;
+  padding: 28px;
+  background: rgba(0,0,0,0.22);
+  border: 1px solid rgba(255,255,255,0.24);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(12px);
+  transform: translateZ(0);
+}
+
+.terms-title{
+  font-weight: 800;
+  letter-spacing: .2px;
+  text-shadow: 0 12px 28px rgba(0,0,0,0.35);
+}
+
+.terms-sub{
+  opacity: .96;
+  font-weight: 500;
+}
+
+/* ===== Main container spacing ===== */
+main.container{
+  margin-top: -60px;
+}
+
+/* ===== Card: neon border + hover lift ===== */
+.terms-card{
+  position: relative;
+  background: var(--card);
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.5);
+  box-shadow: var(--shadow2);
+  transition: transform .28s ease, box-shadow .28s ease;
+}
+
+.terms-card:hover{
+  transform: translateY(-10px) scale(1.01);
+  box-shadow: 0 30px 70px rgba(2,6,23,0.35);
+}
+
+.terms-card::after{
+  content:"";
+  position:absolute;
+  inset: -2px;
+  background: linear-gradient(120deg, rgba(255,0,106,0.0), rgba(255,0,106,0.22), rgba(0,212,255,0.18), rgba(124,58,237,0.22), rgba(255,0,106,0.0));
+  transform: translateX(-60%);
+  transition: transform .6s ease;
+  pointer-events:none;
+  mix-blend-mode: multiply;
+}
+
+.terms-card:hover::after{
+  transform: translateX(60%);
+}
+
+.terms-card-header{
+  padding: 15px 18px;
+  font-weight: 800;
+  color: #0b1220;
+  border-bottom: 1px solid rgba(15,23,42,0.12);
+  background: linear-gradient(180deg, rgba(255,0,106,0.10), transparent);
+}
+
+.terms-card-body{
+  padding: 16px 18px 18px;
+  color: var(--text);
+}
+
+/* ===== List: nicer bullets ===== */
+.terms-list{
+  margin: 0;
+  padding-left: 18px;
+}
+
+.terms-list li{
+  margin: 10px 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+/* ===== Make section 7 contact pop ===== */
+.terms-card:last-of-type .terms-card-header{
+  background: linear-gradient(90deg, rgba(34,197,94,0.18), rgba(0,212,255,0.12), transparent);
+}
+
+.terms-card:last-of-type .terms-card-body{
+  background:
+    radial-gradient(700px 200px at 20% 0%, rgba(34,197,94,0.10), transparent 60%),
+    radial-gradient(700px 220px at 90% 40%, rgba(0,212,255,0.10), transparent 60%);
+}
+
+/* ===== Buttons: cinematic gradient ===== */
+.btn.btn-primary{
+  border: none !important;
+  border-radius: 999px;
+  padding: 12px 26px;
+  font-weight: 800;
+  letter-spacing: .2px;
+  background: linear-gradient(135deg, var(--p1), var(--p2)) !important;
+  box-shadow: 0 18px 40px rgba(255,0,106,0.30);
+  transition: transform .18s ease, filter .18s ease;
+}
+
+.btn.btn-primary:hover{
+  transform: translateY(-2px) scale(1.04);
+  filter: brightness(1.05);
+}
+
+/* ===== Floating back-to-top button (no need to edit JSP) ===== */
+body::after{
+  content: "↑";
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--p1), var(--p2));
+  box-shadow: 0 22px 45px rgba(255,0,106,0.35);
+  cursor: pointer;
+  opacity: .92;
+  z-index: 9999;
+  transition: transform .2s ease, opacity .2s ease;
+}
+
+/* click to top using pointer-events trick */
+body::after{
+  pointer-events: auto;
+}
+body{
+  position: relative;
+}
+
+/* Nút lên đầu trang (click được) */
+.back-to-top-btn{
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  width: 54px;
+  height: 54px;
+  border: none;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #ff006a, #7c3aed);
+  box-shadow: 0 22px 45px rgba(255,0,106,0.35);
+  cursor: pointer;
+  z-index: 999999; /* quan trọng: nổi trên mọi thứ */
+  opacity: 0;
+  transform: translateY(12px) scale(.95);
+  pointer-events: none;
+  transition: .2s ease;
+}
+
+.back-to-top-btn.show{
+  opacity: .95;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.back-to-top-btn:hover{
+  transform: translateY(-4px) scale(1.05);
+  opacity: 1;
+}
+

@@ -1,0 +1,43 @@
+package com.cinema.controller.User;
+
+import java.io.IOException;
+import java.util.List;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.cinema.dao.MovieDAO;
+import com.cinema.model.Movie;
+
+@WebServlet("/movie")
+public class MovieServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+	private final MovieDAO movieDAO = new MovieDAO();
+
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+		String id = req.getParameter("id");
+
+		if (id != null && !id.trim().isEmpty()) {
+			int movieId = Integer.parseInt(id);
+
+			Movie movie = movieDAO.findById(movieId);
+			if (movie == null) {
+				resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+				return;
+			}
+
+			req.setAttribute("movie", movie);
+			req.getRequestDispatcher("/pages/clients/movie/detail.jsp").forward(req, resp);
+
+		} else {
+			List<Movie> movies = movieDAO.findAll();
+			req.setAttribute("movies", movies);
+			req.getRequestDispatcher("/pages/clients/movie/list.jsp").forward(req, resp);
+		}
+	}
+}

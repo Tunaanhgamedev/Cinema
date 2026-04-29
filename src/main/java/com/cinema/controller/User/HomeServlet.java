@@ -1,0 +1,33 @@
+package com.cinema.controller.User;
+
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.cinema.dao.BannerDAO;
+
+@WebServlet("/home")
+public class HomeServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+
+	@Override
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
+		if ("1".equals(request.getParameter("logout"))) {
+			request.setAttribute("message", "Bạn đã đăng xuất.");
+		}
+
+		BannerDAO bannerDAO = new BannerDAO();
+
+		request.setAttribute("leftBanner", bannerDAO.getActiveBannerByPosition("LEFT"));
+
+		request.setAttribute("rightBanner", bannerDAO.getActiveBannerByPosition("RIGHT"));
+
+		request.getRequestDispatcher("/pages/clients/home.jsp").forward(request, response);
+	}
+}

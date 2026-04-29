@@ -148,7 +148,13 @@ public class MovieDAO {
 			ps.setString(1, m.getTitle());
 			ps.setString(2, m.getDescription());
 			ps.setInt(3, m.getDuration());
-			ps.setDate(4, m.getReleaseDate());
+
+			if (m.getReleaseDate() != null) {
+				ps.setDate(4, new java.sql.Date(m.getReleaseDate().getTime()));
+			} else {
+				ps.setNull(4, java.sql.Types.DATE);
+			}
+
 			ps.setString(5, String.valueOf(m.getRating()));
 			ps.setString(6, m.getPoster());
 			ps.setString(7, m.getStatus() != null ? m.getStatus().name() : "NOW_SHOWING");
@@ -165,7 +171,13 @@ public class MovieDAO {
 			ps.setString(1, m.getTitle());
 			ps.setString(2, m.getDescription());
 			ps.setInt(3, m.getDuration());
-			ps.setDate(4, m.getReleaseDate());
+
+			if (m.getReleaseDate() != null) {
+				ps.setDate(4, new java.sql.Date(m.getReleaseDate().getTime()));
+			} else {
+				ps.setNull(4, java.sql.Types.DATE);
+			}
+
 			ps.setString(5, String.valueOf(m.getRating()));
 			ps.setString(6, m.getPoster());
 			ps.setString(7, m.getStatus() != null ? m.getStatus().name() : "NOW_SHOWING");

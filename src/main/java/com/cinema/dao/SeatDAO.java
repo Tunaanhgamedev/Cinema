@@ -53,7 +53,7 @@ public class SeatDAO {
 	public Set<Integer> getBookedSeatIds(int showtimeId) {
 		Set<Integer> booked = new HashSet<>();
 
-		String sql = "SELECT bs.seat_id " + "FROM booking_seat bs " + "JOIN booking b ON bs.booking_id = b.booking_id "
+		String sql = "SELECT bs.seat_id " + "FROM booking_seat bs " + "JOIN bookings b ON bs.booking_id = b.booking_id "
 				+ "WHERE b.showtime_id = ? AND b.status = 'PAID'";
 
 		try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {

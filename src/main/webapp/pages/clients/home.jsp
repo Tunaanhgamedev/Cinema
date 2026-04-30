@@ -74,7 +74,7 @@
             <c:forEach var="m" items="${nowShowingMovies}">
                 <div class="movie-item wow-card">
                     <div class="movie-poster">
-                        <img src="${pageContext.request.contextPath}/${m.poster}" alt="${m.title}">
+                        <img src="${pageContext.request.contextPath}/${m.poster}" alt="${m.title}" loading="lazy">
                         <c:if test="${m.rating >= 9}">
                             <span class="movie-badge">HOT</span>
                         </c:if>

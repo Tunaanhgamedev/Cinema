@@ -3,27 +3,30 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 
 <!DOCTYPE html>
-<html lang="vi" class="dark">
+<html lang="vi">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Đặt vé & Chọn ghế | BOBIXI Cinema</title>
     
-    <!-- Fonts & Frameworks -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     
     <script>
         tailwind.config = {
-            darkMode: 'class',
+            darkMode: 'media',
             theme: {
                 extend: {
                     colors: {
                         dark: '#020617',
-                        card: '#0f172a',
-                        primary: '#6366f1',
-                        accent: '#fbbf24',
+                        card: {
+                            light: '#ffffff',
+                            dark: '#0f172a'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
                     }
                 }
             }
@@ -33,205 +36,202 @@
     <style>
         body { 
             font-family: 'Outfit', sans-serif; 
-            background-color: #020617; 
-            color: #f8fafc; 
-            background-image: 
-                radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.05) 0%, transparent 30%),
-                radial-gradient(circle at 100% 100%, rgba(251, 191, 36, 0.05) 0%, transparent 30%);
-            min-height: 100vh;
+            transition: background-color 0.5s ease, color 0.5s ease;
         }
         
-        .glass-panel {
+        .adaptive-glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .dark .adaptive-glass {
             background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 24px;
-            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
         }
 
         .ticket-stub {
             background: linear-gradient(135deg, #4f46e5 0%, #312e81 100%);
-            border-radius: 32px;
+            border-radius: 40px;
             position: relative;
+            box-shadow: 0 25px 50px -12px rgba(79, 70, 229, 0.4);
         }
         /* Notch effects for ticket look */
         .ticket-stub::before, .ticket-stub::after {
             content: '';
-            position: absolute; left: -15px; top: 70%;
-            width: 30px; height: 30px; background: #020617; border-radius: 50%;
+            position: absolute; left: -20px; top: 75%;
+            width: 40px; height: 40px; 
+            background: rgb(248 250 252); /* bg-slate-50 */
+            border-radius: 50%;
+            transition: background-color 0.5s ease;
         }
-        .ticket-stub::after { left: auto; right: -15px; }
+        .dark .ticket-stub::before, .dark .ticket-stub::after {
+            background: #020617; /* dark bg */
+        }
+        .ticket-stub::after { left: auto; right: -20px; }
 
         .glow-text {
-            background: linear-gradient(to right, #818cf8, #ffffff, #818cf8);
+            background: linear-gradient(to right, #6366f1, #8b5cf6, #6366f1);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            text-shadow: 0 0 30px rgba(99, 102, 241, 0.3);
         }
 
         .seat-btn {
             width: 36px; height: 34px;
-            border-radius: 8px;
-            background: #1e293b;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            background: #e2e8f0; /* slate-200 */
+            border: 1px solid rgba(0, 0, 0, 0.05);
             display: flex; align-items: center; justify-content: center;
             font-size: 10px; font-weight: 800; color: #64748b;
-            cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        .dark .seat-btn {
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: #475569;
+        }
+        
         .seat-btn:hover:not(.booked):not(.other-selected) { 
-            transform: scale(1.15) translateY(-2px); 
-            background: #334155; color: white;
-            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
-            border-color: #6366f1;
+            transform: translateY(-4px) scale(1.1); 
+            background: #6366f1; color: white;
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
+            border-color: #818cf8;
         }
         .seat-btn.selected { 
             background: #6366f1; color: white; 
             box-shadow: 0 0 20px rgba(99, 102, 241, 0.6); 
-            border-color: #818cf8; 
-            transform: scale(1.1);
+            border-color: #818cf8;
         }
-        .seat-btn.booked { background: #020617; color: #1e293b; cursor: not-allowed; opacity: 0.4; border: none; }
+        .seat-btn.booked { 
+            background: #cbd5e1; color: #94a3b8; cursor: not-allowed; opacity: 0.5; border: none; 
+        }
+        .dark .seat-btn.booked {
+            background: #020617; color: #1e293b; opacity: 0.3;
+        }
         .seat-btn.other-selected { background: #fbbf24; color: #78350f; cursor: not-allowed; }
 
-        .screen-light {
-            width: 100%; height: 4px;
-            background: linear-gradient(to right, transparent, #6366f1, transparent);
-            box-shadow: 0 0 40px 5px rgba(99, 102, 241, 0.8);
-            border-radius: 50%; margin-bottom: 50px;
-        }
-
-        .input-glow:focus {
-            border-color: #6366f1;
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+        .screen-curve {
+            width: 100%; height: 6px;
+            background: #6366f1;
+            box-shadow: 0 0 40px 5px rgba(99, 102, 241, 0.5);
+            border-radius: 100%; margin-bottom: 60px;
         }
 
         ::-webkit-calendar-picker-indicator {
-            filter: invert(1);
             cursor: pointer;
+            transition: filter 0.5s;
+        }
+        .dark ::-webkit-calendar-picker-indicator {
+            filter: invert(1);
         }
     </style>
 </head>
 
-<body class="overflow-x-hidden">
-    <!-- Header wrapper to ensure it doesn't break background -->
-    <div class="relative z-50">
-        <jsp:include page="/common/header.jsp" />
-    </div>
+<body class="bg-slate-50 dark:bg-dark text-slate-900 dark:text-slate-100 min-h-screen overflow-x-hidden">
+    <jsp:include page="/common/header.jsp" />
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-16 relative z-10">
+    <main class="max-w-7xl mx-auto px-6 py-12 sm:py-20 relative">
         
-        <!-- Animated Background Decor -->
-        <div class="absolute -top-24 -left-24 w-96 h-96 bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none"></div>
-        <div class="absolute top-1/2 -right-24 w-96 h-96 bg-amber-600/5 rounded-full blur-[120px] pointer-events-none"></div>
+        <!-- Decoration -->
+        <div class="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
+            <div class="absolute -top-24 -left-24 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px]"></div>
+            <div class="absolute top-1/2 -right-24 w-96 h-96 bg-purple-500/5 rounded-full blur-[100px]"></div>
+        </div>
 
-        <!-- Section Title -->
-        <div class="text-center mb-16">
-            <h1 class="text-4xl sm:text-7xl font-black italic tracking-tighter glow-text uppercase mb-4 leading-tight">
-                Phòng vé trực tuyến
+        <!-- Title Area -->
+        <div class="text-center mb-20">
+            <h1 class="text-5xl sm:text-7xl font-black italic tracking-tighter uppercase mb-6 leading-tight">
+                <span class="glow-text">Phòng vé</span> BOBIXI
             </h1>
-            <div class="flex flex-wrap justify-center items-center gap-4 text-xs font-bold uppercase tracking-[0.2em] text-slate-500">
-                <span>Chọn Phim</span>
-                <i class="fas fa-chevron-right text-[8px] text-slate-700"></i>
-                <span class="text-indigo-400">Chọn Ghế</span>
-                <i class="fas fa-chevron-right text-[8px] text-slate-700"></i>
-                <span>Bắp Nước</span>
-                <i class="fas fa-chevron-right text-[8px] text-slate-700"></i>
-                <span>Thanh Toán</span>
+            <div class="flex flex-wrap justify-center items-center gap-4 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">
+                <span class="text-indigo-600 dark:text-indigo-400">01 Chọn Ghế</span>
+                <span class="w-10 h-px bg-slate-200 dark:bg-white/10"></span>
+                <span>02 Bắp Nước</span>
+                <span class="w-10 h-px bg-slate-200 dark:bg-white/10"></span>
+                <span>03 Thanh Toán</span>
             </div>
         </div>
 
-        <div class="flex flex-col lg:flex-row gap-10">
+        <div class="flex flex-col lg:flex-row gap-12 relative z-10">
             
-            <!-- Left Side: Interactive Forms -->
-            <div class="flex-1 space-y-8">
+            <!-- Left Side -->
+            <div class="flex-1 space-y-10">
                 
                 <!-- STEP 1: Selection -->
-                <div class="glass-panel p-6 sm:p-10">
-                    <div class="flex items-center gap-5 mb-10">
-                        <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 text-xl font-black shadow-[0_0_20px_rgba(99,102,241,0.2)]">1</div>
+                <div class="adaptive-glass p-8 sm:p-12 rounded-[2.5rem] shadow-xl shadow-slate-200/50 dark:shadow-none">
+                    <div class="flex items-center gap-6 mb-12">
+                        <div class="w-14 h-14 rounded-2xl bg-indigo-600 text-white flex items-center justify-center text-xl font-black shadow-lg shadow-indigo-500/30 italic">1</div>
                         <div>
-                            <h2 class="text-xl font-black uppercase tracking-tight text-white">Chọn Phim & Suất chiếu</h2>
-                            <p class="text-slate-500 text-xs font-semibold">Vui lòng chọn thông tin để hiển thị sơ đồ ghế</p>
+                            <h2 class="text-2xl font-black uppercase tracking-tight italic">Suất chiếu</h2>
+                            <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Vui lòng chọn thông tin xem phim</p>
                         </div>
                     </div>
                     
-                    <form id="filterForm" method="get" action="${pageContext.request.contextPath}/booking-seat" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="space-y-3">
-                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                                <i class="fas fa-film text-indigo-500"></i> Phim đang chọn
-                            </label>
+                    <form id="filterForm" method="get" action="${pageContext.request.contextPath}/booking-seat" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="space-y-4">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">🎬 Phim</label>
                             <div class="relative">
-                                <select class="w-full bg-slate-950/50 border border-slate-800 rounded-2xl px-5 py-4 text-white outline-none input-glow appearance-none transition-all cursor-pointer font-bold text-sm" name="movieId" id="movieSelect" required>
+                                <select class="w-full bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-4 outline-none focus:border-indigo-500 transition-all cursor-pointer font-bold text-sm appearance-none" name="movieId" id="movieSelect" required>
                                     <option value="">-- Chọn phim --</option>
                                     <c:forEach var="m" items="${movies}">
-                                        <option value="${m.movieId}" ${movieId == m.movieId ? 'selected' : ''}>${m.title}</option>
+                                        <option value="${m.id}" ${movieId == m.id ? 'selected' : ''}>${m.title}</option>
                                     </c:forEach>
                                 </select>
-                                <i class="fas fa-chevron-down absolute right-5 top-1/2 -translate-y-1/2 text-slate-600 pointer-events-none"></i>
+                                <i class="fas fa-chevron-down absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
                             </div>
                         </div>
 
-                        <div class="space-y-3">
-                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                                <i class="fas fa-calendar-alt text-indigo-500"></i> Ngày xem
-                            </label>
-                            <input class="w-full bg-slate-950/50 border border-slate-800 rounded-2xl px-5 py-4 text-white outline-none input-glow transition-all font-bold text-sm" 
+                        <div class="space-y-4">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">📅 Ngày</label>
+                            <input class="w-full bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-4 outline-none focus:border-indigo-500 transition-all font-bold text-sm" 
                                    type="date" name="showDate" id="showDateInput" value="${showDate}" required/>
                         </div>
 
-                        <div class="space-y-3">
-                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                                <i class="fas fa-clock text-indigo-500"></i> Suất chiếu
-                            </label>
+                        <div class="space-y-4">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">⏰ Suất</label>
                             <div class="relative">
-                                <select class="w-full bg-slate-950/50 border border-slate-800 rounded-2xl px-5 py-4 text-white outline-none input-glow appearance-none transition-all cursor-pointer font-bold text-sm" name="showtimeId" id="showtimeSelect" required>
-                                    <option value="">-- Chọn suất chiếu --</option>
+                                <select class="w-full bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-4 outline-none focus:border-indigo-500 transition-all cursor-pointer font-bold text-sm appearance-none" name="showtimeId" id="showtimeSelect" required>
+                                    <option value="">-- Chọn suất --</option>
                                     <c:forEach var="st" items="${showtimes}">
                                         <option value="${st.showtimeId}" ${showtimeId == st.showtimeId ? 'selected' : ''}>
-                                            <fmt:formatDate value="${st.startTime}" pattern="HH:mm"/> - (Phòng ${st.roomName})
+                                            <fmt:formatDate value="${st.startTime}" pattern="HH:mm"/> (P.${st.roomName})
                                         </option>
                                     </c:forEach>
                                 </select>
-                                <i class="fas fa-chevron-down absolute right-5 top-1/2 -translate-y-1/2 text-slate-600 pointer-events-none"></i>
+                                <i class="fas fa-chevron-down absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
                             </div>
                         </div>
                     </form>
                 </div>
 
                 <!-- STEP 2: Seat Map -->
-                <div class="glass-panel p-6 sm:p-10 overflow-hidden relative">
-                    <div class="flex items-center gap-5 mb-16">
-                        <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 text-xl font-black">2</div>
-                        <div>
-                            <h2 class="text-xl font-black uppercase tracking-tight text-white">Chọn Chỗ ngồi</h2>
-                            <p class="text-slate-500 text-xs font-semibold">Chạm vào ghế để chọn hoặc bỏ chọn</p>
+                <div class="adaptive-glass p-8 sm:p-12 rounded-[2.5rem] shadow-xl shadow-slate-200/50 dark:shadow-none text-center">
+                    <div class="flex items-center justify-center gap-6 mb-16">
+                        <div class="w-14 h-14 rounded-2xl bg-indigo-600 text-white flex items-center justify-center text-xl font-black shadow-lg shadow-indigo-500/30 italic">2</div>
+                        <div class="text-left">
+                            <h2 class="text-2xl font-black uppercase tracking-tight italic">Chỗ ngồi</h2>
+                            <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Màn hình phía trên</p>
                         </div>
                     </div>
 
                     <div class="flex flex-col items-center">
-                        <!-- Cinema Screen -->
-                        <div class="w-full max-w-xl px-10 mb-20 text-center">
-                            <div class="screen-light"></div>
-                            <span class="text-[9px] font-black text-slate-700 tracking-[1.5em] uppercase">Màn hình trung tâm</span>
+                        <div class="w-full max-w-xl mb-16">
+                            <div class="screen-curve"></div>
+                            <span class="text-[9px] font-black text-slate-400 tracking-[1.5em] uppercase">Màn hình trung tâm</span>
                         </div>
                         
-                        <div class="flex flex-col items-center gap-4 w-full" id="seatGrid">
+                        <div class="flex flex-col items-center gap-5 w-full" id="seatGrid">
                             <c:if test="${empty showtimeId}">
-                                <div class="text-center py-24 text-slate-600">
-                                    <div class="relative inline-block mb-6">
-                                        <i class="fas fa-couch text-6xl opacity-10"></i>
-                                        <i class="fas fa-search absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-2xl text-indigo-500"></i>
-                                    </div>
-                                    <p class="font-bold text-sm tracking-wide uppercase">Vui lòng chọn phim & suất chiếu để thấy sơ đồ ghế</p>
+                                <div class="py-20 opacity-30">
+                                    <i class="fas fa-couch text-7xl mb-4"></i>
+                                    <p class="font-black text-xs uppercase tracking-widest">Chọn suất chiếu để hiển thị ghế</p>
                                 </div>
                             </c:if>
                             
-                            <!-- Rows from Server -->
                             <c:forEach var="r" items="${rows}">
-                                <div class="flex gap-2 sm:gap-4 items-center">
-                                    <div class="w-6 text-[10px] font-black text-slate-700">${r}</div>
-                                    <div class="flex gap-2">
+                                <div class="flex gap-4 items-center">
+                                    <div class="w-6 text-[10px] font-black text-slate-300 dark:text-slate-700">${r}</div>
+                                    <div class="flex gap-2 sm:gap-3">
                                         <c:forEach var="i" begin="1" end="10">
                                             <c:set var="code" value="${r}${i}"/>
                                             <c:set var="sid" value="s_${code}"/>
@@ -242,94 +242,104 @@
                                                        ${selectedMap[code] ? 'checked' : ''} />
                                                 <label for="${sid}" class="seat-btn ${bookedMap[code] ? 'booked' : ''} ${selectedMap[code] ? 'selected' : ''}">${i}</label>
                                             </div>
-                                            <!-- Aisle after column 2 and 8 -->
-                                            <c:if test="${i == 2 || i == 8}">
-                                                <div class="w-2 sm:w-4"></div>
-                                            </c:if>
+                                            <c:if test="${i == 2 || i == 8}"><div class="w-4"></div></c:if>
                                         </c:forEach>
                                     </div>
-                                    <div class="w-6 text-[10px] font-black text-slate-700 text-right">${r}</div>
+                                    <div class="w-6 text-[10px] font-black text-slate-300 dark:text-slate-700 text-right">${r}</div>
                                 </div>
                             </c:forEach>
                         </div>
 
                         <!-- Legend -->
-                        <div class="flex flex-wrap justify-center gap-8 mt-20 border-t border-white/5 pt-10 w-full">
+                        <div class="flex flex-wrap justify-center gap-10 mt-20 border-t border-slate-100 dark:border-white/5 pt-12 w-full">
                             <div class="flex items-center gap-3">
-                                <div class="w-4 h-4 rounded-md bg-[#1e293b]"></div>
+                                <div class="w-5 h-5 rounded-lg bg-slate-200 dark:bg-slate-800"></div>
                                 <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Trống</span>
                             </div>
                             <div class="flex items-center gap-3">
-                                <div class="w-4 h-4 rounded-md bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.6)]"></div>
-                                <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Đang chọn</span>
+                                <div class="w-5 h-5 rounded-lg bg-indigo-600 shadow-lg shadow-indigo-500/40"></div>
+                                <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Chọn</span>
                             </div>
                             <div class="flex items-center gap-3">
-                                <div class="w-4 h-4 rounded-md bg-slate-950 opacity-40"></div>
-                                <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Đã đặt</span>
+                                <div class="w-5 h-5 rounded-lg bg-slate-400 dark:bg-black opacity-30"></div>
+                                <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Đã bán</span>
                             </div>
                             <div class="flex items-center gap-3">
-                                <div class="w-4 h-4 rounded-md bg-amber-500"></div>
-                                <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Người khác</span>
+                                <div class="w-5 h-5 rounded-lg bg-amber-500"></div>
+                                <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Giữ chỗ</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Side: Ticket Stub -->
-            <div class="lg:w-[400px]">
-                <div class="ticket-stub p-8 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.6)] sticky top-24">
-                    <div class="flex items-center justify-between mb-8 border-b border-white/10 pb-6">
-                        <h2 class="text-2xl font-black uppercase tracking-tight text-white italic">Vé Của Bạn</h2>
-                        <i class="fas fa-ticket-alt text-white/20 text-4xl -rotate-12"></i>
+            <!-- Right Side -->
+            <div class="lg:w-[450px]">
+                <div class="ticket-stub p-10 sticky top-24">
+                    <div class="flex items-center justify-between mb-10 border-b border-white/10 pb-8">
+                        <div>
+                            <h2 class="text-3xl font-black uppercase tracking-tight text-white italic">Vé Của Bạn</h2>
+                            <p class="text-indigo-200/50 text-[10px] font-bold uppercase tracking-widest mt-1">Thông tin đặt chỗ</p>
+                        </div>
+                        <i class="fas fa-ticket-alt text-white/10 text-6xl -rotate-12"></i>
                     </div>
                     
-                    <form id="bookingForm" method="post" action="${pageContext.request.contextPath}/booking-seat" class="space-y-8">
+                    <form id="bookingForm" method="post" action="${pageContext.request.contextPath}/booking-seat" class="space-y-10 text-white">
                         <input type="hidden" name="movieId" value="${movieId}"/>
-                        <input type="hidden" name="showDate" value="${showDate}"/>
                         <input type="hidden" name="showtimeId" value="${showtimeId}"/>
                         
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-black text-indigo-200/60 uppercase tracking-widest">Phim</label>
-                            <p id="summary-movie" class="text-xl font-black text-white italic leading-tight">---</p>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-indigo-200/40 uppercase tracking-widest">Phim</label>
+                            <p id="summary-movie" class="text-2xl font-black italic leading-tight">---</p>
                         </div>
+
+                        <div class="grid grid-cols-2 gap-8">
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-indigo-200/40 uppercase tracking-widest">Giờ Chiếu</label>
+                                <p id="summary-time" class="text-xl font-black italic">---</p>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-indigo-200/40 uppercase tracking-widest">Phòng</label>
+                                <p id="summary-room" class="text-xl font-black italic">---</p>
+                            </div>
+                        </div>
+
+                        <div class="border-t-2 border-dashed border-white/10 my-10"></div>
 
                         <div class="grid grid-cols-2 gap-6">
-                            <div class="space-y-1">
-                                <label class="text-[10px] font-black text-indigo-200/60 uppercase tracking-widest">Suất chiếu</label>
-                                <p id="summary-time" class="text-lg font-bold text-white">---</p>
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-[10px] font-black text-indigo-200/60 uppercase tracking-widest">Phòng</label>
-                                <p id="summary-room" class="text-lg font-bold text-white">---</p>
-                            </div>
-                        </div>
-
-                        <!-- Dashed Divider for Ticket Look -->
-                        <div class="border-t-2 border-dashed border-white/10 my-8"></div>
-
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="space-y-2">
-                                <label class="text-[10px] font-black text-indigo-200/60 uppercase tracking-widest">Loại vé</label>
-                                <select class="bg-black/20 border border-white/10 rounded-xl px-4 py-3 w-full outline-none font-bold text-sm text-white focus:bg-black/40 transition-all" name="ticketType" required>
-                                    <option value="ADULT">Người lớn</option>
-                                    <option value="STUDENT">Học sinh/SV</option>
-                                    <option value="CHILD">Trẻ em</option>
+                            <div class="space-y-3">
+                                <label class="text-[10px] font-black text-indigo-200/40 uppercase tracking-widest">Loại Vé</label>
+                                <select class="bg-white/10 border border-white/10 rounded-2xl px-5 py-4 w-full outline-none font-black text-xs uppercase tracking-widest focus:bg-white/20 transition-all" name="ticketType" required>
+                                    <option value="ADULT" class="bg-indigo-900">Người lớn</option>
+                                    <option value="STUDENT" class="bg-indigo-900">Sinh viên</option>
+                                    <option value="CHILD" class="bg-indigo-900">Trẻ em</option>
                                 </select>
                             </div>
-                            <div class="space-y-2">
-                                <label class="text-[10px] font-black text-indigo-200/60 uppercase tracking-widest">Số lượng</label>
-                                <input id="ticketQty" class="bg-black/20 border border-white/10 rounded-xl px-4 py-3 w-full outline-none font-bold text-sm text-center text-white focus:bg-black/40 transition-all" 
+                            <div class="space-y-3">
+                                <label class="text-[10px] font-black text-indigo-200/40 uppercase tracking-widest">Số lượng</label>
+                                <input id="ticketQty" class="bg-white/10 border border-white/10 rounded-2xl px-5 py-4 w-full outline-none font-black text-sm text-center focus:bg-white/20 transition-all" 
                                        type="number" name="ticketQty" min="1" max="10" value="${empty ticketQty ? 2 : ticketQty}" required/>
                             </div>
                         </div>
 
-                        <div class="bg-black/20 p-6 rounded-3xl mt-8 space-y-4">
-                            <div class="flex justify-between items-start">
-                                <label class="text-[10px] font-black text-indigo-300 uppercase tracking-widest">Ghế đã chọn</label>
-                                <span class="text-[10px] font-black text-amber-400"><span id="pickedCount">0</span>/<span id="maxCount">0</span> GHẾ</span>
+                        <div class="bg-white/5 p-8 rounded-[2rem] space-y-6">
+                            <div class="flex justify-between items-center">
+                                <label class="text-[10px] font-black text-indigo-200 uppercase tracking-widest">Ghế đã chọn</label>
+                                <span class="px-3 py-1 bg-amber-500 text-black text-[9px] font-black rounded-full shadow-lg shadow-amber-500/20"><span id="pickedCount">0</span>/<span id="maxCount">0</span> GHẾ</span>
                             </div>
                             <div id="summary-seats" class="flex flex-wrap gap-2 min-h-[40px]">
+                                <span class="text-white/20 font-bold italic text-sm">Vui lòng chọn ghế...</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="submitBtn" class="w-full bg-amber-500 hover:bg-amber-400 text-black font-black uppercase tracking-widest py-6 rounded-2xl shadow-2xl shadow-amber-500/30 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-30 disabled:cursor-not-allowed" disabled>
+                            <i class="fas fa-popcorn mr-2"></i> Tiếp tục chọn Combo
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
 
     <jsp:include page="/common/footer.jsp" />
 
@@ -347,143 +357,105 @@
 
             let socket = null;
 
-            // --- UI Sync ---
             function syncSummary() {
                 const movie = movieSelect.options[movieSelect.selectedIndex]?.text || "---";
                 const timeText = showtimeSelect.options[showtimeSelect.selectedIndex]?.text || "---";
-                
                 document.getElementById('summary-movie').textContent = movie;
                 if(timeText !== "---") {
-                    const parts = timeText.split(' - ');
+                    const parts = timeText.split(' (P.');
                     document.getElementById('summary-time').textContent = parts[0];
-                    document.getElementById('summary-room').textContent = parts[1]?.replace(/[()]/g, '') || "---";
+                    document.getElementById('summary-room').textContent = 'PHÒNG ' + parts[1]?.replace(/[)]/g, '') || "---";
                 }
             }
 
             function updateSeatUI(){
                 const checked = Array.from(document.querySelectorAll('input.seat:checked'));
                 const max = parseInt(qtyEl.value) || 0;
-                
                 pickedCount.textContent = checked.length;
                 maxCount.textContent = max;
                 
-                // Update summary seats
-                summarySeats.innerHTML = checked.length ? '' : '<span class="text-white/40 font-bold italic text-sm">Chưa chọn ghế...</span>';
+                summarySeats.innerHTML = checked.length ? '' : '<span class="text-white/20 font-bold italic text-sm">Vui lòng chọn ghế...</span>';
                 checked.forEach(s => {
-                    summarySeats.innerHTML += `<span class="px-3 py-1 bg-white/20 rounded-lg text-xs font-black text-white">${s.value}</span>`;
+                    summarySeats.innerHTML += `<span class="px-3 py-1 bg-white/20 border border-white/10 rounded-lg text-xs font-black text-white italic tracking-tighter">${s.value}</span>`;
                 });
 
-                // Disable/Enable based on max
                 document.querySelectorAll('input.seat:not(:checked)').forEach(s => {
                     s.disabled = checked.length >= max || s.dataset.booked === 'true' || s.dataset.otherSelected === 'true';
                     const label = document.querySelector(`label[for="${s.id}"]`);
-                    if(s.disabled) label.style.opacity = '0.3';
+                    if(s.disabled) label.style.opacity = '0.2';
                     else label.style.opacity = '1';
                 });
+                
+                submitBtn.disabled = checked.length === 0;
             }
 
-            // --- AJAX SHOWTIMES ---
             async function loadShowtimes(){
                 const mId = movieSelect.value;
                 const date = dateInput.value;
                 if(!mId || !date) return;
-
                 const res = await fetch(`${pageContext.request.contextPath}/booking-seat?ajax=showtimes&movieId=${mId}&showDate=${date}`);
                 const data = await res.json();
-
-                showtimeSelect.innerHTML = '<option value="">-- Chọn suất chiếu --</option>';
+                showtimeSelect.innerHTML = '<option value="">-- Chọn suất --</option>';
                 data.forEach(st => {
-                    showtimeSelect.innerHTML += `<option value="${st.id}">${st.time} (Phòng ${st.room})</option>`;
+                    showtimeSelect.innerHTML += `<option value="${st.id}">${st.time} (P.${st.room})</option>`;
                 });
-                
-                seatGrid.innerHTML = '<div class="text-center py-20 text-slate-600"><i class="fas fa-couch text-4xl mb-4 block"></i><p class="font-bold">Vui lòng chọn suất chiếu để thấy sơ đồ ghế</p></div>';
-                submitBtn.disabled = true;
+                seatGrid.innerHTML = '<div class="py-20 opacity-30"><i class="fas fa-couch text-7xl mb-4 block mx-auto"></i><p class="font-black text-xs tracking-widest uppercase">Chọn suất để thấy sơ đồ</p></div>';
                 syncSummary();
             }
 
-            // --- AJAX SEATS ---
             async function loadSeats(){
                 const stId = showtimeSelect.value;
-                if(!stId) {
-                    seatGrid.innerHTML = '';
-                    submitBtn.disabled = true;
-                    return;
-                }
-
+                if(!stId) return;
                 const res = await fetch(`${pageContext.request.contextPath}/booking-seat?ajax=seats&showtimeId=${stId}`);
                 const data = await res.json();
-
                 renderSeats(data);
                 initWebSocket(stId);
-                submitBtn.disabled = false;
-                document.querySelector('input[name="showtimeId"]').value = stId;
                 syncSummary();
             }
 
             function renderSeats(data){
-                let html = '<div class="screen-curve"></div><div class="flex flex-col items-center gap-4">';
+                let html = '<div class="w-full max-w-xl mb-16"><div class="screen-curve"></div><span class="text-[9px] font-black text-slate-400 tracking-[1.5em] uppercase">Màn hình trung tâm</span></div>';
+                html += '<div class="flex flex-col items-center gap-5 w-full">';
                 data.rows.forEach(r => {
-                    html += `<div class="flex gap-3"><div class="w-6 text-[10px] font-black text-slate-700 flex items-center">${r}</div>`;
+                    html += `<div class="flex gap-4 items-center"><div class="w-6 text-[10px] font-black text-slate-300 dark:text-slate-700">${r}</div><div class="flex gap-2 sm:gap-3">`;
                     for(let i=1; i<=10; i++){
                         const code = r + i;
                         const isBooked = data.booked.includes(code);
                         const sid = 's_' + code;
-                        
                         html += `<div class="relative group">`;
-                        if(isBooked){
-                            html += `<div class="seat-btn booked">${i}</div>`;
-                        } else {
-                            html += `
-                                <input type="checkbox" id="${sid}" name="seats" value="${code}" class="hidden seat-check seat" data-booked="false">
-                                <label for="${sid}" class="seat-btn">${i}</label>
-                            `;
-                        }
+                        if(isBooked) html += `<div class="seat-btn booked">${i}</div>`;
+                        else html += `<input type="checkbox" id="${sid}" name="seats" value="${code}" class="hidden seat-check seat" data-booked="false"><label for="${sid}" class="seat-btn">${i}</label>`;
                         html += `</div>`;
+                        if(i == 2 || i == 8) html += `<div class="w-4"></div>`;
                     }
-                    html += `<div class="w-6 text-[10px] font-black text-slate-700 flex items-center justify-end">${r}</div></div>`;
+                    html += `</div><div class="w-6 text-[10px] font-black text-slate-300 dark:text-slate-700 text-right">${r}</div></div>`;
                 });
                 html += '</div>';
                 seatGrid.innerHTML = html;
-                
                 document.querySelectorAll('input.seat').forEach(s => {
                     s.addEventListener('change', () => {
                         const label = document.querySelector(`label[for="${s.id}"]`);
                         if(s.checked) label.classList.add('selected');
                         else label.classList.remove('selected');
                         updateSeatUI();
-                        if(socket && socket.readyState === WebSocket.OPEN) {
-                            socket.send(showtimeSelect.value + ':' + s.value + ':' + (s.checked ? 'select' : 'deselect'));
-                        }
+                        if(socket && socket.readyState === WebSocket.OPEN) socket.send(showtimeSelect.value + ':' + s.value + ':' + (s.checked ? 'select' : 'deselect'));
                     });
                 });
                 updateSeatUI();
             }
 
-            // --- WEBSOCKET ---
             function initWebSocket(stId){
                 if(socket) socket.close();
                 const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-                const wsUrl = protocol + '//' + window.location.host + '${pageContext.request.contextPath}/ws/seat?showtimeId=' + stId;
-                socket = new WebSocket(wsUrl);
-
-                socket.onmessage = (event) => {
-                    const [msgStId, seatCode, action] = event.data.split(':');
+                socket = new WebSocket(protocol + '//' + window.location.host + '${pageContext.request.contextPath}/ws/seat?showtimeId=' + stId);
+                socket.onmessage = (e) => {
+                    const [msgStId, seatCode, action] = e.data.split(':');
                     if (msgStId === stId) {
-                        const seatInput = document.getElementById('s_' + seatCode);
-                        const seatLabel = document.querySelector(`label[for="s_${seatCode}"]`);
-                        if (seatInput && seatLabel) {
-                            if (action === 'select') {
-                                seatInput.disabled = true;
-                                seatInput.dataset.otherSelected = 'true';
-                                seatLabel.classList.add('other-selected');
-                            } else {
-                                if (!seatInput.checked) {
-                                    seatInput.disabled = false;
-                                    delete seatInput.dataset.otherSelected;
-                                    seatLabel.classList.remove('other-selected');
-                                    updateSeatUI();
-                                }
-                            }
+                        const s = document.getElementById('s_' + seatCode);
+                        const l = document.querySelector(`label[for="s_${seatCode}"]`);
+                        if (s && l) {
+                            if (action === 'select') { s.disabled = true; s.dataset.otherSelected = 'true'; l.classList.add('other-selected'); }
+                            else if (!s.checked) { s.disabled = false; delete s.dataset.otherSelected; l.classList.remove('other-selected'); updateSeatUI(); }
                         }
                     }
                 };
@@ -493,10 +465,7 @@
             dateInput.addEventListener('change', loadShowtimes);
             showtimeSelect.addEventListener('change', loadSeats);
             qtyEl.addEventListener('input', updateSeatUI);
-
-            // Initial load
             if(showtimeSelect.value) loadSeats();
-            else if(movieSelect.value) syncSummary();
         })();
     </script>
 </body>

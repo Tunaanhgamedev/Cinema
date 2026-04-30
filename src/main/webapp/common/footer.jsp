@@ -1,146 +1,77 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
-<div class="footer">
-	<div class="footer-container">
+<footer class="bg-slate-100 dark:bg-slate-900/50 border-t border-slate-200 dark:border-white/5 pt-20 pb-10 transition-colors duration-500">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
+            
+            <!-- Column 1 -->
+            <div class="space-y-6">
+                <h3 class="text-xs font-black uppercase tracking-[0.3em] text-indigo-500">BOBIXI Việt Nam</h3>
+                <ul class="space-y-4">
+                    <li><a href="#" class="text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-indigo-500 transition-colors">Giới Thiệu</a></li>
+                    <li><a href="#" class="text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-indigo-500 transition-colors">Tiện Ích Online</a></li>
+                    <li><a href="#" class="text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-indigo-500 transition-colors">Thẻ Quà Tặng</a></li>
+                    <li><a href="#" class="text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-indigo-500 transition-colors">Tuyển Dụng</a></li>
+                </ul>
+            </div>
 
-		<!-- Cột 1 -->
-		<div class="footer-col">
-			<h3>BOBIXI Việt Nam</h3>
-			<ul>
-				<li><a href="#">Giới Thiệu</a></li>
-				<li><a href="#">Tiện Ích Online</a></li>
-				<li><a href="#">Thẻ Quà Tặng</a></li>
-				<li><a href="#">Tuyển Dụng</a></li>
-				<li><a href="#">Liên Hệ Quảng Cáo BOBIXI</a></li>
-				<li><a href="#">Dành cho đối tác</a></li>
-			</ul>
-		</div>
+            <!-- Column 2 -->
+            <div class="space-y-6">
+                <h3 class="text-xs font-black uppercase tracking-[0.3em] text-indigo-500">Điều khoản sử dụng</h3>
+                <ul class="space-y-4">
+                    <li><a href="${pageContext.request.contextPath}/pages/terms/terms.jsp" class="text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-indigo-500 transition-colors">Điều Khoản Chung</a></li>
+                    <li><a href="${pageContext.request.contextPath}/pages/terms/term-payment.jsp" class="text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-indigo-500 transition-colors">Điều Khoản Giao Dịch</a></li>
+                    <li><a href="${pageContext.request.contextPath}/pages/terms/payment-policy.jsp" class="text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-indigo-500 transition-colors">Chính Sách Thanh Toán</a></li>
+                    <li><a href="${pageContext.request.contextPath}/pages/terms/privacy-policy.jsp" class="text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-indigo-500 transition-colors">Chính Sách Bảo Mật</a></li>
+                </ul>
+            </div>
 
-		<!-- Cột 2 -->
-		<div class="footer-col">
-			<h3>Điều khoản sử dụng</h3>
-			<ul>
-				<li><a href="${pageContext.request.contextPath}/pages/terms/terms.jsp">Điều Khoản Chung</a></li>
-				<li><a href="${pageContext.request.contextPath}/pages/terms/term-payment.jsp">Điều Khoản Giao Dịch</a></li>
-				<li><a href="${pageContext.request.contextPath}/pages/terms/payment-policy.jsp">Chính Sách Thanh Toán</a></li>
-				<li><a href="${pageContext.request.contextPath}/pages/terms/privacy-policy.jsp">Chính Sách Bảo Mật</a></li>
-				<li><a href="${pageContext.request.contextPath}/pages/clients/faq.jsp">Câu Hỏi Thường Gặp</a></li>
-			</ul>
-		</div>
+            <!-- Column 3 -->
+            <div class="space-y-6">
+                <h3 class="text-xs font-black uppercase tracking-[0.3em] text-indigo-500">Kết nối với chúng tôi</h3>
+                <div class="flex items-center gap-4">
+                    <a href="#" class="w-10 h-10 rounded-xl bg-white dark:bg-white/5 flex items-center justify-center shadow-sm hover:scale-110 transition-transform">
+                        <img src="${pageContext.request.contextPath}/assets/images/home/facebook.png" class="w-5 h-5">
+                    </a>
+                    <a href="#" class="w-10 h-10 rounded-xl bg-white dark:bg-white/5 flex items-center justify-center shadow-sm hover:scale-110 transition-transform">
+                        <img src="${pageContext.request.contextPath}/assets/images/home/tiktok.png" class="w-5 h-5">
+                    </a>
+                    <a href="#" class="w-10 h-10 rounded-xl bg-white dark:bg-white/5 flex items-center justify-center shadow-sm hover:scale-110 transition-transform">
+                        <img src="${pageContext.request.contextPath}/assets/images/home/instagram.png" class="w-5 h-5">
+                    </a>
+                    <a href="#" class="w-10 h-10 rounded-xl bg-white dark:bg-white/5 flex items-center justify-center shadow-sm hover:scale-110 transition-transform">
+                        <img src="${pageContext.request.contextPath}/assets/images/home/zalo.png" class="w-5 h-5">
+                    </a>
+                </div>
+            </div>
 
-		<!-- Cột 3 -->
-		<div class="footer-col">
-			<h3>Kết nối với chúng tôi</h3>
-			<div class="social-icons">
-				<a href="#"><img
-					src="${pageContext.request.contextPath}/assets/images/home/facebook.png"></a>
-				<a href="#"><img
-					src="${pageContext.request.contextPath}/assets/images/home/tiktok.png"></a>
-				<a href="#"><img
-					src="${pageContext.request.contextPath}/assets/images/home/instagram.png"></a>
-				<a href="#"><img
-					src="${pageContext.request.contextPath}/assets/images/home/zalo.png"></a>
-			</div>
-			<br>
-		</div>
+            <!-- Column 4 -->
+            <div class="space-y-6">
+                <h3 class="text-xs font-black uppercase tracking-[0.3em] text-indigo-500">Chăm sóc khách hàng</h3>
+                <div class="space-y-3">
+                    <p class="text-sm font-bold text-slate-700 dark:text-slate-300">Hotline: <span class="text-indigo-500">1900 1111</span></p>
+                    <p class="text-xs font-medium text-slate-500">Giờ làm việc: 8:00 - 22:00 (Cả CN & Lễ)</p>
+                    <p class="text-xs font-medium text-slate-500">Email: hoidap@bobixi.vn</p>
+                </div>
+            </div>
+        </div>
 
-		<div class="footer-col">
-			<h3>Chăm sóc khách hàng</h3>
-			<ul>
-				<li>Hotline: 1900 1111</li>
-				<li>Giờ làm việc: 8:00 - 22:00</li>
-				<li>Chính Sách Thanh Toán</li>
-				<li>Email: hoidap@bobixi.vn</li>
-			</ul>
-		</div>
+        <!-- Divider -->
+        <div class="h-px w-full bg-slate-200 dark:bg-white/5 mb-10"></div>
 
-	</div>
-
-	<!-- Thông tin công ty -->
-	<div class="footer-company">
-		<p>
-			<strong>CÔNG TY TNHH DA BOBIXI VIỆT NAM</strong>
-		</p>
-		<p>Địa chỉ: Đà Nẵng</p>
-		<p>© 2025 BOBIXI Cinemas Việt Nam</p>
-		<p>Email: support@bobixi.vn | Hotline: 1900 1111</p>
-	</div>
-
-	<!-- Hình gạch -->
-	<div class="footer-brick"></div>
-</div>
-
-<style>
-.footer {
-	background: #f7f2e8;
-	padding: 40px 0;
-	font-family: Arial, sans-serif;
-	border-top: 2px solid #ddd;
-}
-
-.footer-container {
-	width: 90%;
-	margin: auto;
-	display: flex;
-	justify-content: space-between;
-	margin-bottom: 30px;
-}
-
-.footer-col {
-	width: 30%;
-}
-
-.footer-col a{
-  text-decoration: none;
-  color: black; 
-  font-weight: 500;
-}
-
-.footer-col a:hover{
-  color: blue;  
-  text-decoration: underline; /* chỉ hiện khi hover (tuỳ chọn) */
-}
-
-
-.footer-col h3 {
-	font-size: 18px;
-	margin-bottom: 15px;
-	font-weight: bold;
-	color: black;
-}
-
-.footer-col ul {
-	list-style: none;
-	padding: 0;
-}
-
-.footer-col ul li {
-	margin: 6px 0;
-	cursor: pointer;
-	color: black;
-}
-
-.social-icons img {
-	width: 38px;
-	margin-right: 10px;
-	cursor: pointer;
-}
-
-.footer-company {
-	width: 90%;
-	margin: auto;
-	font-size: 14px;
-	color: #444;
-	line-height: 1.6;
-}
-
-.footer-brick {
-	margin-top: 20px;
-	height: 140px;
-	background-image: url('${pageContext.request.contextPath}/assets/images/home/footer1.jpg');
-	background-size: cover;
-}
-</style>
+        <!-- Bottom Area -->
+        <div class="flex flex-col lg:flex-row justify-between items-center gap-6">
+            <div class="text-center lg:text-left space-y-2">
+                <p class="text-xs font-black uppercase tracking-widest text-slate-800 dark:text-white">CÔNG TY TNHH DA BOBIXI VIỆT NAM</p>
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">© 2025 BOBIXI Cinemas Việt Nam. All rights reserved.</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="px-4 py-2 bg-slate-200 dark:bg-white/5 rounded-lg text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-tighter">
+                    Địa chỉ: Đà Nẵng, Việt Nam
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
 
 "

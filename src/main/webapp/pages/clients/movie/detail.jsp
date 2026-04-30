@@ -226,8 +226,16 @@
     <!-- Trailer Modal (IMAX Screen) -->
     <div id="trailerModal">
         <div class="trailer-content">
-            <div id="closeTrailer" class="trailer-close-btn">
-                <i class="fas fa-times"></i>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-white font-black italic tracking-tighter uppercase">Trailer: ${movie.title}</h2>
+                <div class="flex gap-4">
+                    <a id="btnExternal" href="#" target="_blank" class="px-6 py-2 rounded-full bg-white/10 hover:bg-white/20 text-xs font-bold text-white transition-all flex items-center gap-2">
+                        <i class="fab fa-youtube text-red-500"></i> Xem trên YouTube
+                    </a>
+                    <div id="closeTrailer" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-rose-500 transition-all text-white cursor-pointer">
+                        <i class="fas fa-times"></i>
+                    </div>
+                </div>
             </div>
             <div class="iframe-wrap">
                 <iframe id="trailerFrame" width="100%" height="100%" src="" 
@@ -241,7 +249,7 @@
     <jsp:include page="/common/footer.jsp"/>
 
     <script>
-        // Tabs
+        // Tabs Switching
         document.querySelectorAll('.tab-trigger').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.tab-trigger').forEach(b => b.classList.remove('active'));
@@ -252,25 +260,28 @@
             });
         });
 
-        // Trailer Management - IMAX Fix
+        // Trailer Management - Pro Version
         const modal = document.getElementById('trailerModal');
         const frame = document.getElementById('trailerFrame');
+        const btnExt = document.getElementById('btnExternal');
         const rawUrl = "${movie.trailerUrl}";
 
         function parseVideoId(url) {
             if (!url) return null;
-            // Xử lý các dạng link phổ biến nhất
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
             const match = url.match(regExp);
             return (match && match[2].length === 11) ? match[2] : null;
         }
 
         const videoId = parseVideoId(rawUrl);
-        const embedUrl = videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0` : "";
+        // Thêm tham số mute=1 và origin để tránh lỗi trên localhost
+        const embedUrl = videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&rel=0&origin=` + window.location.origin : "";
 
         document.getElementById('btnTrailer').addEventListener('click', () => {
-            if (!embedUrl) { alert("Trailer chưa khả dụng cho phim này."); return; }
+            if (!videoId) { alert("Trailer chưa khả dụng cho phim này."); return; }
+            
             frame.src = embedUrl;
+            btnExt.href = `https://www.youtube.com/watch?v=${videoId}`;
             modal.style.display = 'flex';
         });
 

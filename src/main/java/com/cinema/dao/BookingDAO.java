@@ -151,4 +151,15 @@ public class BookingDAO {
 		}
 	}
 
+	public boolean refundBooking(int bookingId) {
+		String sql = "UPDATE bookings SET status = 'REFUNDED' WHERE booking_id = ? AND status = 'PAID'";
+		try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+			ps.setInt(1, bookingId);
+			return ps.executeUpdate() > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
 }

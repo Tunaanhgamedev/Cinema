@@ -279,61 +279,81 @@
       </div>
     </section>
 
-    <!-- PAYMENT METHODS GRID (giống mẫu) -->
+    <!-- PAYMENT METHODS GRID -->
     <section class="payment-methods-section">
-      <h2>Các phương thức thanh toán</h2>
+      <h2>Phương thức thanh toán</h2>
 
       <div class="payment-grid">
-        <div class="payment-card">
+        <div class="payment-card method-card" onclick="selectMethod('ATM', this)">
           <div class="card-header">
             <div class="fake-img">🏦</div>
-            <h3>Thẻ ATM nội địa</h3>
+            <h3>Thẻ ATM / Internet Banking</h3>
           </div>
           <div class="card-body">
-            <p class="card-description">
-              Thanh toán qua cổng VNPay với nhiều ngân hàng nội địa hỗ trợ.
-            </p>
+            <p class="card-description">Thanh toán qua cổng nội địa an toàn.</p>
+          </div>
+        </div>
+
+        <div class="payment-card method-card active" onclick="selectMethod('QR', this)" style="border: 2px solid #e71a0f;">
+          <div class="card-header" style="background: linear-gradient(135deg, #fff5f5 0%, #ffe3e3 100%);">
+            <div class="fake-img" style="background: #fff; border: 1px solid #ffc9c9;">📸</div>
+            <h3>Chuyển khoản QR</h3>
+          </div>
+          <div class="card-body">
+            <p class="card-description">Quét mã VietQR bằng ứng dụng Ngân hàng.</p>
             <div class="features">
-              <div class="feature-item"><span class="dot ok"></span><span>Bảo mật OTP</span></div>
-              <div class="feature-item"><span class="dot ok"></span><span>Xác nhận nhanh</span></div>
-              <div class="feature-item"><span class="dot ok"></span><span>Hạn chế rủi ro</span></div>
+               <div class="feature-item"><span class="dot ok"></span><span>Xác thực tức thì</span></div>
+               <div class="feature-item"><span class="dot ok"></span><span>Không phí giao dịch</span></div>
             </div>
           </div>
         </div>
 
-        <div class="payment-card">
-          <div class="card-header">
-            <div class="fake-img">📱</div>
-            <h3>Ví điện tử</h3>
-          </div>
-          <div class="card-body">
-            <p class="card-description">
-              Thanh toán nhanh với các ví điện tử phổ biến (MoMo, ZaloPay, VNPay…).
-            </p>
-            <div class="features">
-              <div class="feature-item"><span class="dot ok"></span><span>Thanh toán 1 chạm</span></div>
-              <div class="feature-item"><span class="dot ok"></span><span>Nhiều ưu đãi</span></div>
-              <div class="feature-item"><span class="dot ok"></span><span>Hoàn tiền tuỳ chính sách</span></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="payment-card">
+        <div class="payment-card method-card" onclick="selectMethod('CASH', this)">
           <div class="card-header">
             <div class="fake-img">🎫</div>
             <h3>Thanh toán tại quầy</h3>
           </div>
           <div class="card-body">
-            <p class="card-description">
-              Đặt vé online và thanh toán trực tiếp tại rạp trong thời gian giữ chỗ.
-            </p>
-            <div class="features">
-              <div class="feature-item"><span class="dot ok"></span><span>Linh hoạt</span></div>
-              <div class="feature-item"><span class="dot ok"></span><span>Nhận vé nhanh</span></div>
-              <div class="feature-item"><span class="dot ok"></span><span>Hỗ trợ tại rạp</span></div>
-            </div>
+            <p class="card-description">Nhận vé và trả tiền trực tiếp tại rạp.</p>
           </div>
         </div>
+      </div>
+
+      <!-- QR Display Area (Show when method is QR) -->
+      <div id="qrDisplay" class="mt-5 text-center" style="display: block;">
+          <div class="glass-card d-inline-block p-4" style="background: #fff; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+              <h4 class="text-dark fw-bold mb-3">QUÉT MÃ ĐỂ THANH TOÁN</h4>
+              <img id="vietqrImg" src="https://img.vietqr.io/image/MB-0348259461-compact.png?amount=<%= grandTotal %>&addInfo=BOBIXI%20<%= bookingIdStr %>&accountName=TRAN%20VAN%20ANH" 
+                   alt="VietQR" style="width: 300px; border-radius: 10px;">
+              <div class="mt-3 text-muted small">Nội dung: <b>BOBIXI <%= bookingIdStr %></b></div>
+          </div>
+      </div>
+
+      <script>
+          function selectMethod(method, el) {
+              document.querySelectorAll('.method-card').forEach(c => {
+                  c.style.border = 'none';
+                  c.classList.remove('active');
+              });
+              el.style.border = '2px solid #e71a0f';
+              el.classList.add('active');
+              document.getElementById('selectedMethod').value = method;
+              
+              const qrDisplay = document.getElementById('qrDisplay');
+              if (method === 'QR') {
+                  qrDisplay.style.display = 'block';
+              } else {
+                  qrDisplay.style.display = 'none';
+              }
+          }
+      </script>
+
+      <div class="cta-row mt-5">
+        <form action="<%= ctx %>/booking/payment/confirm" method="post" class="cta-form" style="max-width: 500px; margin: 0 auto;">
+          <input type="hidden" name="bookingId" value="<%= bookingIdStr %>">
+          <input type="hidden" name="method" id="selectedMethod" value="QR">
+          <button type="submit" class="btn-confirm" style="font-size: 1.2rem; padding: 20px;">XÁC NHẬN ĐÃ THANH TOÁN</button>
+        </form>
       </div>
     </section>
 

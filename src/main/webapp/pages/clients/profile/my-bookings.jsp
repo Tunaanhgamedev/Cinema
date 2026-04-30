@@ -74,10 +74,24 @@
                             <span class="detail-item"><i class="fas fa-door-open"></i> Phòng: <b>${b.roomName}</b></span>
                         </div>
                         
-                        <div class="detail-row" style="margin-top: 15px;">
+                        <div class="detail-row" style="margin-top: 15px; align-items: center;">
                             <c:choose>
                                 <c:when test="${b.endTime.time > now.time}">
                                     <span class="status-badge status-valid">CÒN HẠN SỬ DỤNG</span>
+                                    
+                                    <c:set var="diffHours" value="${(b.startTime.time - now.time) / (1000 * 60 * 60)}" />
+                                    <c:if test="${diffHours >= 48}">
+                                        <form action="${pageContext.request.contextPath}/profile/refund" method="post" class="d-inline ms-3" onsubmit="return confirm('Bạn chắc chắn muốn hoàn vé? Bạn sẽ được nhận lại 70% số tiền (Khoảng <fmt:formatNumber value='${b.totalPrice * 0.7}' type='currency' currencySymbol='₫'/>)')">
+                                            <input type="hidden" name="bookingId" value="${b.bookingId}">
+                                            <button type="submit" class="btn-refund" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid #f59e0b; padding: 4px 12px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; cursor: pointer;">HOÀN VÉ (70%)</button>
+                                        </form>
+                                    </c:if>
+                                    <c:if test="${diffHours < 48}">
+                                        <span class="ms-3 small text-muted" title="Chỉ được hoàn vé trước 48 giờ"><i class="fas fa-info-circle"></i> Quá hạn hoàn vé</span>
+                                    </c:if>
+                                </c:when>
+                                <c:when test="${b.status == 'REFUNDED'}">
+                                    <span class="status-badge" style="background: rgba(148, 163, 184, 0.1); color: #94a3b8; border: 1px solid #94a3b8;">ĐÃ HOÀN VÉ</span>
                                 </c:when>
                                 <c:otherwise>
                                     <span class="status-badge status-expired">HẾT HẠN</span>

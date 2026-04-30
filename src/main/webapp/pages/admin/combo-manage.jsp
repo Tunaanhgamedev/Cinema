@@ -20,24 +20,18 @@
 <head>
   <meta charset="UTF-8"/>
   <title>Admin - Quản lí Combo</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-  <style>
-    body{ background: linear-gradient(180deg,#2e2a44 0%,#1f1b2e 100%); color:#e5e7eb; min-height:100vh; }
-    .cardx{ background: rgba(46,42,68,.85); border:1px solid rgba(255,255,255,.12); border-radius:16px; }
-    .btnx{ border-radius:12px; font-weight:800; }
-    .tbl th{ background: rgba(124,58,237,.25); color:#fff; }
-    .tbl td,.tbl th{ border-color: rgba(255,255,255,.12) !important; vertical-align: middle; }
-    input,textarea{ background: rgba(31,27,46,.9) !important; color:#e5e7eb !important; border:1px solid rgba(255,255,255,.15) !important; }
-  </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-style.css">
 </head>
+<body>
 
-<body class="p-4">
-<div class="container">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3 class="m-0">ADMIN • Quản lí Combo</h3>
-    <a class="btn btn-outline-light btnx" href="<%=request.getContextPath()%>/pages/admin/dashboard.jsp">Về Dashboard</a>
-  </div>
+<jsp:include page="/common/admin/sidebar.jsp" />
+
+<div class="main-content">
+    <div class="mb-5">
+        <h2 class="fw-bold mb-1">Quản lý Combo</h2>
+        <p class="text-muted small mb-0">Quản lý các gói thực phẩm và dịch vụ đi kèm</p>
+    </div>
 
   <%
     String error = (String) request.getAttribute("error");

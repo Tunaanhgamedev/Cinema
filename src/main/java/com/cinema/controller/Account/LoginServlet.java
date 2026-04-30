@@ -76,7 +76,11 @@ public class LoginServlet extends HttpServlet {
 		if (isSafeReturnUrl(returnUrl)) {
 			resp.sendRedirect(req.getContextPath() + returnUrl);
 		} else {
-			resp.sendRedirect(req.getContextPath() + "/home");
+			if ("ADMIN".equals(u.getRole())) {
+				resp.sendRedirect(req.getContextPath() + "/admin");
+			} else {
+				resp.sendRedirect(req.getContextPath() + "/home");
+			}
 		}
 	}
 

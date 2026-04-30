@@ -8,33 +8,15 @@
     <title>Quản lý Đơn hàng | Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-style.css">
     <style>
-        body { background: #0b0f19; color: #e5e7eb; font-family: 'Inter', sans-serif; }
-        .sidebar { width: 260px; background: #111827; border-right: 1px solid #1f2937; min-height: 100vh; position: fixed; }
-        .main-content { margin-left: 260px; padding: 40px; }
-        .nav-link { color: #9ca3af; padding: 12px 20px; border-radius: 12px; margin: 4px 12px; display: block; text-decoration: none; transition: 0.3s; }
-        .nav-link:hover, .nav-link.active { background: #1f2937; color: #fff; }
-        .card-glass { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(10px); border: 1px solid #1f2937; border-radius: 20px; }
-        .table { color: #e5e7eb; }
-        .table thead th { border-bottom: 2px solid #1f2937; color: #9ca3af; font-weight: 600; text-transform: uppercase; font-size: 12px; }
-        .table tbody td { border-bottom: 1px solid #1f2937; vertical-align: middle; padding: 15px; }
         .badge-status { font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
         .form-select-sm { background: #1f2937; border: 1px solid #374151; color: #fff; border-radius: 8px; font-size: 12px; }
-        .brand { padding: 24px; font-size: 24px; font-weight: 900; color: #e50914; letter-spacing: -1px; }
     </style>
 </head>
 <body>
 
-<div class="sidebar">
-    <div class="brand">BOBIXI • ADMIN</div>
-    <nav>
-        <a href="${pageContext.request.contextPath}/admin" class="nav-link"><i class="fas fa-chart-line me-2"></i> Dashboard</a>
-        <a href="${pageContext.request.contextPath}/admin/movies" class="nav-link"><i class="fas fa-film me-2"></i> Quản lý Phim</a>
-        <a href="${pageContext.request.contextPath}/admin/showtimes" class="nav-link"><i class="fas fa-calendar-alt me-2"></i> Lịch chiếu</a>
-        <a href="${pageContext.request.contextPath}/admin/bookings" class="nav-link active"><i class="fas fa-ticket-alt me-2"></i> Đơn hàng</a>
-        <a href="${pageContext.request.contextPath}/home" class="nav-link"><i class="fas fa-external-link-alt me-2"></i> Về Web</a>
-    </nav>
-</div>
+<jsp:include page="/common/admin/sidebar.jsp" />
 
 <div class="main-content">
     <div class="mb-5">

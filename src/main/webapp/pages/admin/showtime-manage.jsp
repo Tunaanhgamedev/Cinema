@@ -5,8 +5,9 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Quản lý Suất chiếu | Admin</title>
+    <title>Quản lý Lịch chiếu | Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
@@ -17,26 +18,21 @@
 <div class="main-content">
     <div class="d-flex justify-content-between align-items-center mb-5">
         <div>
-            <h2 class="fw-bold mb-1">Lịch chiếu phim</h2>
-            <p class="text-muted small mb-0">Quản lý thời gian chiếu và giá vé cho từng suất</p>
+            <h2 class="fw-bold mb-1">Quản lý lịch chiếu</h2>
+            <p class="text-muted small mb-0">Thiết lập suất chiếu cho các phòng máy</p>
         </div>
         <button class="btn btn-primary px-4 rounded-3" data-bs-toggle="modal" data-bs-target="#showtimeModal" onclick="prepareAdd()">
-            <i class="fas fa-plus me-2"></i> Thêm suất chiếu mới
+            <i class="fas fa-plus me-2"></i> Thêm suất chiếu
         </button>
     </div>
-
-    <c:if test="${not empty error}">
-        <div class="alert alert-danger mb-4 rounded-3">${error}</div>
-    </c:if>
 
     <div class="card-glass p-4">
         <div class="table-responsive">
             <table class="table">
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Phim</th>
-                        <th>Phòng</th>
+                        <th>Phòng chiếu</th>
                         <th>Thời gian</th>
                         <th>Giá vé</th>
                         <th class="text-end">Hành động</th>
@@ -45,22 +41,35 @@
                 <tbody>
                     <c:forEach var="s" items="${showtimeList}">
                         <tr>
-                            <td>#${s.showtimeId}</td>
                             <td>
                                 <div class="fw-bold text-white">${s.movieName}</div>
                                 <div class="text-muted small">ID Phim: ${s.movieId}</div>
                             </td>
                             <td>
                                 <div class="text-white">${s.roomName}</div>
-                                <div class="text-muted small">Phòng ID: ${s.roomId}</div>
+                                <div class="text-muted small">ID Phòng: ${s.roomId}</div>
                             </td>
                             <td>
-                                <div class="small"><i class="far fa-clock me-1 text-primary"></i> <fmt:formatDate value="${s.startTime}" pattern="dd/MM/yyyy HH:mm" /></div>
-                                <div class="text-muted small"><i class="far fa-clock me-1"></i> <fmt:formatDate value="${s.endTime}" pattern="dd/MM/yyyy HH:mm" /></div>
+                                <div class="small text-white">
+                                    <i class="far fa-calendar-alt me-1 text-primary"></i> 
+                                    <fmt:formatDate value="${s.startTime}" pattern="dd/MM/yyyy" />
+                                </div>
+                                <div class="fw-bold text-info">
+                                    <fmt:formatDate value="${s.startTime}" pattern="HH:mm" /> - <fmt:formatDate value="${s.endTime}" pattern="HH:mm" />
+                                </div>
                             </td>
                             <td><fmt:formatNumber value="${s.price}" type="currency" currencySymbol="₫" maxFractionDigits="0" /></td>
                             <td class="text-end">
-                                <button class="btn btn-outline-info btn-action me-1" onclick="prepareEdit('${s.showtimeId}', '${s.movieId}', '${s.roomId}', '${s.startTime}', '${s.endTime}', '${s.price}')">
+                                <!-- Hidden data for robust JS access -->
+                                <div class="d-none" id="data-${s.showtimeId}">
+                                    <span class="d-movie">${s.movieId}</span>
+                                    <span class="d-room">${s.roomId}</span>
+                                    <span class="d-start"><fmt:formatDate value="${s.startTime}" pattern="yyyy-MM-dd'T'HH:mm" /></span>
+                                    <span class="d-end"><fmt:formatDate value="${s.endTime}" pattern="yyyy-MM-dd'T'HH:mm" /></span>
+                                    <span class="d-price">${s.price}</span>
+                                </div>
+                                
+                                <button class="btn btn-outline-info btn-action me-1" onclick="prepareEdit('${s.showtimeId}')">
                                     <i class="fas fa-edit small"></i>
                                 </button>
                                 <form action="${pageContext.request.contextPath}/admin/showtimes" method="POST" class="d-inline" onsubmit="return confirm('Xóa suất chiếu này?')">
@@ -73,6 +82,11 @@
                             </td>
                         </tr>
                     </c:forEach>
+                    <c:if test="${empty showtimeList}">
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">Chưa có suất chiếu nào được tạo.</td>
+                        </tr>
+                    </c:if>
                 </tbody>
             </table>
         </div>
@@ -97,7 +111,7 @@
                         <select name="movieId" id="inputMovieId" class="form-select" required>
                             <option value="">-- Chọn phim --</option>
                             <c:forEach var="m" items="${movieList}">
-                                <option value="${m.movieId}">${m.title} (ID: ${m.movieId})</option>
+                                <option value="${m.movieId}">${m.title}</option>
                             </c:forEach>
                         </select>
                     </div>
@@ -106,7 +120,7 @@
                         <select name="roomId" id="inputRoomId" class="form-select" required>
                             <option value="">-- Chọn phòng --</option>
                             <c:forEach var="r" items="${roomList}">
-                                <option value="${r.roomId}">${r.roomName} (Ghế: ${r.totalSeats})</option>
+                                <option value="${r.roomId}">${r.roomName} (${r.totalSeats} ghế)</option>
                             </c:forEach>
                         </select>
                     </div>
@@ -120,13 +134,16 @@
                     </div>
                     <div class="col-12">
                         <label class="form-label small text-muted fw-bold">Giá vé (VNĐ)</label>
-                        <input type="number" name="price" id="inputPrice" class="form-control" required>
+                        <div class="input-group">
+                            <input type="number" name="price" id="inputPrice" class="form-control" placeholder="Ví dụ: 75000" required>
+                            <span class="input-group-text bg-dark border-secondary text-white">₫</span>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer border-0 p-4 pt-0">
                 <button type="button" class="btn btn-link text-white text-decoration-none" data-bs-dismiss="modal">Hủy</button>
-                <button type="submit" class="btn btn-primary px-4 rounded-3">Lưu suất chiếu</button>
+                <button type="submit" class="btn btn-primary px-4 rounded-3 shadow">Lưu suất chiếu</button>
             </div>
         </form>
     </div>
@@ -134,17 +151,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    function formatForInput(dateStr) {
-        if(!dateStr) return "";
-        const date = new Date(dateStr);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        return `${year}-${month}-${day}T${hours}:${minutes}`;
-    }
-
     function prepareAdd() {
         document.getElementById('modalTitle').innerText = 'Thêm suất chiếu';
         document.getElementById('modalAction').value = 'add';
@@ -156,15 +162,18 @@
         document.getElementById('inputPrice').value = '';
     }
 
-    function prepareEdit(id, movieId, roomId, start, end, price) {
+    function prepareEdit(id) {
+        const container = document.getElementById('data-' + id);
+        
         document.getElementById('modalTitle').innerText = 'Chỉnh sửa suất chiếu';
         document.getElementById('modalAction').value = 'update';
         document.getElementById('modalId').value = id;
-        document.getElementById('inputMovieId').value = movieId;
-        document.getElementById('inputRoomId').value = roomId;
-        document.getElementById('inputStartTime').value = formatForInput(start);
-        document.getElementById('inputEndTime').value = formatForInput(end);
-        document.getElementById('inputPrice').value = price;
+        
+        document.getElementById('inputMovieId').value = container.querySelector('.d-movie').innerText;
+        document.getElementById('inputRoomId').value = container.querySelector('.d-room').innerText;
+        document.getElementById('inputStartTime').value = container.querySelector('.d-start').innerText;
+        document.getElementById('inputEndTime').value = container.querySelector('.d-end').innerText;
+        document.getElementById('inputPrice').value = container.querySelector('.d-price').innerText;
         
         var myModal = new bootstrap.Modal(document.getElementById('showtimeModal'));
         myModal.show();

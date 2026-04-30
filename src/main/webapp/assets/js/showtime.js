@@ -67,7 +67,9 @@ function apply(){
     if (show) any = true;
   });
 
-  emptyState.style.display = any ? "none" : "";
+  if (emptyState) {
+    emptyState.style.display = any ? "none" : "block";
+  }
 
   // sort
   const visible = getMovies().filter(x => x.style.display !== "none");

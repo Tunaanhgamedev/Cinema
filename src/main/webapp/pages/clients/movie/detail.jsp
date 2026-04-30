@@ -14,196 +14,207 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <script src="https://cdn.tailwindcss.com"></script>
 
-<script>
-    tailwind.config = {
-        darkMode: 'media',
-        theme: {
-            extend: {
-                colors: {
-                    dark: '#020617',
-                },
-                fontFamily: {
-                    sans: ['Outfit', 'sans-serif'],
-                }
-            }
-        }
-    }
-</script>
-
 <style>
-    body { font-family: 'Outfit', sans-serif; transition: background-color 0.5s, color 0.5s; }
+    body { font-family: 'Outfit', sans-serif; background-color: #020617; color: #f8fafc; margin: 0; }
     
     .hero-bg {
         position: fixed;
         inset: 0;
         z-index: -1;
-        background-image: url('${pageContext.request.contextPath}/assets/images/movie/${movie.poster}');
+        background: linear-gradient(to bottom, rgba(2, 6, 23, 0.85), #020617), url('${movie.poster}');
         background-size: cover;
         background-position: center;
-        filter: blur(80px);
-        transform: scale(1.1);
-        opacity: 0.15;
+        filter: blur(100px);
+        transform: scale(1.2);
+        opacity: 0.5;
     }
-    .dark .hero-bg { opacity: 0.3; }
 
-    .adaptive-panel {
-        background: rgba(255, 255, 255, 0.8);
-        backdrop-filter: blur(24px);
-        border: 1px solid rgba(0, 0, 0, 0.05);
-    }
-    .dark .adaptive-panel {
+    .glass-panel {
         background: rgba(15, 23, 42, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 40px;
+        backdrop-filter: blur(30px);
+        box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.8);
     }
 
     .movie-title-premium {
-        font-size: clamp(2.5rem, 6vw, 5rem);
+        font-size: clamp(3rem, 8vw, 5.5rem);
         font-weight: 900;
-        line-height: 1;
-        letter-spacing: -2px;
+        line-height: 0.95;
+        letter-spacing: -4px;
+        color: #ffffff;
+        margin-bottom: 2rem;
     }
 
     .info-row {
         display: flex;
-        padding: 1rem 0;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 1.2rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
-    .dark .info-row { border-bottom-color: rgba(255, 255, 255, 0.08); }
-
     .info-label {
-        width: 140px;
-        font-size: 0.75rem;
+        width: 160px;
+        font-size: 0.8rem;
         font-weight: 900;
-        color: #6366f1;
+        color: #fbbf24;
         text-transform: uppercase;
         letter-spacing: 2px;
     }
-    .dark .info-label { color: #fbbf24; }
+    .info-value { font-size: 1.1rem; font-weight: 600; color: #ffffff; }
 
-    /* Trailer Modal Adaptive */
+    .action-btn-main {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        color: white;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        padding: 22px 48px;
+        border-radius: 24px;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .action-btn-main:hover { transform: translateY(-8px) scale(1.05); box-shadow: 0 20px 40px rgba(99, 102, 241, 0.4); }
+
+    /* Trailer Modal Overhaul */
     #trailerModal {
         position: fixed;
         inset: 0;
         z-index: 9999;
-        background: rgba(2, 6, 23, 0.98);
+        background: rgba(0, 0, 0, 0.98);
         backdrop-filter: blur(20px);
         display: none;
         align-items: center;
         justify-content: center;
-        padding: 20px;
+        padding: 40px;
+    }
+    .trailer-content {
+        width: 100%;
+        max-width: 1400px;
+        height: auto;
+        aspect-ratio: 16/9;
+        position: relative;
+    }
+    .trailer-close-btn {
+        position: absolute;
+        top: -60px;
+        right: 0;
+        color: white;
+        font-size: 2rem;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+    .trailer-close-btn:hover { color: #f43f5e; transform: rotate(90deg); }
+    
+    .iframe-wrap {
+        width: 100%;
+        height: 100%;
+        border-radius: 40px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 100px rgba(99, 102, 241, 0.2);
     }
 </style>
 </head>
 
-<body class="bg-slate-50 dark:bg-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<body>
     <jsp:include page="/common/header.jsp"/>
 
     <div class="hero-bg"></div>
 
-    <div class="relative z-10 py-12 px-6">
+    <div class="relative z-10 min-h-screen py-16 px-6">
         <div class="max-w-7xl mx-auto">
             
-            <div class="mb-10">
-                <a href="${pageContext.request.contextPath}/movie" class="inline-flex items-center gap-3 text-indigo-600 dark:text-amber-400 font-black uppercase tracking-widest text-[10px] hover:translate-x-[-8px] transition-transform group">
-                    <i class="fas fa-arrow-left"></i>
-                    Quay lại danh sách
+            <div class="mb-12">
+                <a href="${pageContext.request.contextPath}/movie" class="inline-flex items-center gap-3 text-amber-400 font-black uppercase tracking-widest text-xs hover:text-white transition-all group">
+                    <i class="fas fa-chevron-left group-hover:-translate-x-2 transition-transform"></i>
+                    Danh sách phim
                 </a>
             </div>
 
-            <div class="adaptive-panel p-8 lg:p-20 rounded-[3rem] shadow-2xl shadow-slate-200/50 dark:shadow-none mb-12">
-                <div class="flex flex-col lg:flex-row gap-16">
-                    <!-- Poster Column -->
-                    <div class="lg:w-[380px] shrink-0">
-                        <div class="relative group shadow-2xl rounded-[2.5rem] overflow-hidden border border-white/10">
-                            <img src="${pageContext.request.contextPath}/assets/images/movie/${movie.poster}" alt="${movie.title}" 
-                                 class="w-full transition-transform duration-700 group-hover:scale-105"
-                                 onerror="this.src='${pageContext.request.contextPath}/assets/images/movies/movie.jpg'">
+            <div class="glass-panel p-10 lg:p-20 mb-16">
+                <div class="flex flex-col lg:flex-row gap-20">
+                    <div class="lg:w-[420px] shrink-0">
+                        <div class="relative group">
+                            <img src="${movie.poster}" alt="${movie.title}" 
+                                 class="relative rounded-[40px] w-full shadow-2xl border border-white/10"
+                                 onerror="this.src='${pageContext.request.contextPath}/assets/images/movies/movie1.jpg'">
                         </div>
-                        <div class="grid grid-cols-2 gap-4 mt-8">
-                            <div class="bg-indigo-500/5 dark:bg-white/5 p-4 rounded-2xl text-center border border-indigo-500/10">
-                                <p class="text-[8px] text-slate-400 font-black uppercase tracking-widest mb-1">Thời lượng</p>
-                                <p class="text-sm font-black">${movie.duration} PHÚT</p>
+                        <div class="flex gap-4 mt-10">
+                            <div class="flex-1 bg-white/5 border border-white/10 p-5 rounded-[24px] text-center">
+                                <p class="text-[10px] text-slate-500 font-black uppercase mb-1">Thời lượng</p>
+                                <p class="text-white font-bold">${movie.duration} Phút</p>
                             </div>
-                            <div class="bg-amber-500/5 p-4 rounded-2xl text-center border border-amber-500/10">
-                                <p class="text-[8px] text-amber-500 font-black uppercase tracking-widest mb-1">Trạng thái</p>
-                                <p class="text-sm font-black text-amber-600 dark:text-amber-400">${movie.status}</p>
+                            <div class="flex-1 bg-amber-500/10 border border-amber-500/20 p-5 rounded-[24px] text-center">
+                                <p class="text-[10px] text-amber-500 font-black uppercase mb-1">Trạng thái</p>
+                                <p class="text-amber-400 font-bold">${movie.status}</p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Content Column -->
-                    <div class="flex-1 space-y-10">
-                        <div class="space-y-4">
-                            <div class="flex items-center gap-3">
-                                <span class="px-3 py-1 bg-rose-500 text-white text-[9px] font-black uppercase rounded shadow-lg shadow-rose-500/20">C18</span>
-                                <span class="w-10 h-px bg-slate-300 dark:bg-white/20"></span>
-                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">BOBIXI Premium</span>
-                            </div>
-                            <h1 class="movie-title-premium italic uppercase">${movie.title}</h1>
-                        </div>
-
-                        <div class="grid grid-cols-1 gap-1">
+                    <div class="flex-1 pt-6">
+                        <h1 class="movie-title-premium">${movie.title}</h1>
+                        <div class="mb-12">
                             <div class="info-row">
                                 <div class="info-label">Thể loại</div>
-                                <div class="font-bold text-sm">${movie.genre}</div>
-                            </div>
-                             <div class="info-row">
-                                <div class="info-label">Đánh giá</div>
-                                <div class="font-bold text-sm text-indigo-600 dark:text-amber-400"><i class="fas fa-star mr-2"></i>${movie.rating} / 10</div>
+                                <div class="info-value">${movie.genre}</div>
                             </div>
                             <div class="info-row">
                                 <div class="info-label">Đạo diễn</div>
-                                <div class="font-bold text-sm">${movie.director != null ? movie.director : 'Đang cập nhật'}</div>
+                                <div class="info-value">${movie.director != null ? movie.director : 'Đang cập nhật'}</div>
                             </div>
                             <div class="info-row">
                                 <div class="info-label">Diễn viên</div>
-                                <div class="font-bold text-sm text-slate-500 leading-relaxed">${movie.cast != null ? movie.cast : 'Đang cập nhật'}</div>
+                                <div class="info-value">${movie.cast != null ? movie.cast : 'Đang cập nhật'}</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">Khởi chiếu</div>
+                                <div class="info-value"><fmt:formatDate value="${movie.releaseDate}" pattern="dd/MM/yyyy"/></div>
                             </div>
                         </div>
-
-                        <div class="flex flex-wrap gap-6 pt-6">
-                            <a href="${pageContext.request.contextPath}/booking-seat?movieId=${movie.id}" class="px-10 py-5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-indigo-500/30 transition-all hover:scale-105 active:scale-95 flex items-center gap-3">
-                                <i class="fas fa-ticket-alt"></i> Mua vé ngay
+                        <div class="flex flex-wrap gap-8 items-center">
+                            <a href="#booking-section" class="action-btn-main shadow-xl shadow-indigo-500/20">
+                                <i class="fas fa-ticket-alt mr-2"></i> Mua vé ngay
                             </a>
-                            <button id="btnTrailer" class="px-8 py-5 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-white/10 transition-all flex items-center gap-3">
-                                <i class="fas fa-play text-indigo-500"></i> Xem Trailer
+                            <button id="btnTrailer" class="text-white font-black uppercase tracking-wider flex items-center gap-4 hover:text-amber-400 transition-all p-4">
+                                <div class="w-14 h-14 rounded-full border-2 border-white/30 flex items-center justify-center hover:border-amber-400 transition-all">
+                                    <i class="fas fa-play text-sm"></i>
+                                </div>
+                                Xem Trailer
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Content Tabs -->
-            <div class="adaptive-panel p-8 lg:p-16 rounded-[3rem]">
-                <div class="flex gap-10 border-b border-slate-200 dark:border-white/5 mb-10 overflow-x-auto">
-                    <button class="tab-trigger active pb-6 text-sm font-black uppercase tracking-widest transition-all border-b-4 border-transparent" data-tab="synopsis">Nội dung</button>
-                    <button class="tab-trigger pb-6 text-sm font-black uppercase tracking-widest transition-all border-b-4 border-transparent" data-tab="schedule">Lịch chiếu hôm nay</button>
+            <div id="booking-section" class="glass-panel p-10 lg:p-20">
+                <div class="flex mb-12 border-b border-white/5 overflow-x-auto">
+                    <button class="tab-trigger active whitespace-nowrap" data-tab="synopsis">Nội dung phim</button>
+                    <button class="tab-trigger whitespace-nowrap" data-tab="schedule">Suất chiếu hôm nay</button>
                 </div>
-                
                 <div id="tab-synopsis" class="tab-content block">
-                    <p class="text-lg text-slate-500 dark:text-slate-400 leading-relaxed max-w-4xl italic font-medium">
+                    <p class="text-slate-300 text-xl leading-relaxed font-light italic max-w-4xl">
                         "${movie.description != null ? movie.description : 'Thông tin chi tiết về bộ phim đang được cập nhật.'}"
                     </p>
                 </div>
-
                 <div id="tab-schedule" class="tab-content hidden">
                     <c:choose>
                         <c:when test="${not empty todayShowtimes}">
-                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8">
                                 <c:forEach var="s" items="${todayShowtimes}">
-                                    <a href="${pageContext.request.contextPath}/booking-seat?showtimeId=${s.showtimeId}" class="p-6 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl text-center group hover:border-indigo-500 transition-all shadow-sm">
-                                        <div class="text-2xl font-black group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                                    <a href="${pageContext.request.contextPath}/booking-seat?showtimeId=${s.showtimeId}" class="st-chip-premium group">
+                                        <div class="text-3xl font-black text-white group-hover:text-indigo-400 transition-colors">
                                             <fmt:formatDate value="${s.startTime}" pattern="HH:mm" />
                                         </div>
-                                        <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-2">${s.roomName}</div>
+                                        <div class="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-2">
+                                            ${s.roomName}
+                                        </div>
                                     </a>
                                 </c:forEach>
                             </div>
                         </c:when>
                         <c:otherwise>
-                            <div class="py-20 text-center opacity-40">
-                                <i class="fas fa-calendar-times text-5xl mb-4"></i>
-                                <p class="font-black text-xs uppercase tracking-widest">Không có suất chiếu hôm nay</p>
+                            <div class="text-center py-20 bg-white/5 rounded-3xl border border-dashed border-white/10">
+                                <i class="fas fa-calendar-times text-5xl text-slate-700 mb-6 block"></i>
+                                <h3 class="text-2xl font-bold text-slate-400">Không có suất chiếu hôm nay</h3>
+                                <a href="${pageContext.request.contextPath}/showtime" class="text-indigo-400 font-bold hover:underline mt-4 inline-block">Xem lịch chiếu các ngày khác</a>
                             </div>
                         </c:otherwise>
                     </c:choose>
@@ -212,17 +223,25 @@
         </div>
     </div>
 
-    <!-- Trailer Modal -->
+    <!-- Trailer Modal (IMAX Screen) -->
     <div id="trailerModal">
-        <div class="w-full max-w-6xl aspect-video relative">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-black italic tracking-tighter uppercase text-white">Trailer: ${movie.title}</h2>
-                <div id="closeTrailer" class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center hover:bg-rose-500 transition-all text-white cursor-pointer shadow-2xl">
-                    <i class="fas fa-times"></i>
+        <div class="trailer-content">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-white font-black italic tracking-tighter uppercase">Trailer: ${movie.title}</h2>
+                <div class="flex gap-4">
+                    <a id="btnExternal" href="#" target="_blank" class="px-6 py-2 rounded-full bg-white/10 hover:bg-white/20 text-xs font-bold text-white transition-all flex items-center gap-2">
+                        <i class="fab fa-youtube text-red-500"></i> Xem trên YouTube
+                    </a>
+                    <div id="closeTrailer" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-rose-500 transition-all text-white cursor-pointer">
+                        <i class="fas fa-times"></i>
+                    </div>
                 </div>
             </div>
-            <div class="rounded-[2.5rem] overflow-hidden border border-white/10 shadow-2xl shadow-indigo-500/20 aspect-video">
-                <iframe id="trailerFrame" width="100%" height="100%" src="" frameborder="0" allowfullscreen></iframe>
+            <div class="iframe-wrap">
+                <iframe id="trailerFrame" width="100%" height="100%" src="" 
+                        title="YouTube video player" frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                        allowfullscreen></iframe>
             </div>
         </div>
     </div>
@@ -230,43 +249,53 @@
     <jsp:include page="/common/footer.jsp"/>
 
     <script>
-        // Tabs
+        // Tabs Switching
         document.querySelectorAll('.tab-trigger').forEach(btn => {
             btn.addEventListener('click', () => {
-                document.querySelectorAll('.tab-trigger').forEach(b => {
-                    b.classList.remove('active', 'text-indigo-600', 'dark:text-indigo-400', 'border-indigo-600', 'dark:border-indigo-400');
-                    b.classList.add('text-slate-400');
-                });
-                btn.classList.add('active', 'text-indigo-600', 'dark:text-indigo-400', 'border-indigo-600', 'dark:border-indigo-400');
-                btn.classList.remove('text-slate-400');
-                
-                document.querySelectorAll('.tab-content').forEach(p => p.classList.add('hidden'));
-                document.getElementById('tab-' + btn.dataset.tab).classList.remove('hidden');
+                document.querySelectorAll('.tab-trigger').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                document.querySelectorAll('.tab-content').forEach(p => { p.classList.add('hidden'); p.classList.remove('block'); });
+                const pane = document.getElementById('tab-' + btn.dataset.tab);
+                pane.classList.remove('hidden'); pane.classList.add('block');
             });
         });
-        document.querySelector('.tab-trigger.active').click();
 
-        // Trailer
+        // Trailer Management - Pro Version
         const modal = document.getElementById('trailerModal');
         const frame = document.getElementById('trailerFrame');
+        const btnExt = document.getElementById('btnExternal');
         const rawUrl = "${movie.trailerUrl}";
 
         function parseVideoId(url) {
+            if (!url) return null;
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
             const match = url.match(regExp);
             return (match && match[2].length === 11) ? match[2] : null;
         }
 
         const videoId = parseVideoId(rawUrl);
+        // Thêm tham số mute=1 và origin để tránh lỗi trên localhost
+        const embedUrl = videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&rel=0&origin=` + window.location.origin : "";
+
         document.getElementById('btnTrailer').addEventListener('click', () => {
-            if (!videoId) { alert("Trailer chưa khả dụng."); return; }
-            frame.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+            if (!videoId) { alert("Trailer chưa khả dụng cho phim này."); return; }
+            
+            frame.src = embedUrl;
+            btnExt.href = `https://www.youtube.com/watch?v=${videoId}`;
             modal.style.display = 'flex';
         });
 
         const closeT = () => { modal.style.display = 'none'; frame.src = ""; };
         document.getElementById('closeTrailer').addEventListener('click', closeT);
         modal.addEventListener('click', (e) => { if(e.target === modal) closeT(); });
+        document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeT(); });
     </script>
+
+    <style>
+        .tab-trigger { font-size: 1.1rem; font-weight: 800; color: #64748b; padding: 1.5rem 0; margin-right: 3rem; border-bottom: 4px solid transparent; transition: all 0.3s; }
+        .tab-trigger.active { color: #ffffff; border-bottom-color: #6366f1; }
+        .st-chip-premium { background: rgba(255, 255, 255, 0.03); border: 2px solid rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 24px; text-align: center; transition: all 0.3s; cursor: pointer; display: block; text-decoration: none; }
+        .st-chip-premium:hover { background: rgba(99, 102, 241, 0.1); border-color: #6366f1; transform: scale(1.05); }
+    </style>
 </body>
 </html>

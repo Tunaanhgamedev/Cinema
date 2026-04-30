@@ -106,8 +106,13 @@ public class BookingSeatServlet extends HttpServlet {
 
 		// load showtimes theo movie + date
 		Integer movieIdInt = parseIntOrNull(movieId);
-		if (movieIdInt != null && !showDate.isEmpty()) {
-			req.setAttribute("showtimes", showtimeDAO.findByMovieAndDate(movieIdInt, showDate));
+		if (movieIdInt != null) {
+			Movie movie = movieDAO.findById(movieIdInt);
+			req.setAttribute("movie", movie);
+			
+			if (!showDate.isEmpty()) {
+				req.setAttribute("showtimes", showtimeDAO.findByMovieAndDate(movieIdInt, showDate));
+			}
 		}
 
 		// ===== bookedSeats + seatList theo showtime =====

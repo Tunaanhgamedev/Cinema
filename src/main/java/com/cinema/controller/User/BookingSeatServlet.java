@@ -93,6 +93,8 @@ public class BookingSeatServlet extends HttpServlet {
 		List<Movie> movies = movieDAO.findNowShowing();
 		req.setAttribute("movies", movies);
 		
+		Integer movieIdInt = parseIntOrNull(movieId);
+		
 		// Nếu có movieId từ URL mà không có trong list NOW_SHOWING, hãy lấy riêng nó ra
 		if (movieIdInt != null) {
 			boolean exists = false;
@@ -114,7 +116,6 @@ public class BookingSeatServlet extends HttpServlet {
 		}
 
 		// load showtimes theo movie + date
-		Integer movieIdInt = parseIntOrNull(movieId);
 		if (movieIdInt != null && !showDate.isEmpty()) {
 			req.setAttribute("showtimes", showtimeDAO.findByMovieAndDate(movieIdInt, showDate));
 		}

@@ -143,7 +143,7 @@
                             <select class="w-full bg-slate-950/50 border border-white/5 rounded-2xl px-6 py-4 outline-none focus:border-indigo-500 transition-all font-bold text-sm" name="movieId" id="movieSelect" required>
                                 <option value="">-- Chọn phim --</option>
                                 <c:forEach var="m" items="${movies}">
-                                    <option value="${m.id}" ${movieId == m.id ? 'selected' : ''}>${m.title}</option>
+                                    <option value="${m.movieId}" ${movieId == m.movieId ? 'selected' : ''}>${m.title}</option>
                                 </c:forEach>
                             </select>
                         </div>

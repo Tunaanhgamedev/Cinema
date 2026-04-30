@@ -26,8 +26,8 @@ public class AdminFilter implements Filter {
 
 		String uri = request.getRequestURI();
 
-		// Cho phép truy cập trang login admin mà không cần filter
-		if (uri.endsWith("/admin/login") || uri.contains("/assets/")) {
+		// Cho phép truy cập các file tĩnh mà không cần filter
+		if (uri.contains("/assets/")) {
 			chain.doFilter(req, res);
 			return;
 		}

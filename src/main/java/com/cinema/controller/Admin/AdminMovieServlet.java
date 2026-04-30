@@ -46,7 +46,7 @@ public class AdminMovieServlet extends HttpServlet {
 				m.setMovieId(Integer.parseInt(req.getParameter("movieId")));
 				movieDAO.update(m);
 			} else if ("delete".equals(action)) {
-				int id = Integer.parseInt(req.getParameter("id"));
+				int id = Integer.parseInt(req.getParameter("movieId"));
 				movieDAO.delete(id);
 			}
 		} catch (Exception e) {

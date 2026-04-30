@@ -81,10 +81,10 @@ public class ShowtimeDAO {
 			ps.setBigDecimal(5, st.getPrice() == null ? BigDecimal.ZERO : st.getPrice());
 
 			return ps.executeUpdate() > 0;
-		} catch (SQLException e) {
-			throw new RuntimeException("ShowtimeDAO.insert error", e);
-		}
-	}
+        } catch (SQLException e) {
+            throw new RuntimeException("ShowtimeDAO.insert error: " + e.getMessage(), e);
+        }
+    }
 
 	public boolean update(Showtime st) {
 		String sql = "UPDATE showtimes SET movie_id=?, room_id=?, start_time=?, end_time=?, price=? WHERE showtime_id=?";
@@ -99,10 +99,10 @@ public class ShowtimeDAO {
 			ps.setInt(6, st.getShowtimeId());
 
 			return ps.executeUpdate() > 0;
-		} catch (SQLException e) {
-			throw new RuntimeException("ShowtimeDAO.update error", e);
-		}
-	}
+        } catch (SQLException e) {
+            throw new RuntimeException("ShowtimeDAO.update error: " + e.getMessage(), e);
+        }
+    }
 
 	public boolean delete(int showtimeId) {
 		String sql = "DELETE FROM showtimes WHERE showtime_id=?";
@@ -111,10 +111,10 @@ public class ShowtimeDAO {
 
 			ps.setInt(1, showtimeId);
 			return ps.executeUpdate() > 0;
-		} catch (SQLException e) {
-			throw new RuntimeException("ShowtimeDAO.delete error", e);
-		}
-	}
+        } catch (SQLException e) {
+            throw new RuntimeException("ShowtimeDAO.delete error: " + e.getMessage(), e);
+        }
+    }
 
 	// USER: lấy suất chiếu theo movie + ngày (yyyy-MM-dd)
 	// USER: lấy suất chiếu theo movie + ngày (yyyy-MM-dd)

@@ -62,7 +62,7 @@
                             <tr class="hover:bg-white/5 transition-colors group">
                                 <td class="px-8 py-5">
                                     <div class="flex items-center gap-4">
-                                        <img src="${m.poster}" class="w-12 h-16 rounded-lg object-cover shadow-lg group-hover:scale-105 transition-transform">
+                                        <img src="${m.poster}" class="w-12 h-16 rounded-lg object-cover shadow-lg group-hover:scale-105 transition-transform" onerror="this.src='https://placehold.co/300x450?text=No+Poster'">
                                         <div>
                                             <div class="font-bold text-white text-base mb-1">${m.title}</div>
                                             <div class="text-slate-500 text-[11px] font-medium tracking-wider">MÃ: #${m.movieId}</div>
@@ -78,14 +78,24 @@
                                     <div class="text-white font-medium">${m.duration} <span class="text-slate-500 text-xs">phút</span></div>
                                 </td>
                                 <td class="px-8 py-5">
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 text-[10px] font-black uppercase tracking-wider">
-                                        <span class="w-1 h-1 rounded-full bg-emerald-500"></span> Sẵn sàng
-                                    </span>
+                                    <c:choose>
+                                        <c:when test="${m.status == 'NOW_SHOWING'}">
+                                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 text-[10px] font-black uppercase tracking-wider">
+                                                <span class="w-1 h-1 rounded-full bg-emerald-500 animate-pulse"></span> Đang chiếu
+                                            </span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-[10px] font-black uppercase tracking-wider">
+                                                <span class="w-1 h-1 rounded-full bg-indigo-500"></span> Sắp chiếu
+                                            </span>
+                                        </c:otherwise>
+                                    </c:choose>
                                 </td>
                                 <td class="px-8 py-5 text-right">
                                     <div class="flex justify-end gap-3">
                                         <button class="w-9 h-9 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center hover:bg-indigo-500 hover:text-white transition-all" 
-                                                title="Chỉnh sửa" onclick="prepareEdit('${m.movieId}', '${m.title}', '${m.poster}', '${m.description}', '${m.genre}', '${m.duration}', '${m.trailerUrl}')">
+                                                title="Chỉnh sửa" 
+                                                onclick="prepareEdit('${m.movieId}', '${m.title}', '${m.genre}', '${m.duration}', '${m.poster}', '${m.trailerUrl}', '${m.status}', '${m.description}', '${m.releaseDate}', '${m.rating}')">
                                             <i class="fas fa-edit text-xs"></i>
                                         </button>
                                         <form action="${pageContext.request.contextPath}/admin/movies" method="POST" class="inline" onsubmit="return confirm('Bạn có chắc muốn xóa phim này?')">
@@ -107,40 +117,70 @@
     </div>
 </div>
 
-<!-- Modal Restyling with Tailwind (Inline logic for simplicity in JSP) -->
+<!-- Modal UI Enhancement -->
 <style>
     .modal-content { background: #1e293b !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 24px !important; }
-    .form-control { background: rgba(15,23,42,0.5) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; border-radius: 12px !important; padding: 12px 16px !important; }
-    .form-control:focus { border-color: #6366f1 !important; box-shadow: 0 0 0 4px rgba(99,102,241,0.1) !important; }
+    .form-control, .form-select { background: rgba(15,23,42,0.5) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; border-radius: 12px !important; padding: 10px 16px !important; }
+    .form-control:focus, .form-select:focus { border-color: #6366f1 !important; box-shadow: 0 0 0 4px rgba(99,102,241,0.1) !important; }
+    .form-label { margin-bottom: 0.5rem; color: #94a3b8; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
 </style>
 
-<!-- Movie Modal -->
 <div class="modal fade" id="movieModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <form action="${pageContext.request.contextPath}/admin/movies" method="POST" class="modal-content">
             <input type="hidden" name="action" id="modalAction" value="add">
-            <input type="hidden" name="movieId" id="modalId">
+            <input type="hidden" name="movieId" id="modalMovieId">
             
-            <div class="modal-header border-0 p-4">
-                <h5 class="modal-title fw-bold" id="modalTitle">Thêm phim mới</h5>
+            <div class="modal-header border-0 p-6">
+                <h5 class="modal-title text-xl font-black text-white" id="modalTitle">Thêm phim mới</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
             </div>
-            <div class="modal-body p-4 pt-0">
-                        <label class="form-label small text-muted fw-bold">Trạng thái</label>
+            <div class="modal-body p-6 pt-0">
+                <div class="row g-4">
+                    <div class="col-md-8">
+                        <label class="form-label">Tiêu đề phim</label>
+                        <input type="text" name="title" id="inputTitle" class="form-control" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Trạng thái</label>
                         <select name="status" id="inputStatus" class="form-select">
                             <option value="NOW_SHOWING">Đang chiếu</option>
                             <option value="COMING_SOON">Sắp chiếu</option>
                         </select>
                     </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Thể loại</label>
+                        <input type="text" name="genre" id="inputGenre" class="form-control" placeholder="Hành động, Phiêu lưu">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Thời lượng (phút)</label>
+                        <input type="number" name="duration" id="inputDuration" class="form-control" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Đánh giá (1-10)</label>
+                        <input type="number" step="0.1" name="rating" id="inputRating" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Ngày khởi chiếu</label>
+                        <input type="date" name="releaseDate" id="inputReleaseDate" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Đường dẫn Poster</label>
+                        <input type="text" name="poster" id="inputPoster" class="form-control">
+                    </div>
                     <div class="col-12">
-                        <label class="form-label small text-muted fw-bold">Đường dẫn Poster</label>
-                        <input type="text" name="poster" id="inputPoster" class="form-control" placeholder="assets/images/movies/poster.jpg">
+                        <label class="form-label">Đường dẫn Trailer (Youtube)</label>
+                        <input type="text" name="trailerUrl" id="inputTrailer" class="form-control">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Mô tả phim</label>
+                        <textarea name="description" id="inputDescription" class="form-control" rows="4"></textarea>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer border-0 p-4 pt-0">
-                <button type="button" class="btn btn-link text-white text-decoration-none" data-bs-dismiss="modal">Hủy</button>
-                <button type="submit" class="btn btn-primary px-4 rounded-3">Lưu thay đổi</button>
+            <div class="modal-footer border-0 p-6 pt-0">
+                <button type="button" class="text-slate-400 hover:text-white font-bold px-4 py-2 transition-colors" data-bs-dismiss="modal">Hủy</button>
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-8 rounded-xl transition-all">Lưu thông tin</button>
             </div>
         </form>
     </div>
@@ -153,25 +193,29 @@
         document.getElementById('modalAction').value = 'add';
         document.getElementById('modalMovieId').value = '';
         document.getElementById('inputTitle').value = '';
-        document.getElementById('inputDescription').value = '';
+        document.getElementById('inputGenre').value = '';
         document.getElementById('inputDuration').value = '';
-        document.getElementById('inputReleaseDate').value = '';
-        document.getElementById('inputRating').value = '';
         document.getElementById('inputPoster').value = '';
+        document.getElementById('inputTrailer').value = '';
+        document.getElementById('inputDescription').value = '';
         document.getElementById('inputStatus').value = 'NOW_SHOWING';
+        document.getElementById('inputReleaseDate').value = '';
+        document.getElementById('inputRating').value = '0';
     }
 
-    function prepareEdit(id, title, desc, dur, date, rate, poster, status) {
+    function prepareEdit(id, title, genre, duration, poster, trailer, status, description, releaseDate, rating) {
         document.getElementById('modalTitle').innerText = 'Chỉnh sửa phim';
         document.getElementById('modalAction').value = 'update';
         document.getElementById('modalMovieId').value = id;
         document.getElementById('inputTitle').value = title;
-        document.getElementById('inputDescription').value = desc;
-        document.getElementById('inputDuration').value = dur;
-        document.getElementById('inputReleaseDate').value = date;
-        document.getElementById('inputRating').value = rate;
+        document.getElementById('inputGenre').value = genre;
+        document.getElementById('inputDuration').value = duration;
         document.getElementById('inputPoster').value = poster;
+        document.getElementById('inputTrailer').value = trailer;
         document.getElementById('inputStatus').value = status;
+        document.getElementById('inputDescription').value = description;
+        document.getElementById('inputReleaseDate').value = releaseDate;
+        document.getElementById('inputRating').value = rating;
         
         var myModal = new bootstrap.Modal(document.getElementById('movieModal'));
         myModal.show();

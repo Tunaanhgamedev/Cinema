@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.cinema.model.Contact;
-import com.cinema.util.DBConnection;
+import com.cinema.utils.DBConnection;
 
 public class ContactDAO {
 

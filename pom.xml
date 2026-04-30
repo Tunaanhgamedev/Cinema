@@ -24,6 +24,22 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- Jakarta WebSocket API -->
+        <dependency>
+            <groupId>jakarta.websocket</groupId>
+            <artifactId>jakarta.websocket-api</artifactId>
+            <version>2.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Jakarta WebSocket Server API -->
+        <dependency>
+            <groupId>jakarta.websocket</groupId>
+            <artifactId>jakarta.websocket-client-api</artifactId>
+            <version>2.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- Jakarta JSTL -->
         <dependency>
             <groupId>jakarta.servlet.jsp.jstl</groupId>

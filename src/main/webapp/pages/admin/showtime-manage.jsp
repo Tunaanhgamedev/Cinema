@@ -10,83 +10,113 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-style.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        accent: '#6366f1',
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body>
+<body class="bg-[#0f172a] text-slate-200">
 
-<jsp:include page="/common/admin/sidebar.jsp" />
+<div class="admin-layout">
+    <jsp:include page="/common/admin/sidebar.jsp" />
 
-<div class="main-content">
-    <div class="d-flex justify-content-between align-items-center mb-5">
-        <div>
-            <h1 class="fw-800 mb-1" style="font-weight: 800;">Lịch chiếu phim</h1>
-            <p class="text-muted mb-0">Quản lý thời gian chiếu và giá vé cho từng suất phim.</p>
+    <div class="main-content">
+        <div class="flex justify-between items-center mb-12">
+            <div>
+                <h1 class="text-4xl font-extrabold tracking-tight text-white mb-2">Lịch chiếu phim</h1>
+                <p class="text-slate-400">Quản lý thời gian chiếu và giá vé cho từng suất phim.</p>
+            </div>
+            <button class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-indigo-600/20 transition-all flex items-center gap-2" 
+                    data-bs-toggle="modal" data-bs-target="#showtimeModal" onclick="prepareAdd()">
+                <i class="fas fa-calendar-plus"></i> Thêm suất chiếu mới
+            </button>
         </div>
-        <button class="btn btn-primary px-4" data-bs-toggle="modal" data-bs-target="#showtimeModal" onclick="prepareAdd()">
-            <i class="fas fa-calendar-plus me-2"></i> Thêm suất chiếu mới
-        </button>
-    </div>
 
-    <c:if test="${not empty error}">
-        <div class="alert alert-danger mb-4 rounded-4 border-0 bg-danger bg-opacity-10 text-danger">
-            <i class="fas fa-exclamation-circle me-2"></i> ${error}
-        </div>
-    </c:if>
+        <c:if test="${not empty error}">
+            <div class="bg-rose-500/10 border border-rose-500/20 text-rose-500 px-6 py-4 rounded-xl mb-8 flex items-center gap-3">
+                <i class="fas fa-exclamation-circle"></i> ${error}
+            </div>
+        </c:if>
 
-    <div class="card-glass p-0 overflow-hidden">
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th style="padding-left: 30px;">ID</th>
-                        <th>PHIM</th>
-                        <th>PHÒNG CHIẾU</th>
-                        <th>THỜI GIAN CHIẾU</th>
-                        <th>GIÁ VÉ</th>
-                        <th class="text-end" style="padding-right: 30px;">HÀNH ĐỘNG</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <c:forEach var="s" items="${showtimeList}">
-                        <tr>
-                            <td style="padding-left: 30px;"><span class="text-muted">#${s.showtimeId}</span></td>
-                            <td>
-                                <div class="fw-bold text-white">${s.movieName}</div>
-                                <div class="text-muted small">Mã phim: ${s.movieId}</div>
-                            </td>
-                            <td>
-                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-3">
-                                    <i class="fas fa-door-open me-1"></i> ${s.roomName}
-                                </span>
-                            </td>
-                            <td>
-                                <div class="d-flex align-items-center gap-2 mb-1">
-                                    <i class="far fa-clock text-accent small"></i>
-                                    <span class="fw-bold text-white"><fmt:formatDate value="${s.startTime}" pattern="dd/MM/yyyy HH:mm" /></span>
-                                </div>
-                                <div class="text-muted small">Kết thúc: <fmt:formatDate value="${s.endTime}" pattern="HH:mm" /></div>
-                            </td>
-                            <td><span class="fw-bold text-success"><fmt:formatNumber value="${s.price}" type="currency" currencySymbol="₫" maxFractionDigits="0" /></span></td>
-                            <td class="text-end" style="padding-right: 30px;">
-                                <div class="d-flex justify-content-end gap-2">
-                                    <button class="btn-action" title="Chỉnh sửa" onclick="prepareEdit('${s.showtimeId}', '${s.movieId}', '${s.roomId}', '${s.startTime}', '${s.endTime}', '${s.price}')">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <form action="${pageContext.request.contextPath}/admin/showtimes" method="POST" class="d-inline" onsubmit="return confirm('Xóa suất chiếu này?')">
-                                        <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="showtimeId" value="${s.showtimeId}">
-                                        <button class="btn-action hover-danger" title="Xóa">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
+        <div class="card-glass overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="text-slate-500 text-[10px] font-black uppercase tracking-[2px] border-b border-white/5 bg-white/5">
+                            <th class="px-8 py-5">ID</th>
+                            <th class="px-8 py-5">PHIM</th>
+                            <th class="px-8 py-5">PHÒNG CHIẾU</th>
+                            <th class="px-8 py-5">THỜI GIAN CHIẾU</th>
+                            <th class="px-8 py-5">GIÁ VÉ</th>
+                            <th class="px-8 py-5 text-right">HÀNH ĐỘNG</th>
                         </tr>
-                    </c:forEach>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="divide-y divide-white/5">
+                        <c:forEach var="s" items="${showtimeList}">
+                            <tr class="hover:bg-white/5 transition-colors group">
+                                <td class="px-8 py-5"><span class="text-slate-500 font-mono">#${s.showtimeId}</span></td>
+                                <td class="px-8 py-5">
+                                    <div class="font-bold text-white text-sm mb-1">${s.movieName}</div>
+                                    <div class="text-slate-500 text-[10px] font-medium tracking-wider uppercase">MÃ PHIM: ${s.movieId}</div>
+                                </td>
+                                <td class="px-8 py-5">
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-[10px] font-black uppercase tracking-wider">
+                                        <i class="fas fa-door-open text-[8px]"></i> ${s.roomName}
+                                    </span>
+                                </td>
+                                <td class="px-8 py-5">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <i class="far fa-calendar-alt text-indigo-400 text-xs"></i>
+                                        <span class="font-bold text-white text-sm"><fmt:formatDate value="${s.startTime}" pattern="dd/MM/yyyy" /></span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <i class="far fa-clock text-slate-500 text-xs"></i>
+                                        <span class="text-slate-400 text-xs font-medium">
+                                            <fmt:formatDate value="${s.startTime}" pattern="HH:mm" /> - <fmt:formatDate value="${s.endTime}" pattern="HH:mm" />
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="px-8 py-5">
+                                    <span class="font-black text-emerald-400"><fmt:formatNumber value="${s.price}" type="currency" currencySymbol="₫" maxFractionDigits="0" /></span>
+                                </td>
+                                <td class="px-8 py-5 text-right">
+                                    <div class="flex justify-end gap-3">
+                                        <button class="w-9 h-9 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center hover:bg-indigo-500 hover:text-white transition-all" 
+                                                title="Chỉnh sửa" onclick="prepareEdit('${s.showtimeId}', '${s.movieId}', '${s.roomId}', '${s.startTime}', '${s.endTime}', '${s.price}')">
+                                            <i class="fas fa-edit text-xs"></i>
+                                        </button>
+                                        <form action="${pageContext.request.contextPath}/admin/showtimes" method="POST" class="inline" onsubmit="return confirm('Xóa suất chiếu này?')">
+                                            <input type="hidden" name="action" value="delete">
+                                            <input type="hidden" name="showtimeId" value="${s.showtimeId}">
+                                            <button class="w-9 h-9 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all" 
+                                                    title="Xóa">
+                                                <i class="fas fa-trash-alt text-xs"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        </c:forEach>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
+
+<style>
+    .modal-content { background: #1e293b !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 24px !important; }
+    .form-control { background: rgba(15,23,42,0.5) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; border-radius: 12px !important; padding: 12px 16px !important; }
+    .input-group-text { background: rgba(15,23,42,0.8) !important; border-color: rgba(255,255,255,0.1) !important; color: #94a3b8 !important; }
+</style>
 
 <!-- Showtime Modal -->
 <div class="modal fade" id="showtimeModal" tabindex="-1" aria-hidden="true">

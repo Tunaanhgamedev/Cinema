@@ -12,22 +12,32 @@ public class DBConnection {
 	private static HikariDataSource ds;
 
 	static {
-		try (InputStream is = DBConnection.class.getClassLoader().getResourceAsStream("db.properties")) {
-			if (is != null) {
-				props.load(is);
-			} else {
-				System.err.println("Không tìm thấy file db.properties!");
+		try {
+			Properties localProps = new Properties();
+			try (InputStream is = DBConnection.class.getClassLoader().getResourceAsStream("db.properties")) {
+				if (is != null) {
+					localProps.load(is);
+					System.out.println("✅ Đã nạp file db.properties thành công.");
+				} else {
+					throw new RuntimeException("CRITICAL: Không tìm thấy file db.properties trong classpath!");
+				}
 			}
 
-			String host = props.getProperty("db.host", "localhost");
-			String port = props.getProperty("db.port", "3306");
-			String dbName = props.getProperty("db.name", "cinema_db");
-			String user = props.getProperty("db.user", "root");
-			String pass = props.getProperty("db.pass", "");
+			String host = localProps.getProperty("db.host");
+			String port = localProps.getProperty("db.port");
+			String dbName = localProps.getProperty("db.name");
+			String user = localProps.getProperty("db.user");
+			String pass = localProps.getProperty("db.pass");
+
+			if (host == null || dbName == null) {
+				throw new RuntimeException("CRITICAL: Thiếu thông tin cấu hình db.host hoặc db.name trong db.properties!");
+			}
 
 			// URL Cloud yêu cầu SSL
 			String url = "jdbc:mysql://" + host + ":" + port + "/" + dbName 
-					+ "?useSSL=true&requireSSL=true&ssl-mode=REQUIRED";
+					+ "?useSSL=true&requireSSL=true&ssl-mode=REQUIRED&allowPublicKeyRetrieval=true";
+
+			System.out.println("📡 Đang khởi tạo kết nối tới: " + host + ":" + port + "/" + dbName);
 
 			HikariConfig config = new HikariConfig();
 			config.setJdbcUrl(url);
@@ -44,13 +54,14 @@ public class DBConnection {
 			// Cấu hình Pool
 			config.setMaximumPoolSize(10);
 			config.setMinimumIdle(2);
-			config.setIdleTimeout(300000);
 			config.setConnectionTimeout(30000);
 
 			ds = new HikariDataSource(config);
+			System.out.println("✨ Connection Pool đã được khởi tạo thành công.");
 		} catch (Exception e) {
-			System.err.println("Khởi tạo Connection Pool thất bại!");
+			System.err.println("❌ Khởi tạo Connection Pool THẤT BẠI!");
 			e.printStackTrace();
+			// Lưu vết lỗi để getConnection() có thể báo cáo
 		}
 	}
 

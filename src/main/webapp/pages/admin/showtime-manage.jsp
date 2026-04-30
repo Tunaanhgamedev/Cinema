@@ -1,216 +1,182 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="java.util.*" %>
-<%@ page import="java.sql.Timestamp" %>
-<%@ page import="com.cinema.dao.ShowtimeDAO.ShowtimeView" %>
-
-<%!
-  public static String esc(String s){
-    if (s == null) return "";
-    return s.replace("&","&amp;")
-            .replace("<","&lt;")
-            .replace(">","&gt;")
-            .replace("\"","&quot;")
-            .replace("'","&#39;");
-  }
-
-  // Timestamp -> yyyy-MM-ddTHH:mm cho input datetime-local
-  public static String toDateTimeLocal(Timestamp ts){
-    if (ts == null) return "";
-    String s = ts.toString(); // yyyy-MM-dd HH:mm:ss...
-    return s.substring(0,16).replace(" ", "T"); // yyyy-MM-ddTHH:mm
-  }
-%>
-
+<%@ taglib uri="jakarta.tags.core" prefix="c" %>
+<%@ taglib uri="jakarta.tags.fmt" prefix="fmt" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8"/>
-  <title>Admin - Quản lí Suất chiếu</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body{ background: linear-gradient(180deg,#2e2a44 0%,#1f1b2e 100%); color:#e5e7eb; min-height:100vh; }
-    .cardx{ background: rgba(46,42,68,.85); border:1px solid rgba(255,255,255,.12); border-radius:16px; }
-    .btnx{ border-radius:12px; font-weight:800; }
-    .tbl th{ background: rgba(124,58,237,.25); color:#fff; }
-    .tbl td,.tbl th{ border-color: rgba(255,255,255,.12) !important; vertical-align: middle; }
-    input{ background: rgba(31,27,46,.9) !important; color:#e5e7eb !important; border:1px solid rgba(255,255,255,.15) !important; }
-    .muted{ color: rgba(229,231,235,.75); font-size: 13px; }
-  </style>
+    <meta charset="UTF-8">
+    <title>Quản lý Suất chiếu | Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background: #0b0f19; color: #e5e7eb; font-family: 'Inter', sans-serif; }
+        .sidebar { width: 260px; background: #111827; border-right: 1px solid #1f2937; min-height: 100vh; position: fixed; }
+        .main-content { margin-left: 260px; padding: 40px; }
+        .nav-link { color: #9ca3af; padding: 12px 20px; border-radius: 12px; margin: 4px 12px; display: block; text-decoration: none; transition: 0.3s; }
+        .nav-link:hover, .nav-link.active { background: #1f2937; color: #fff; }
+        .card-glass { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(10px); border: 1px solid #1f2937; border-radius: 20px; }
+        .table { color: #e5e7eb; }
+        .table thead th { border-bottom: 2px solid #1f2937; color: #9ca3af; font-weight: 600; text-transform: uppercase; font-size: 12px; }
+        .table tbody td { border-bottom: 1px solid #1f2937; vertical-align: middle; padding: 15px; }
+        .btn-action { width: 32px; height: 32px; padding: 0; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; }
+        .modal-content { background: #111827; border: 1px solid #1f2937; border-radius: 20px; color: #e5e7eb; }
+        .form-control, .form-select { background: #1f2937; border: 1px solid #374151; color: #fff; border-radius: 10px; }
+        .form-control:focus { background: #1f2937; color: #fff; border-color: #6366f1; box-shadow: none; }
+        .brand { padding: 24px; font-size: 24px; font-weight: 900; color: #e50914; letter-spacing: -1px; }
+    </style>
 </head>
+<body>
 
-<body class="p-4">
-<div class="container">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3 class="m-0">ADMIN • Quản lí Suất chiếu</h3>
-    <a class="btn btn-outline-light btnx" href="<%=request.getContextPath()%>/pages/admin/dashboard.jsp">Về Dashboard</a>
-  </div>
-
-  <%
-    String error = (String) request.getAttribute("error");
-    List<ShowtimeView> showtimeList = (List<ShowtimeView>) request.getAttribute("showtimeList");
-    if (showtimeList == null) showtimeList = new ArrayList<>();
-  %>
-
-  <% if (error != null) { %>
-    <div class="alert alert-danger"><%= error %></div>
-  <% } %>
-
-  <div class="row g-3">
-    <!-- Add -->
-    <div class="col-lg-4">
-      <div class="cardx p-3">
-        <h5 class="fw-bold">Thêm suất chiếu</h5>
-
-        <form action="<%=request.getContextPath()%>/admin/showtimes" method="post">
-          <input type="hidden" name="action" value="add"/>
-
-          <div class="mb-2">
-            <label class="form-label">ID Phim</label>
-            <input class="form-control" name="movieId" type="number" min="1" required/>
-          </div>
-
-          <div class="mb-2">
-            <label class="form-label">ID Phòng</label>
-            <input class="form-control" name="roomId" type="number" min="1" required/>
-          </div>
-
-          <div class="mb-2">
-            <label class="form-label">Bắt đầu</label>
-            <input class="form-control" name="startTime" type="datetime-local" required/>
-          </div>
-
-          <div class="mb-2">
-            <label class="form-label">Kết thúc</label>
-            <input class="form-control" name="endTime" type="datetime-local" required/>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Giá tiền</label>
-            <input class="form-control" name="price" type="number" min="0" step="0.01" value="0.00" required/>
-          </div>
-
-          <button class="btn btn-primary btnx w-100" type="submit">Thêm</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- List + Edit -->
-    <div class="col-lg-8">
-      <div class="cardx p-3">
-        <h5 class="fw-bold">Danh sách suất chiếu</h5>
-
-        <div class="table-responsive">
-          <table class="table table-dark table-hover tbl">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Movie</th>
-                <th>Room</th>
-                <th>Start</th>
-                <th>End</th>
-                <th>Price</th>
-                <th style="width:220px;">Thao tác</th>
-              </tr>
-            </thead>
-
-            <tbody>
-            <% if (showtimeList.isEmpty()) { %>
-              <tr><td colspan="7" class="text-center text-white-50">Chưa có suất chiếu</td></tr>
-            <% } else {
-                 for (ShowtimeView s : showtimeList) {
-                   int id = s.getShowtimeId();
-                   String startLocal = toDateTimeLocal(s.getStartTime());
-                   String endLocal = toDateTimeLocal(s.getEndTime());
-                   String movieText = (s.getMovieName() == null ? ("Movie#" + s.getMovieId()) : s.getMovieName()) + " (ID " + s.getMovieId() + ")";
-                   String roomText = (s.getRoomName() == null ? ("Room#" + s.getRoomId()) : s.getRoomName()) + " (ID " + s.getRoomId() + ")";
-            %>
-              <tr>
-                <td><%= id %></td>
-                <td><%= esc(movieText) %></td>
-                <td><%= esc(roomText) %></td>
-                <td><%= esc(startLocal.replace("T"," ")) %></td>
-                <td><%= esc(endLocal.replace("T"," ")) %></td>
-                <td><%= s.getPrice() %></td>
-
-                <td>
-                  <!-- hidden: JS lấy dữ liệu để fill form sửa -->
-                  <input type="hidden" id="m_<%=id%>" value="<%= s.getMovieId() %>"/>
-                  <input type="hidden" id="r_<%=id%>" value="<%= s.getRoomId() %>"/>
-                  <input type="hidden" id="st_<%=id%>" value="<%= esc(startLocal) %>"/>
-                  <input type="hidden" id="et_<%=id%>" value="<%= esc(endLocal) %>"/>
-                  <input type="hidden" id="p_<%=id%>" value="<%= s.getPrice() %>"/>
-
-                  <button type="button" class="btn btn-warning btnx" onclick="fillEdit(<%=id%>)">Sửa</button>
-
-                  <form class="d-inline" action="<%=request.getContextPath()%>/admin/showtimes" method="post"
-                        onsubmit="return confirm('Xóa suất chiếu này?');">
-                    <input type="hidden" name="action" value="delete"/>
-                    <input type="hidden" name="showtimeId" value="<%= id %>"/>
-                    <button class="btn btn-danger btnx" type="submit">Xóa</button>
-                  </form>
-                </td>
-              </tr>
-            <% } } %>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Edit form -->
-        <div class="cardx p-3 mt-3">
-          <h5 class="fw-bold">Sửa suất chiếu</h5>
-
-          <form action="<%=request.getContextPath()%>/admin/showtimes" method="post">
-            <input type="hidden" name="action" value="update"/>
-
-            <div class="row g-2">
-              <div class="col-md-2">
-                <label class="form-label">ID Xuất Chiếu</label>
-                <input id="editId" class="form-control" name="showtimeId" readonly/>
-              </div>
-              <div class="col-md-2">
-                <label class="form-label">ID Phim</label>
-                <input id="editMovieId" class="form-control" name="movieId" type="number" min="1" required/>
-              </div>
-              <div class="col-md-2">
-                <label class="form-label">ID Phòng</label>
-                <input id="editRoomId" class="form-control" name="roomId" type="number" min="1" required/>
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">Bắt đầu</label>
-                <input id="editStart" class="form-control" name="startTime" type="datetime-local" required/>
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">Kết thúc</label>
-                <input id="editEnd" class="form-control" name="endTime" type="datetime-local" required/>
-              </div>
-            </div>
-
-            <div class="mt-2">
-              <label class="form-label">Giá tiền</label>
-              <input id="editPrice" class="form-control" name="price" type="number" min="0" step="0.01" required/>
-            </div>
-
-            <button class="btn btn-success btnx w-100 mt-3" type="submit">Cập nhật</button>
-          </form>
-        </div>
-
-      </div>
-    </div>
-  </div>
+<div class="sidebar">
+    <div class="brand">BOBIXI • ADMIN</div>
+    <nav>
+        <a href="${pageContext.request.contextPath}/admin" class="nav-link"><i class="fas fa-chart-line me-2"></i> Dashboard</a>
+        <a href="${pageContext.request.contextPath}/admin/movies" class="nav-link"><i class="fas fa-film me-2"></i> Quản lý Phim</a>
+        <a href="${pageContext.request.contextPath}/admin/showtimes" class="nav-link active"><i class="fas fa-calendar-alt me-2"></i> Lịch chiếu</a>
+        <a href="${pageContext.request.contextPath}/admin/bookings" class="nav-link"><i class="fas fa-ticket-alt me-2"></i> Đơn hàng</a>
+        <a href="${pageContext.request.contextPath}/home" class="nav-link"><i class="fas fa-external-link-alt me-2"></i> Về Web</a>
+    </nav>
 </div>
 
+<div class="main-content">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h2 class="fw-bold mb-1">Lịch chiếu phim</h2>
+            <p class="text-muted small mb-0">Quản lý thời gian chiếu và giá vé cho từng suất</p>
+        </div>
+        <button class="btn btn-primary px-4 rounded-3" data-bs-toggle="modal" data-bs-target="#showtimeModal" onclick="prepareAdd()">
+            <i class="fas fa-plus me-2"></i> Thêm suất chiếu mới
+        </button>
+    </div>
+
+    <c:if test="${not empty error}">
+        <div class="alert alert-danger mb-4 rounded-3">${error}</div>
+    </c:if>
+
+    <div class="card-glass p-4">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Phim</th>
+                        <th>Phòng</th>
+                        <th>Thời gian</th>
+                        <th>Giá vé</th>
+                        <th class="text-end">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <c:forEach var="s" items="${showtimeList}">
+                        <tr>
+                            <td>#${s.showtimeId}</td>
+                            <td><span class="fw-bold text-white">${s.movieName}</span> <span class="text-muted small">(ID: ${s.movieId})</span></td>
+                            <td>${s.roomName} <span class="text-muted small">(ID: ${s.roomId})</span></td>
+                            <td>
+                                <div class="small"><i class="far fa-clock me-1 text-primary"></i> <fmt:formatDate value="${s.startTime}" pattern="dd/MM/yyyy HH:mm" /></div>
+                                <div class="text-muted small"><i class="far fa-clock me-1"></i> <fmt:formatDate value="${s.endTime}" pattern="dd/MM/yyyy HH:mm" /></div>
+                            </td>
+                            <td><fmt:formatNumber value="${s.price}" type="currency" currencySymbol="₫" maxFractionDigits="0" /></td>
+                            <td class="text-end">
+                                <button class="btn btn-outline-info btn-action me-1" onclick="prepareEdit('${s.showtimeId}', '${s.movieId}', '${s.roomId}', '${s.startTime}', '${s.endTime}', '${s.price}')">
+                                    <i class="fas fa-edit small"></i>
+                                </button>
+                                <form action="${pageContext.request.contextPath}/admin/showtimes" method="POST" class="d-inline" onsubmit="return confirm('Xóa suất chiếu này?')">
+                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="showtimeId" value="${s.showtimeId}">
+                                    <button class="btn btn-outline-danger btn-action">
+                                        <i class="fas fa-trash small"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </c:forEach>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Showtime Modal -->
+<div class="modal fade" id="showtimeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form action="${pageContext.request.contextPath}/admin/showtimes" method="POST" class="modal-content">
+            <input type="hidden" name="action" id="modalAction" value="add">
+            <input type="hidden" name="showtimeId" id="modalId">
+            
+            <div class="modal-header border-0 p-4">
+                <h5 class="modal-title fw-bold" id="modalTitle">Thêm suất chiếu</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 pt-0">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small text-muted fw-bold">ID Phim</label>
+                        <input type="number" name="movieId" id="inputMovieId" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small text-muted fw-bold">ID Phòng</label>
+                        <input type="number" name="roomId" id="inputRoomId" class="form-control" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small text-muted fw-bold">Thời gian bắt đầu</label>
+                        <input type="datetime-local" name="startTime" id="inputStartTime" class="form-control" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small text-muted fw-bold">Thời gian kết thúc</label>
+                        <input type="datetime-local" name="endTime" id="inputEndTime" class="form-control" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small text-muted fw-bold">Giá vé (VNĐ)</label>
+                        <input type="number" name="price" id="inputPrice" class="form-control" required>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 p-4 pt-0">
+                <button type="button" class="btn btn-link text-white text-decoration-none" data-bs-dismiss="modal">Hủy</button>
+                <button type="submit" class="btn btn-primary px-4 rounded-3">Lưu suất chiếu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-  function fillEdit(id){
-    document.getElementById('editId').value = id;
-    document.getElementById('editMovieId').value = document.getElementById('m_' + id).value;
-    document.getElementById('editRoomId').value = document.getElementById('r_' + id).value;
-    document.getElementById('editStart').value = document.getElementById('st_' + id).value;
-    document.getElementById('editEnd').value = document.getElementById('et_' + id).value;
-    document.getElementById('editPrice').value = document.getElementById('p_' + id).value;
+    function formatForInput(dateStr) {
+        if(!dateStr) return "";
+        const date = new Date(dateStr);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
 
-    window.scrollTo(0, document.body.scrollHeight);
-  }
+    function prepareAdd() {
+        document.getElementById('modalTitle').innerText = 'Thêm suất chiếu';
+        document.getElementById('modalAction').value = 'add';
+        document.getElementById('modalId').value = '';
+        document.getElementById('inputMovieId').value = '';
+        document.getElementById('inputRoomId').value = '';
+        document.getElementById('inputStartTime').value = '';
+        document.getElementById('inputEndTime').value = '';
+        document.getElementById('inputPrice').value = '';
+    }
+
+    function prepareEdit(id, movieId, roomId, start, end, price) {
+        document.getElementById('modalTitle').innerText = 'Chỉnh sửa suất chiếu';
+        document.getElementById('modalAction').value = 'update';
+        document.getElementById('modalId').value = id;
+        document.getElementById('inputMovieId').value = movieId;
+        document.getElementById('inputRoomId').value = roomId;
+        document.getElementById('inputStartTime').value = formatForInput(start);
+        document.getElementById('inputEndTime').value = formatForInput(end);
+        document.getElementById('inputPrice').value = price;
+        
+        var myModal = new bootstrap.Modal(document.getElementById('showtimeModal'));
+        myModal.show();
+    }
 </script>
-
 </body>
 </html>

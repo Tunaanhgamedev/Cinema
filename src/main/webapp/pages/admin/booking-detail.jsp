@@ -1,134 +1,154 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="java.util.*" %>
-<%@ page import="java.math.BigDecimal" %>
-<%@ page import="com.cinema.dao.BookingAdminDAO.BookingDetail" %>
-<%@ page import="com.cinema.dao.BookingAdminDAO.ComboLine" %>
-
+<%@ taglib uri="jakarta.tags.core" prefix="c" %>
+<%@ taglib uri="jakarta.tags.fmt" prefix="fmt" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8"/>
-  <title>Admin - Chi tiết Booking</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body{ background: linear-gradient(180deg,#2e2a44 0%,#1f1b2e 100%); color:#e5e7eb; min-height:100vh; }
-    .cardx{ background: rgba(46,42,68,.85); border:1px solid rgba(255,255,255,.12); border-radius:16px; }
-    .tbl th{ background: rgba(124,58,237,.25); color:#fff; }
-    .tbl td,.tbl th{ border-color: rgba(255,255,255,.12) !important; vertical-align: middle; }
-    .pill{ display:inline-block; padding:6px 10px; border-radius:999px; background:rgba(124,58,237,.18); border:1px solid rgba(255,255,255,.12); margin:4px; }
-    .muted{ color: rgba(229,231,235,.75); }
-  </style>
+    <meta charset="UTF-8">
+    <title>Chi tiết Đơn hàng | Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background: #0b0f19; color: #e5e7eb; font-family: 'Inter', sans-serif; }
+        .sidebar { width: 260px; background: #111827; border-right: 1px solid #1f2937; min-height: 100vh; position: fixed; }
+        .main-content { margin-left: 260px; padding: 40px; }
+        .nav-link { color: #9ca3af; padding: 12px 20px; border-radius: 12px; margin: 4px 12px; display: block; text-decoration: none; }
+        .nav-link:hover, .nav-link.active { background: #1f2937; color: #fff; }
+        .card-glass { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(10px); border: 1px solid #1f2937; border-radius: 20px; }
+        .pill-seat { display: inline-block; padding: 5px 12px; background: #1f2937; border: 1px solid #374151; border-radius: 8px; margin: 2px; font-size: 13px; font-weight: 600; }
+        .brand { padding: 24px; font-size: 24px; font-weight: 900; color: #e50914; letter-spacing: -1px; }
+    </style>
 </head>
-<body class="p-4">
-<div class="container">
+<body>
 
-  <%
-    BookingDetail detail = (BookingDetail) request.getAttribute("detail");
-  %>
+<c:set var="activePage" value="bookings" scope="request" />
+<jsp:include page="/common/admin-sidebar.jsp" />
 
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3 class="m-0">ADMIN • Chi tiết Booking</h3>
-    <a class="btn btn-outline-light" href="<%=request.getContextPath()%>/admin/bookings">← Quay lại danh sách</a>
-  </div>
-
-  <% if (detail == null) { %>
-    <div class="alert alert-danger">Không tìm thấy booking hoặc bookingId không hợp lệ.</div>
-  <% } else { %>
-
-  <div class="cardx p-3 mb-3">
-    <div class="row g-2">
-      <div class="col-md-3"><b>ID:</b> <%= detail.getBookingId() %></div>
-      <div class="col-md-3"><b>User:</b> <%= detail.getUserId() %></div>
-      <div class="col-md-3"><b>Phim:</b> <%= detail.getMovieTitle() %></div>
-      <div class="col-md-3"><b>Phòng:</b> <%= detail.getRoomName() %></div>
-
-      <div class="col-md-6"><b>Start:</b> <span class="muted"><%= detail.getStartTime() %></span></div>
-      <div class="col-md-6"><b>End:</b> <span class="muted"><%= detail.getEndTime() %></span></div>
+<div class="main-content">
+    <div class="mb-4">
+        <a href="${pageContext.request.contextPath}/admin/bookings" class="text-decoration-none text-muted small mb-2 d-inline-block">
+            <i class="fas fa-arrow-left me-1"></i> Quay lại danh sách
+        </a>
+        <h2 class="fw-bold mb-1">Chi tiết đơn hàng #${detail.bookingId}</h2>
     </div>
 
-    <hr class="border-light opacity-25"/>
+    <c:choose>
+        <c:when test="${empty detail}">
+            <div class="alert alert-danger">Không tìm thấy thông tin đơn hàng.</div>
+        </c:when>
+        <c:otherwise>
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="card-glass p-4 mb-4">
+                        <h5 class="fw-bold mb-4">Thông tin vé xem phim</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="text-muted small d-block">Phim</label>
+                                <div class="fw-bold fs-5">${detail.movieTitle}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="text-muted small d-block">Phòng chiếu</label>
+                                <div class="fw-bold fs-5">${detail.roomName}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="text-muted small d-block">Thời gian bắt đầu</label>
+                                <div class="fw-bold"><fmt:formatDate value="${detail.startTime}" pattern="dd/MM/yyyy HH:mm" /></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="text-muted small d-block">Thời gian kết thúc</label>
+                                <div class="fw-bold"><fmt:formatDate value="${detail.endTime}" pattern="dd/MM/yyyy HH:mm" /></div>
+                            </div>
+                            <div class="col-12 mt-4">
+                                <label class="text-muted small d-block mb-2">Danh sách ghế (${detail.seatCount})</label>
+                                <div>
+                                    <c:forEach var="s" items="${detail.seats}">
+                                        <span class="pill-seat">${s}</span>
+                                    </c:forEach>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-    <div class="row g-2">
-      <div class="col-md-3"><b>Giá vé:</b> <%= detail.getTicketPrice() %></div>
-      <div class="col-md-3"><b>Số ghế:</b> <%= detail.getSeatCount() %></div>
-      <div class="col-md-3"><b>Tiền vé:</b> <%= detail.getTicketSubtotal() %></div>
-      <div class="col-md-3"><b>Tiền combo:</b> <%= detail.getComboSubtotal() %></div>
-      <div class="col-md-12 mt-2"><b>Tổng:</b> <span class="fw-bold"><%= detail.getGrandTotal() %></span></div>
-      <div class="col-md-12"><b>Status:</b> <span class="muted"><%= detail.getStatus() %></span></div>
-    </div>
-  </div>
+                    <div class="card-glass p-4">
+                        <h5 class="fw-bold mb-4">Combo thực phẩm</h5>
+                        <div class="table-responsive">
+                            <table class="table table-borderless">
+                                <thead class="text-muted small">
+                                    <tr>
+                                        <th>Sản phẩm</th>
+                                        <th class="text-center">Số lượng</th>
+                                        <th class="text-end">Đơn giá</th>
+                                        <th class="text-end">Thành tiền</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <c:forEach var="c" items="${detail.combos}">
+                                        <tr>
+                                            <td class="fw-bold">${c.name}</td>
+                                            <td class="text-center">${c.quantity}</td>
+                                            <td class="text-end"><fmt:formatNumber value="${c.price}" type="currency" currencySymbol="₫" maxFractionDigits="0" /></td>
+                                            <td class="text-end fw-bold"><fmt:formatNumber value="${c.lineTotal}" type="currency" currencySymbol="₫" maxFractionDigits="0" /></td>
+                                        </tr>
+                                    </c:forEach>
+                                    <c:if test="${empty detail.combos}">
+                                        <tr><td colspan="4" class="text-center text-muted small py-3">Không có combo đính kèm</td></tr>
+                                    </c:if>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
 
-  <div class="row g-3">
-    <!-- Seats -->
-    <div class="col-lg-6">
-      <div class="cardx p-3">
-        <h5 class="fw-bold">VÉ / GHẾ ĐÃ ĐẶT</h5>
-        <div>
-          <%
-            List<String> seats = detail.getSeats();
-            if (seats == null || seats.isEmpty()) {
-          %>
-              <div class="text-white-50">Chưa có ghế</div>
-          <%
-            } else {
-              for (String s : seats) {
-          %>
-              <span class="pill"><%= s %></span>
-          <%
-              }
-            }
-          %>
-        </div>
-      </div>
-    </div>
+                <div class="col-lg-4">
+                    <div class="card-glass p-4 mb-4">
+                        <h5 class="fw-bold mb-4">Khách hàng</h5>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold">${detail.fullName}</div>
+                                <div class="text-muted small">${detail.email}</div>
+                            </div>
+                        </div>
+                    </div>
 
-    <!-- Combos -->
-    <div class="col-lg-6">
-      <div class="cardx p-3">
-        <h5 class="fw-bold">COMBO ĐÃ CHỌN</h5>
-
-        <div class="table-responsive">
-          <table class="table table-dark tbl">
-            <thead>
-              <tr>
-                <th>Tên combo</th>
-                <th>Giá</th>
-                <th>SL</th>
-                <th>Thành tiền</th>
-              </tr>
-            </thead>
-            <tbody>
-            <%
-              List<ComboLine> combos = detail.getCombos();
-              if (combos == null || combos.isEmpty()) {
-            %>
-              <tr><td colspan="4" class="text-center text-white-50">Không có combo</td></tr>
-            <%
-              } else {
-                for (ComboLine c : combos) {
-                  BigDecimal lineTotal = (c.getLineTotal() != null) ? c.getLineTotal()
-                      : ( (c.getPrice()==null?BigDecimal.ZERO:c.getPrice()).multiply(BigDecimal.valueOf(c.getQuantity())) );
-            %>
-              <tr>
-                <td><%= c.getName() %></td>
-                <td><%= c.getPrice() %></td>
-                <td><%= c.getQuantity() %></td>
-                <td><%= lineTotal %></td>
-              </tr>
-            <%
-                }
-              }
-            %>
-            </tbody>
-          </table>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-  <% } %>
-
+                    <div class="card-glass p-4">
+                        <h5 class="fw-bold mb-4">Tổng kết chi phí</h5>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Tiền vé</span>
+                            <span><fmt:formatNumber value="${detail.ticketSubtotal}" type="currency" currencySymbol="₫" maxFractionDigits="0" /></span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-muted">Tiền Combo</span>
+                            <span><fmt:formatNumber value="${detail.comboSubtotal}" type="currency" currencySymbol="₫" maxFractionDigits="0" /></span>
+                        </div>
+                        <hr class="border-light opacity-25">
+                        <div class="d-flex justify-content-between align-items-center mt-3 mb-4">
+                            <span class="fw-bold">TỔNG CỘNG</span>
+                            <span class="fw-bold fs-4 text-primary"><fmt:formatNumber value="${detail.grandTotal}" type="currency" currencySymbol="₫" maxFractionDigits="0" /></span>
+                        </div>
+                        
+                        <label class="small text-muted fw-bold mb-2 d-block">Trạng thái đơn hàng</label>
+                        <form action="${pageContext.request.contextPath}/admin/bookings" method="POST">
+                            <input type="hidden" name="action" value="status">
+                            <input type="hidden" name="bookingId" value="${detail.bookingId}">
+                            <div class="d-flex gap-2">
+                                <select name="status" class="form-select">
+                                    <option value="PENDING" ${detail.status == 'PENDING' ? 'selected' : ''}>PENDING</option>
+                                    <option value="PAID" ${detail.status == 'PAID' ? 'selected' : ''}>PAID</option>
+                                    <option value="CANCELLED" ${detail.status == 'CANCELLED' ? 'selected' : ''}>CANCELLED</option>
+                                </select>
+                                <button type="submit" class="btn btn-success px-3">Lưu</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </c:otherwise>
+    </c:choose>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

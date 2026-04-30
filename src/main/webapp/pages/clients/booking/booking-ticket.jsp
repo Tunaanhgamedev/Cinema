@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="jakarta.tags.core" prefix="c"%>
+<%@ taglib uri="jakarta.tags.fmt" prefix="fmt"%>
 
 <jsp:include page="/common/header.jsp" />
 
@@ -51,6 +51,21 @@
     .dot.free{ background:#0f1627; border:1px solid rgba(255,255,255,.25); }
     .dot.sel{ background:rgba(231,26,15,.65); }
     .dot.bok{ background:#444; }
+    .dot.other{ background: #ffa500; } /* Orange for others */
+    
+    .seat-label.other-selected { 
+      background: rgba(255, 165, 0, 0.2); 
+      border-color: rgba(255, 165, 0, 0.5); 
+      cursor: not-allowed;
+      position: relative;
+    }
+    .seat-label.other-selected::after {
+      content: "👤";
+      font-size: 10px;
+      position: absolute;
+      top: 2px;
+      right: 2px;
+    }
 
     .alert{ padding:12px 14px; border-radius:14px; border:1px solid rgba(231,26,15,.5); background:rgba(231,26,15,.12); font-weight:800; }
     .top-actions{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
@@ -79,7 +94,7 @@
       <div class="row">
         <div class="col">
           <label>Phim</label>
-          <select class="select" name="movieId" required>
+          <select class="select" name="movieId" id="movieSelect" required>
             <option value="">-- Chọn phim --</option>
             <c:forEach var="m" items="${movies}">
               <option value="${m.movieId}" <c:if test="${movieId == m.movieId}">selected</c:if>>
@@ -97,39 +112,22 @@
 
         <div class="col">
           <label>Ngày chiếu</label>
-          <!-- type=date BẮT BUỘC yyyy-MM-dd -->
-          <input class="input" type="date" name="showDate" value="${showDate}" required/>
-          <div class="muted" style="margin-top:6px;"></div>
+          <input class="input" type="date" name="showDate" id="showDateInput" value="${showDate}" required/>
         </div>
 
         <div class="col">
           <label>Suất chiếu</label>
-
-          <c:choose>
-            <c:when test="${empty showtimes}">
-              <select class="select" name="showtimeId" disabled>
-                <option>Chọn phim + ngày rồi bấm “Tải suất chiếu / tải ghế”</option>
-              </select>
-              <div class="muted" style="margin-top:6px;">Chưa có dữ liệu suất chiếu.</div>
-            </c:when>
-            <c:otherwise>
-              <select class="select" name="showtimeId" required>
-                <option value="">-- Chọn suất chiếu --</option>
-                <c:forEach var="st" items="${showtimes}">
-                  <option value="${st.showtimeId}" <c:if test="${showtimeId == st.showtimeId}">selected</c:if>>
-                    <fmt:formatDate value="${st.startTime}" pattern="HH:mm"/> -
-                    <fmt:formatDate value="${st.endTime}" pattern="HH:mm"/>
-                    (Phòng: ${st.roomName})
-                  </option>
-                </c:forEach>
-              </select>
-            </c:otherwise>
-          </c:choose>
+          <select class="select" name="showtimeId" id="showtimeSelect" required>
+            <option value="">-- Chọn suất chiếu --</option>
+            <c:forEach var="st" items="${showtimes}">
+              <option value="${st.showtimeId}" <c:if test="${showtimeId == st.showtimeId}">selected</c:if>>
+                <fmt:formatDate value="${st.startTime}" pattern="HH:mm"/> -
+                <fmt:formatDate value="${st.endTime}" pattern="HH:mm"/>
+                (Phòng: ${st.roomName})
+              </option>
+            </c:forEach>
+          </select>
         </div>
-      </div>
-
-      <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
-        <button type="submit" class="btn btn-outline">Tải suất chiếu / tải ghế</button>
       </div>
     </form>
   </div>
@@ -138,7 +136,7 @@
 
   <!-- FORM POST: tạo booking PENDING + giữ ghế + redirect qua combo -->
   <div class="card">
-    <form id="bookingForm" method="post" action="${pageContext.request.contextPath}/booking/combo">
+    <form id="bookingForm" method="post" action="${pageContext.request.contextPath}/booking-seat">
       <input type="hidden" name="movieId" value="${movieId}"/>
       <input type="hidden" name="showDate" value="${showDate}"/>
       <input type="hidden" name="cinemaId" value="1"/>
@@ -209,6 +207,7 @@
         <span class="badge"><span class="dot free"></span>Trống</span>
         <span class="badge"><span class="dot sel"></span>Đang chọn</span>
         <span class="badge"><span class="dot bok"></span>Đã đặt/đang giữ</span>
+        <span class="badge"><span class="dot other"></span>Người khác đang chọn</span>
         <span class="badge counter">Đã chọn: <span id="pickedCount">0</span>/<span id="maxCount">0</span></span>
       </div>
 
@@ -229,45 +228,148 @@
   // ✅ Không auto-submit khi đổi ngày => tránh “reset trang”
   // ✅ Khóa chọn ghế theo ticketQty
   (function(){
+    const movieSelect = document.getElementById('movieSelect');
+    const dateInput = document.getElementById('showDateInput');
+    const showtimeSelect = document.getElementById('showtimeSelect');
+    const seatGrid = document.getElementById('seatGrid');
     const qtyEl = document.getElementById('ticketQty');
-    const seats = Array.from(document.querySelectorAll('input.seat'));
     const pickedCount = document.getElementById('pickedCount');
     const maxCount = document.getElementById('maxCount');
+    const submitBtn = document.querySelector('#bookingForm button[type="submit"]');
+
+    let socket = null;
 
     function getMax(){
-      const n = parseInt(qtyEl?.value || "0", 10);
-      return isNaN(n) ? 0 : n;
+      return parseInt(qtyEl?.value || "0", 10) || 0;
     }
 
-    function update(){
+    function updateCounters(){
+      const seats = Array.from(document.querySelectorAll('input.seat'));
       const max = getMax();
       const picked = seats.filter(s => s.checked).length;
       maxCount.textContent = max;
       pickedCount.textContent = picked;
 
-      // disable các ghế còn lại khi đã đủ
       seats.forEach(s => {
-        if (!s.checked) s.disabled = (picked >= max) || s.disabled && s.hasAttribute('disabled');
+        if (!s.checked) s.disabled = (picked >= max) || s.dataset.booked === 'true' || s.dataset.otherSelected === 'true';
       });
-
-      // nhưng nếu showtimeId rỗng thì disabled tất
-      const showtimeId = "${showtimeId}";
-      if (!showtimeId) seats.forEach(s => s.disabled = true);
     }
 
-    // khi đổi số vé -> bỏ chọn ghế nếu vượt quá
-    qtyEl?.addEventListener('input', function(){
-      const max = getMax();
-      let checked = seats.filter(s => s.checked);
-      while (checked.length > max){
-        checked[checked.length - 1].checked = false;
-        checked = seats.filter(s => s.checked);
-      }
-      update();
-    });
+    // --- AJAX SHOWTIMES ---
+    async function loadShowtimes(){
+      const mId = movieSelect.value;
+      const date = dateInput.value;
+      if(!mId || !date) return;
 
-    seats.forEach(s => s.addEventListener('change', update));
-    update();
+      const res = await fetch(`${pageContext.request.contextPath}/booking-seat?ajax=showtimes&movieId=${mId}&showDate=${date}`);
+      const data = await res.json();
+
+      showtimeSelect.innerHTML = '<option value="">-- Chọn suất chiếu --</option>';
+      data.forEach(st => {
+        showtimeSelect.innerHTML += `<option value="${st.id}">${st.time} (Phòng: ${st.room})</option>`;
+      });
+      
+      // Clear seats when showtimes change
+      seatGrid.innerHTML = '';
+      submitBtn.disabled = true;
+    }
+
+    // --- AJAX SEATS ---
+    async function loadSeats(){
+      const stId = showtimeSelect.value;
+      if(!stId) {
+        seatGrid.innerHTML = '';
+        submitBtn.disabled = true;
+        return;
+      }
+
+      const res = await fetch(`${pageContext.request.contextPath}/booking-seat?ajax=seats&showtimeId=${stId}`);
+      const data = await res.json();
+
+      renderSeats(data);
+      initWebSocket(stId);
+      submitBtn.disabled = false;
+      
+      // Sync hidden showtimeId
+      document.querySelector('input[name="showtimeId"]').value = stId;
+    }
+
+    function renderSeats(data){
+      let html = '';
+      data.rows.forEach(r => {
+        for(let i=1; i<=10; i++){
+          const code = r + i;
+          const isBooked = data.booked.includes(code);
+          const sid = 's_' + code;
+          
+          html += `<div class="seat-item">`;
+          if(isBooked){
+            html += `<span class="seat-label booked">${code}</span>`;
+          } else {
+            html += `
+              <input class="seat-check seat" type="checkbox" id="${sid}" name="seats" value="${code}" data-booked="false">
+              <label class="seat-label" for="${sid}">${code}</label>
+            `;
+          }
+          html += `</div>`;
+        }
+      });
+      seatGrid.innerHTML = html;
+      
+      // Add listeners to new seats
+      document.querySelectorAll('input.seat').forEach(s => {
+        s.addEventListener('change', updateCounters);
+        s.addEventListener('change', function() {
+            if(socket && socket.readyState === WebSocket.OPEN) {
+                const action = this.checked ? 'select' : 'deselect';
+                socket.send(showtimeSelect.value + ':' + this.value + ':' + action);
+            }
+        });
+      });
+      updateCounters();
+    }
+
+    // --- WEBSOCKET ---
+    function initWebSocket(stId){
+        if(socket) socket.close();
+
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = protocol + '//' + window.location.host + '${pageContext.request.contextPath}/ws/seat?showtimeId=' + stId;
+        socket = new WebSocket(wsUrl);
+
+        socket.onmessage = (event) => {
+            const [msgStId, seatCode, action] = event.data.split(':');
+            if (msgStId === stId) {
+                const seatInput = document.getElementById('s_' + seatCode);
+                const seatLabel = document.querySelector('label[for="s_' + seatCode + '"]');
+                
+                if (seatInput && seatLabel) {
+                    if (action === 'select') {
+                        seatInput.disabled = true;
+                        seatInput.dataset.otherSelected = 'true';
+                        seatLabel.classList.add('other-selected');
+                    } else if (action === 'deselect') {
+                        if (seatInput.dataset.booked !== 'true' && !seatInput.checked) {
+                            seatInput.disabled = false;
+                            delete seatInput.dataset.otherSelected;
+                            seatLabel.classList.remove('other-selected');
+                            updateCounters();
+                        }
+                    }
+                }
+            }
+        };
+    }
+
+    movieSelect.addEventListener('change', loadShowtimes);
+    dateInput.addEventListener('change', loadShowtimes);
+    showtimeSelect.addEventListener('change', loadSeats);
+    qtyEl.addEventListener('input', updateCounters);
+
+    // Initial load if already selected (e.g. redirected back with error)
+    if(showtimeSelect.value) loadSeats();
+    else if(movieSelect.value && dateInput.value) loadShowtimes();
+
   })();
 </script>
 

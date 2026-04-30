@@ -2,11 +2,11 @@ package com.cinema.controller.User;
 
 import java.io.IOException;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import com.cinema.dao.BannerDAO;
 
@@ -23,10 +23,12 @@ public class HomeServlet extends HttpServlet {
 		}
 
 		BannerDAO bannerDAO = new BannerDAO();
+		com.cinema.dao.MovieDAO movieDAO = new com.cinema.dao.MovieDAO();
 
 		request.setAttribute("leftBanner", bannerDAO.getActiveBannerByPosition("LEFT"));
 
 		request.setAttribute("rightBanner", bannerDAO.getActiveBannerByPosition("RIGHT"));
+		request.setAttribute("nowShowingMovies", movieDAO.findNowShowing());
 
 		request.getRequestDispatcher("/pages/clients/home.jsp").forward(request, response);
 	}

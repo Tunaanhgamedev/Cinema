@@ -8,3 +8,4 @@
 *.ear
 /target/
 .DS_Store
+db.properties

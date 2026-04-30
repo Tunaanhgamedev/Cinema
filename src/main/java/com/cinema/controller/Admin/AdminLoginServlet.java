@@ -30,7 +30,7 @@ public class AdminLoginServlet extends HttpServlet {
 
 		User user = userDAO.findByEmail(email);
 
-		if (user != null && "ADMIN".equals(user.getRole()) && PasswordUtil.checkPassword(password, user.getPassword())) {
+		if (user != null && "ADMIN".equals(user.getRole()) && PasswordUtil.verify(password, user.getPassword())) {
 			HttpSession session = req.getSession();
 			session.setAttribute("authUser", user);
 			resp.sendRedirect(req.getContextPath() + "/admin");

@@ -431,14 +431,21 @@
                         </span>
                     </div>
 
+                    <input type="hidden" name="goto" id="gotoAction" value="payment">
                     <div class="summary-item mt-4">
                         <span class="fw-bold fs-5">TỔNG CỘNG</span>
                         <span class="fw-bold fs-4 text-primary" id="totalPriceDisplay">0 ₫</span>
                     </div>
 
-                    <button type="submit" class="btn-confirm" id="btnSubmit" <c:if test="${empty showtimeId}">disabled</c:if>>
-                        TIẾP TỤC <i class="fas fa-arrow-right ms-2"></i>
-                    </button>
+                    <div class="d-flex flex-column gap-2 mt-4">
+                        <button type="submit" class="btn-confirm" id="btnPayment" onclick="document.getElementById('gotoAction').value='payment'" <c:if test="${empty showtimeId}">disabled</c:if>>
+                            THANH TOÁN NGAY <i class="fas fa-credit-card ms-2"></i>
+                        </button>
+                        <button type="submit" class="btn-confirm" id="btnCombo" onclick="document.getElementById('gotoAction').value='combo'" 
+                                style="background: rgba(99, 102, 241, 0.2); border: 1px solid var(--secondary); margin-top: 0;" <c:if test="${empty showtimeId}">disabled</c:if>>
+                            MUA THÊM COMBO <i class="fas fa-popcorn ms-2"></i>
+                        </button>
+                    </div>
                     
                     <p class="text-muted small text-center mt-3">
                         <i class="fas fa-info-circle me-1"></i> Chỗ ngồi sẽ được giữ trong 10 phút

@@ -226,7 +226,12 @@ public class BookingSeatServlet extends HttpServlet {
 			con.commit();
 			session.removeAttribute("selectedSeats");
 
-			resp.sendRedirect(req.getContextPath() + "/booking/combo?bookingId=" + bookingId);
+			String gotoAction = trim(req.getParameter("goto"));
+			if ("payment".equals(gotoAction)) {
+				resp.sendRedirect(req.getContextPath() + "/booking/payment?bookingId=" + bookingId);
+			} else {
+				resp.sendRedirect(req.getContextPath() + "/booking/combo?bookingId=" + bookingId);
+			}
 			return;
 
 		} catch (RuntimeException ex) {

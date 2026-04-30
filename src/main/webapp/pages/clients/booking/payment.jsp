@@ -53,9 +53,92 @@
   </div>
 
   <div class="payment-container">
-
-    <!-- OVERVIEW -->
-    <section class="payment-overview">
+    <% if ("1".equals(request.getParameter("success"))) { %>
+      <!-- SUCCESS TICKET VIEW -->
+      <section class="success-ticket-section">
+        <div class="ticket-wrapper">
+            <div class="ticket-card">
+                <div class="ticket-left">
+                    <div class="ticket-header">
+                        <div class="brand">BOBIXI CINEMA</div>
+                        <div class="ticket-type">VÉ XEM PHIM</div>
+                    </div>
+                    <div class="ticket-body">
+                        <div class="movie-title">Phim: ${seatList[0].movieName != null ? seatList[0].movieName : "Phim đang đặt"}</div>
+                        <div class="ticket-info-grid">
+                            <div class="info-item">
+                                <div class="info-label">NGÀY</div>
+                                <div class="info-value">Hôm nay</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">SUẤT CHIẾU</div>
+                                <div class="info-value">Theo lịch</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">PHÒNG</div>
+                                <div class="info-value"><%= (seatList != null && !seatList.isEmpty()) ? seatList.get(0).getRoomId() : "1" %></div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">GHẾ</div>
+                                <div class="info-value">
+                                    <% if (seatList != null) { 
+                                        for(int i=0; i<seatList.size(); i++) {
+                                            out.print(seatList.get(i).getSeatRow() + seatList.get(i).getSeatNumber() + (i < seatList.size()-1 ? ", " : ""));
+                                        }
+                                    } %>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ticket-footer">
+                            <div class="booking-id">Mã vé: #<%= bookingIdStr %></div>
+                            <div class="expiry-note">Hạn dùng: Đến khi suất chiếu kết thúc</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ticket-right">
+                    <div class="qr-container">
+                        <img src="https://chart.googleapis.com/chart?chs=180x180&cht=qr&chl=BOBIXI-<%= bookingIdStr %>-SUCCESS" alt="QR Code">
+                        <div class="qr-label">QUÉT MÃ VÀO RẠP</div>
+                    </div>
+                    <div class="cut-line"></div>
+                </div>
+            </div>
+            <div class="ticket-actions mt-5">
+                <a href="<%= ctx %>/home" class="btn-confirm" style="text-decoration:none; display:inline-block; text-align:center;">VỀ TRANG CHỦ</a>
+                <a href="<%= ctx %>/profile" class="btn-outline" style="text-decoration:none; display:inline-block; text-align:center;">XEM VÉ ĐÃ MUA</a>
+            </div>
+        </div>
+      </section>
+      
+      <style>
+          .ticket-wrapper { max-width: 800px; margin: 40px auto; }
+          .ticket-card { display: flex; background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.2); min-height: 350px; position: relative; }
+          .ticket-left { flex: 1; padding: 40px; border-right: 2px dashed #eee; background: #fff; }
+          .ticket-right { width: 240px; background: #0f172a; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; position: relative; }
+          .ticket-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+          .brand { font-weight: 900; color: #e71a0f; font-size: 1.2rem; }
+          .ticket-type { background: #0f172a; color: #fff; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; }
+          .movie-title { font-size: 2rem; font-weight: 900; color: #0f172a; margin-bottom: 25px; line-height: 1.1; }
+          .ticket-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+          .info-label { font-size: 0.7rem; color: #94a3b8; font-weight: 800; }
+          .info-value { font-size: 1.1rem; color: #0f172a; font-weight: 800; }
+          .ticket-footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
+          .booking-id { font-weight: 900; color: #64748b; }
+          .expiry-note { font-size: 0.75rem; color: #ef4444; font-weight: 700; font-style: italic; }
+          .qr-container { text-align: center; }
+          .qr-container img { background: #fff; padding: 10px; border-radius: 12px; margin-bottom: 15px; width: 100%; }
+          .qr-label { font-weight: 900; font-size: 0.8rem; letter-spacing: 2px; opacity: 0.8; }
+          .cut-line { position: absolute; left: -10px; top: 0; bottom: 0; width: 20px; background-image: radial-gradient(#f5f5f5 5px, transparent 5px); background-size: 20px 20px; }
+          .mt-5 { margin-top: 30px; }
+          @media (max-width: 768px) {
+              .ticket-card { flex-direction: column; }
+              .ticket-right { width: 100%; border-left: none; border-top: 2px dashed #eee; }
+              .cut-line { display: none; }
+          }
+      </style>
+    <% } else { %>
+      <!-- OVERVIEW (Original Payment Content) -->
+      <section class="payment-overview">
       <h2>Thanh toán nhanh – gọn – an toàn</h2>
       <p class="overview-text">
         Bạn vui lòng kiểm tra lại ghế, combo và tổng tiền trước khi xác nhận.

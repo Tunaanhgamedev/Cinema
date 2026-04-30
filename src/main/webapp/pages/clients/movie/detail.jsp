@@ -272,13 +272,40 @@
             });
         });
 
-        // Trailer Management
+        // Trailer Management - Universal YouTube Parser
         const modal = document.getElementById('trailerModal');
         const frame = document.getElementById('trailerFrame');
         const rawUrl = "${movie.trailerUrl}";
-        const embedUrl = rawUrl.includes('watch?v=') ? rawUrl.replace('watch?v=', 'embed/') : rawUrl;
+
+        function getYoutubeEmbedUrl(url) {
+            if (!url) return "";
+            let videoId = "";
+            
+            try {
+                if (url.includes('v=')) {
+                    // Link dạng: https://www.youtube.com/watch?v=XXXXXXXX
+                    videoId = url.split('v=')[1].split('&')[0];
+                } else if (url.includes('youtu.be/')) {
+                    // Link dạng: https://youtu.be/XXXXXXXX
+                    videoId = url.split('youtu.be/')[1].split('?')[0];
+                } else if (url.includes('embed/')) {
+                    // Link đã là embed: https://www.youtube.com/embed/XXXXXXXX
+                    return url;
+                }
+            } catch (e) {
+                console.error("Error parsing YouTube URL:", e);
+            }
+            
+            return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
+        }
+
+        const embedUrl = getYoutubeEmbedUrl(rawUrl);
 
         document.getElementById('btnTrailer').addEventListener('click', () => {
+            if (!embedUrl) {
+                alert("Trailer hiện đang được cập nhật!");
+                return;
+            }
             frame.src = embedUrl + (embedUrl.includes('?') ? '&' : '?') + "autoplay=1";
             modal.style.display = 'flex';
         });

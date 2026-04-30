@@ -11,7 +11,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/src/main/webapp/WEB-INF/lib/jbcrypt-0.4.jar!/" />
+          <root url="jar://E:/tuhoc_java/Cinema/src/main/webapp/WEB-INF/lib/jbcrypt-0.4.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -20,7 +20,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/src/main/webapp/WEB-INF/lib/mysql-connector-j-9.2.0.jar!/" />
+          <root url="jar://E:/tuhoc_java/Cinema/src/main/webapp/WEB-INF/lib/mysql-connector-j-9.2.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -29,7 +29,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/src/main/webapp/WEB-INF/lib/websocket-api.jar!/" />
+          <root url="jar://E:/tuhoc_java/Cinema/src/main/webapp/WEB-INF/lib/servlet-api.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -38,7 +38,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/src/main/webapp/WEB-INF/lib/servlet-api.jar!/" />
+          <root url="jar://E:/tuhoc_java/Cinema/src/main/webapp/WEB-INF/lib/jsp-api.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -47,7 +47,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/src/main/webapp/WEB-INF/lib/jsp-api.jar!/" />
+          <root url="jar://E:/tuhoc_java/Cinema/src/main/webapp/WEB-INF/lib/tomcat-websocket.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -56,16 +56,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/src/main/webapp/WEB-INF/lib/tomcat-websocket.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/src/main/webapp/WEB-INF/lib/websocket-api.jar!/" />
+          <root url="jar://E:/tuhoc_java/Cinema/src/main/webapp/WEB-INF/lib/websocket-api.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

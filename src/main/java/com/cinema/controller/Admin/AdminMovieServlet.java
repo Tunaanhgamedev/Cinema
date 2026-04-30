@@ -64,6 +64,8 @@ public class AdminMovieServlet extends HttpServlet {
 		m.setReleaseDate(Date.valueOf(req.getParameter("releaseDate")));
 		m.setRating(Double.parseDouble(req.getParameter("rating")));
 		m.setPoster(req.getParameter("poster"));
+		m.setGenre(req.getParameter("genre"));
+		m.setTrailerUrl(req.getParameter("trailerUrl"));
 		m.setStatus(StatusMovie.valueOf(req.getParameter("status")));
 		return m;
 	}

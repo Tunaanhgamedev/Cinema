@@ -21,16 +21,8 @@
 </head>
 <body>
 
-<div class="sidebar">
-    <div class="brand">BOBIXI • ADMIN</div>
-    <nav>
-        <a href="${pageContext.request.contextPath}/admin" class="nav-link"><i class="fas fa-chart-line me-2"></i> Dashboard</a>
-        <a href="${pageContext.request.contextPath}/admin/movies" class="nav-link"><i class="fas fa-film me-2"></i> Quản lý Phim</a>
-        <a href="${pageContext.request.contextPath}/admin/showtimes" class="nav-link"><i class="fas fa-calendar-alt me-2"></i> Lịch chiếu</a>
-        <a href="${pageContext.request.contextPath}/admin/bookings" class="nav-link active"><i class="fas fa-ticket-alt me-2"></i> Đơn hàng</a>
-        <a href="${pageContext.request.contextPath}/home" class="nav-link"><i class="fas fa-external-link-alt me-2"></i> Về Web</a>
-    </nav>
-</div>
+<c:set var="activePage" value="bookings" scope="request" />
+<jsp:include page="/common/admin-sidebar.jsp" />
 
 <div class="main-content">
     <div class="mb-4">

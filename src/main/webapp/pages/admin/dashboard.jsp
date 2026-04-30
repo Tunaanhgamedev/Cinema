@@ -7,19 +7,6 @@
     <meta charset="UTF-8">
     <title>Dashboard | Admin Cinema</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body { background: #0b0f19; color: #e5e7eb; font-family: 'Inter', sans-serif; }
-        .sidebar { width: 260px; background: #111827; border-right: 1px solid #1f2937; min-height: 100vh; position: fixed; }
-        .main-content { margin-left: 260px; padding: 40px; }
-        .nav-link { color: #9ca3af; padding: 12px 20px; border-radius: 12px; margin: 4px 12px; display: block; text-decoration: none; transition: 0.3s; }
-        .nav-link:hover, .nav-link.active { background: #1f2937; color: #fff; }
-        .card-glass { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(10px); border: 1px solid #1f2937; border-radius: 20px; }
-        .brand { padding: 24px; font-size: 24px; font-weight: 900; color: #e50914; letter-spacing: -1px; }
-        .stat-card { transition: 0.3s; cursor: default; }
-        .stat-card:hover { transform: translateY(-5px); border-color: #6366f1; }
-        .icon-box { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
-    </style>
 </head>
 <body>
 

@@ -8,18 +8,6 @@
     <title>Quản lý Combo | Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body { background: #0b0f19; color: #e5e7eb; font-family: 'Inter', sans-serif; }
-        .main-content { margin-left: 260px; padding: 40px; }
-        .card-glass { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(10px); border: 1px solid #1f2937; border-radius: 20px; }
-        .table { color: #e5e7eb; }
-        .table thead th { border-bottom: 2px solid #1f2937; color: #9ca3af; font-weight: 600; text-transform: uppercase; font-size: 12px; }
-        .table tbody td { border-bottom: 1px solid #1f2937; vertical-align: middle; padding: 15px; }
-        .btn-action { width: 32px; height: 32px; padding: 0; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; }
-        .modal-content { background: #111827; border: 1px solid #1f2937; border-radius: 20px; color: #e5e7eb; }
-        .form-control { background: #1f2937; border: 1px solid #374151; color: #fff; border-radius: 10px; }
-        .form-control:focus { background: #1f2937; color: #fff; border-color: #6366f1; box-shadow: none; }
-    </style>
 </head>
 <body>
 

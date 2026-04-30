@@ -67,6 +67,10 @@
                                         <div>
                                             <div class="font-bold text-white text-base mb-1">${m.title}</div>
                                             <div class="text-slate-500 text-[11px] font-medium tracking-wider">MÃ: #${m.movieId}</div>
+                                            <!-- Hidden data for JS -->
+                                            <span id="data-title-${m.movieId}" class="hidden">${m.title}</span>
+                                            <span id="data-desc-${m.movieId}" class="hidden">${m.description}</span>
+                                            <span id="data-genre-${m.movieId}" class="hidden">${m.genre}</span>
                                         </div>
                                     </div>
                                 </td>
@@ -96,16 +100,7 @@
                                     <div class="flex justify-end gap-3">
                                         <button class="w-9 h-9 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center hover:bg-indigo-500 hover:text-white transition-all" 
                                                 title="Chỉnh sửa" 
-                                                onclick="prepareEdit('${m.movieId}', 
-                                                                    '${m.title.replace("'", "\\'")}', 
-                                                                    '${m.genre.replace("'", "\\'")}', 
-                                                                    '${m.duration}', 
-                                                                    '${m.poster}', 
-                                                                    '${m.trailerUrl}', 
-                                                                    '${m.status}', 
-                                                                    '${m.description.replace("'", "\\'").replace("\n", " ")}', 
-                                                                    '<fmt:formatDate value="${m.releaseDate}" pattern="yyyy-MM-dd" />', 
-                                                                    '${m.rating}')">
+                                                onclick="prepareEdit('${m.movieId}', '${m.duration}', '${m.poster}', '${m.trailerUrl}', '${m.status}', '<fmt:formatDate value="${m.releaseDate}" pattern="yyyy-MM-dd" />', '${m.rating}')">
                                             <i class="fas fa-edit text-xs"></i>
                                         </button>
                                         <form action="${pageContext.request.contextPath}/admin/movies" method="POST" class="inline" onsubmit="return confirm('Bạn có chắc muốn xóa phim này?')">
@@ -213,17 +208,20 @@
         document.getElementById('inputRating').value = '0';
     }
 
-    function prepareEdit(id, title, genre, duration, poster, trailer, status, description, releaseDate, rating) {
+    function prepareEdit(id, duration, poster, trailer, status, releaseDate, rating) {
         document.getElementById('modalTitle').innerText = 'Chỉnh sửa phim';
         document.getElementById('modalAction').value = 'update';
         document.getElementById('modalMovieId').value = id;
-        document.getElementById('inputTitle').value = title;
-        document.getElementById('inputGenre').value = genre;
+        
+        // Lấy dữ liệu từ các thẻ ẩn thay vì truyền trực tiếp qua tham số JS (tránh lỗi Jasper EL)
+        document.getElementById('inputTitle').value = document.getElementById('data-title-' + id).innerText;
+        document.getElementById('inputDescription').value = document.getElementById('data-desc-' + id).innerText;
+        document.getElementById('inputGenre').value = document.getElementById('data-genre-' + id).innerText;
+        
         document.getElementById('inputDuration').value = duration;
         document.getElementById('inputPoster').value = poster;
         document.getElementById('inputTrailer').value = trailer;
         document.getElementById('inputStatus').value = status;
-        document.getElementById('inputDescription').value = description;
         document.getElementById('inputReleaseDate').value = releaseDate;
         document.getElementById('inputRating').value = rating;
         

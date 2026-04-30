@@ -9,23 +9,17 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-style.css">
-    <style>
-        .pill-seat { display: inline-block; padding: 5px 12px; background: #1f2937; border: 1px solid #374151; border-radius: 8px; margin: 2px; font-size: 13px; font-weight: 600; }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
 <jsp:include page="/common/admin/sidebar.jsp" />
 
 <div class="main-content">
-    <div class="mb-4">
-        <a href="${pageContext.request.contextPath}/admin/bookings" class="text-decoration-none text-muted small mb-2 d-inline-block">
-            <i class="fas fa-arrow-left me-1"></i> Quay lại danh sách
+    <div class="d-flex align-items-center gap-3 mb-5">
+        <a href="${pageContext.request.contextPath}/admin/bookings" class="btn-action">
+            <i class="fas fa-arrow-left"></i>
         </a>
-        <h2 class="fw-bold mb-1">Chi tiết đơn hàng #${detail.bookingId}</h2>
-    </div>
-
-    <c:choose>
         <c:when test="${empty detail}">
             <div class="alert alert-danger">Không tìm thấy thông tin đơn hàng.</div>
         </c:when>

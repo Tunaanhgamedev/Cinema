@@ -106,69 +106,87 @@
                 <td><%= desc %></td>
                 <td><%= price %> VNĐ</td>
                 <td>
-
-                  <!-- Hidden để JS lấy dữ liệu an toàn 100% -->
-                  <input type="hidden" id="name_<%=id%>" value="<%= esc(name) %>"/>
-                  <input type="hidden" id="desc_<%=id%>" value="<%= esc(desc) %>"/>
-                  <input type="hidden" id="price_<%=id%>" value="<%= price %>"/>
-
-                  <!-- Nút Sửa: chỉ truyền ID -->
-                  <button type="button" class="btn btn-warning btnx"
-                          onclick="fillEdit2(<%=id%>)">
-                    Sửa
-                  </button>
-
-                  <!-- Nút Xóa -->
-                  <form class="d-inline" action="<%=request.getContextPath()%>/admin/combos" method="post"
-                        onsubmit="return confirm('Xóa combo này?');">
-                    <input type="hidden" name="action" value="delete"/>
-                    <input type="hidden" name="comboId" value="<%= id %>"/>
-                    <button class="btn btn-danger btnx" type="submit">Xóa</button>
-                  </form>
-
-                </td>
-              </tr>
-            <% } } %>
-            </tbody>
-          </table>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th style="padding-left: 30px;">HÌNH ẢNH</th>
+                        <th>TÊN COMBO</th>
+                        <th>CHI TIẾT MÔ TẢ</th>
+                        <th>GIÁ BÁN</th>
+                        <th class="text-end" style="padding-right: 30px;">HÀNH ĐỘNG</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <c:forEach var="c" items="${comboList}">
+                        <tr>
+                            <td style="padding-left: 30px;">
+                                <img src="${c.imageUrl}" class="rounded-3 shadow-sm" style="width: 56px; height: 56px; object-fit: cover;">
+                            </td>
+                            <td>
+                                <div class="fw-bold text-white">${c.name}</div>
+                                <div class="text-muted small">Mã: #${c.comboId}</div>
+                            </td>
+                            <td style="max-width: 300px;"><span class="text-muted small">${c.description}</span></td>
+                            <td><span class="fw-bold text-accent"><fmt:formatNumber value="${c.price}" type="currency" currencySymbol="₫" maxFractionDigits="0" /></span></td>
+                            <td class="text-end" style="padding-right: 30px;">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button class="btn-action" title="Chỉnh sửa" onclick="prepareEdit('${c.comboId}', '${c.name}', '${c.description}', '${c.price}', '${c.imageUrl}')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <form action="${pageContext.request.contextPath}/admin/combos" method="POST" class="d-inline" onsubmit="return confirm('Xóa combo này?')">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="comboId" value="${c.comboId}">
+                                        <button class="btn-action hover-danger" title="Xóa">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    </c:forEach>
+                </tbody>
+            </table>
         </div>
-
-        <!-- Form sửa combo -->
-        <div class="cardx p-3 mt-3">
-          <h5 class="fw-bold">Sửa combo</h5>
-
-          <form action="<%=request.getContextPath()%>/admin/combos" method="post">
-            <input type="hidden" name="action" value="update"/>
-
-            <div class="row g-2">
-              <div class="col-md-2">
-                <label class="form-label">ID</label>
-                <input id="editId" class="form-control" name="comboId" required/>
-              </div>
-
-              <div class="col-md-4">
-                <label class="form-label">Tên</label>
-                <input id="editName" class="form-control" name="name" required/>
-              </div>
-
-              <div class="col-md-4">
-                <label class="form-label">Mô tả</label>
-                <input id="editDesc" class="form-control" name="description"/>
-              </div>
-
-              <div class="col-md-2">
-                <label class="form-label">Giá</label>
-                <input id="editPrice" class="form-control" name="price" type="number" min="0" required/>
-              </div>
-            </div>
-
-            <button class="btn btn-success btnx w-100 mt-3" type="submit">Cập nhật</button>
-          </form>
-        </div>
-
-      </div>
     </div>
-  </div>
+</div>
+
+<!-- Combo Modal -->
+<div class="modal fade" id="comboModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form action="${pageContext.request.contextPath}/admin/combos" method="POST" class="modal-content">
+            <input type="hidden" name="action" id="modalAction" value="add">
+            <input type="hidden" name="comboId" id="modalId">
+            
+            <div class="modal-header border-0 p-4">
+                <h5 class="modal-title fw-bold" id="modalTitle">Thiết lập Combo</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body p-4 pt-0">
+                <div class="row g-4">
+                    <div class="col-12">
+                        <label class="form-label small text-muted fw-bold">Tên Combo bắp nước</label>
+                        <input type="text" name="name" id="inputName" class="form-control" placeholder="Ví dụ: Combo 2 bắp 2 nước" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small text-muted fw-bold">Mô tả thành phần</label>
+                        <textarea name="description" id="inputDescription" class="form-control" rows="3" placeholder="Chi tiết gồm những gì..."></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small text-muted fw-bold">Giá bán (VNĐ)</label>
+                        <input type="number" name="price" id="inputPrice" class="form-control" placeholder="99000" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small text-muted fw-bold">Link hình ảnh</label>
+                        <input type="text" name="imageUrl" id="inputImageUrl" class="form-control" placeholder="URL hình ảnh...">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 p-4 pt-0">
+                <button type="button" class="btn btn-link text-white text-decoration-none" data-bs-dismiss="modal">Hủy bỏ</button>
+                <button type="submit" class="btn btn-primary px-5">Lưu Combo</button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <script>

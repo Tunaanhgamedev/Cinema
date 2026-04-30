@@ -8,6 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -16,58 +17,62 @@
 <div class="main-content">
     <div class="d-flex justify-content-between align-items-center mb-5">
         <div>
-            <h2 class="fw-bold mb-1">Danh sách phim</h2>
-            <p class="text-muted small mb-0">Quản lý kho phim và trạng thái hiển thị</p>
+            <h1 class="fw-800 mb-1" style="font-weight: 800;">Quản lý Phim</h1>
+            <p class="text-muted mb-0">Thêm, sửa và cập nhật danh sách phim đang công chiếu.</p>
         </div>
-        <button class="btn btn-primary px-4 rounded-3" data-bs-toggle="modal" data-bs-target="#movieModal" onclick="prepareAdd()">
-            <i class="fas fa-plus me-2"></i> Thêm phim mới
+        <button class="btn btn-primary px-4" data-bs-toggle="modal" data-bs-target="#movieModal" onclick="prepareAdd()">
+            <i class="fas fa-plus-circle me-2"></i> Thêm phim mới
         </button>
     </div>
 
-    <div class="card-glass p-4">
+    <c:if test="${not empty error}">
+        <div class="alert alert-danger mb-4 rounded-4 border-0 bg-danger bg-opacity-10 text-danger">
+            <i class="fas fa-exclamation-circle me-2"></i> ${error}
+        </div>
+    </c:if>
+
+    <div class="card-glass p-0 overflow-hidden">
         <div class="table-responsive">
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Phim</th>
-                        <th>Thời lượng</th>
-                        <th>Khởi chiếu</th>
-                        <th>Đánh giá</th>
-                        <th>Trạng thái</th>
-                        <th class="text-end">Hành động</th>
+                        <th style="padding-left: 30px;">THÔNG TIN PHIM</th>
+                        <th>THỂ LOẠI</th>
+                        <th>THỜI LƯỢNG</th>
+                        <th>TRẠNG THÁI</th>
+                        <th class="text-end" style="padding-right: 30px;">HÀNH ĐỘNG</th>
                     </tr>
                 </thead>
                 <tbody>
                     <c:forEach var="m" items="${movieList}">
                         <tr>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <img src="${pageContext.request.contextPath}/${m.poster}" class="movie-poster-sm me-3" alt="">
+                            <td style="padding-left: 30px;">
+                                <div class="d-flex align-items-center gap-3">
+                                    <img src="${m.poster}" class="rounded-3 shadow-sm" style="width: 48px; height: 68px; object-fit: cover;">
                                     <div>
-                                        <div class="fw-bold">${m.title}</div>
-                                        <div class="text-muted small">ID: #${m.movieId}</div>
+                                        <div class="fw-bold text-white">${m.title}</div>
+                                        <div class="text-muted small">Mã: #${m.movieId}</div>
                                     </div>
                                 </div>
                             </td>
-                            <td>${m.duration} phút</td>
-                            <td>${m.releaseDate}</td>
-                            <td><span class="text-warning"><i class="fas fa-star me-1"></i></span> ${m.rating}</td>
+                            <td><span class="badge bg-white bg-opacity-5 text-muted fw-normal">${m.genre}</span></td>
+                            <td><span class="text-white">${m.duration} <small class="text-muted">phút</small></span></td>
                             <td>
-                                <span class="badge ${m.status == 'NOW_SHOWING' ? 'bg-success' : 'bg-warning'} rounded-pill px-3">
-                                    ${m.status == 'NOW_SHOWING' ? 'Đang chiếu' : 'Sắp chiếu'}
-                                </span>
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3">Sẵn sàng</span>
                             </td>
-                            <td class="text-end">
-                                <button class="btn btn-outline-info btn-action me-1" onclick="prepareEdit('${m.movieId}', '${m.title}', '${m.description}', '${m.duration}', '${m.releaseDate}', '${m.rating}', '${m.poster}', '${m.status}')">
-                                    <i class="fas fa-edit small"></i>
-                                </button>
-                                <form action="${pageContext.request.contextPath}/admin/movies" method="POST" class="d-inline" onsubmit="return confirm('Xóa phim này?')">
-                                    <input type="hidden" name="action" value="delete">
-                                    <input type="hidden" name="id" value="${m.movieId}">
-                                    <button class="btn btn-outline-danger btn-action">
-                                        <i class="fas fa-trash small"></i>
+                            <td class="text-end" style="padding-right: 30px;">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button class="btn-action" title="Chỉnh sửa" onclick="prepareEdit('${m.movieId}', '${m.title}', '${m.poster}', '${m.description}', '${m.genre}', '${m.duration}', '${m.trailer}')">
+                                        <i class="fas fa-edit"></i>
                                     </button>
-                                </form>
+                                    <form action="${pageContext.request.contextPath}/admin/movies" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa phim này?')">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="movieId" value="${m.movieId}">
+                                        <button class="btn-action hover-danger" title="Xóa">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     </c:forEach>
@@ -82,35 +87,13 @@
     <div class="modal-dialog modal-lg">
         <form action="${pageContext.request.contextPath}/admin/movies" method="POST" class="modal-content">
             <input type="hidden" name="action" id="modalAction" value="add">
-            <input type="hidden" name="movieId" id="modalMovieId">
+            <input type="hidden" name="movieId" id="modalId">
             
             <div class="modal-header border-0 p-4">
                 <h5 class="modal-title fw-bold" id="modalTitle">Thêm phim mới</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
             </div>
             <div class="modal-body p-4 pt-0">
-                <div class="row g-3">
-                    <div class="col-md-8">
-                        <label class="form-label small text-muted fw-bold">Tên phim</label>
-                        <input type="text" name="title" id="inputTitle" class="form-control" required>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label small text-muted fw-bold">Đánh giá (Rating)</label>
-                        <input type="number" step="0.1" name="rating" id="inputRating" class="form-control" required>
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label small text-muted fw-bold">Mô tả</label>
-                        <textarea name="description" id="inputDescription" class="form-control" rows="3"></textarea>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label small text-muted fw-bold">Thời lượng (phút)</label>
-                        <input type="number" name="duration" id="inputDuration" class="form-control" required>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label small text-muted fw-bold">Ngày khởi chiếu</label>
-                        <input type="date" name="releaseDate" id="inputReleaseDate" class="form-control" required>
-                    </div>
-                    <div class="col-md-4">
                         <label class="form-label small text-muted fw-bold">Trạng thái</label>
                         <select name="status" id="inputStatus" class="form-select">
                             <option value="NOW_SHOWING">Đang chiếu</option>

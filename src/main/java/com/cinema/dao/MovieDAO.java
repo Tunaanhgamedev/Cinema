@@ -5,13 +5,28 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.cinema.enums.StatusMovie;
 import com.cinema.model.Movie;
 import com.cinema.utils.DBConnection;
 
 public class MovieDAO {
+
+	private Set<String> getExistingColumns() {
+		Set<String> columns = new HashSet<>();
+		try (Connection cn = DBConnection.getConnection();
+				ResultSet rs = cn.getMetaData().getColumns(null, null, "movies", null)) {
+			while (rs.next()) {
+				columns.add(rs.getString("COLUMN_NAME").toLowerCase());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return columns;
+	}
 
 	public Movie findById(int movieId) {
 		String sql = "SELECT * FROM movies WHERE movie_id = ?";
@@ -50,27 +65,19 @@ public class MovieDAO {
 		m.setReleaseDate(rs.getDate("release_date"));
 		m.setPoster(rs.getString("poster"));
 		
-		// Phòng thủ: Kiểm tra cột tồn tại trước khi lấy để tránh lỗi 500
-		if (hasColumn(rs, "genre")) m.setGenre(rs.getString("genre"));
-		if (hasColumn(rs, "trailer_url")) m.setTrailerUrl(rs.getString("trailer_url"));
-		if (hasColumn(rs, "director")) m.setDirector(rs.getString("director"));
-		if (hasColumn(rs, "cast")) m.setCast(rs.getString("cast"));
+		ResultSetMetaData rsmd = rs.getMetaData();
+		Set<String> cols = new HashSet<>();
+		for (int i = 1; i <= rsmd.getColumnCount(); i++) cols.add(rsmd.getColumnName(i).toLowerCase());
+
+		if (cols.contains("genre")) m.setGenre(rs.getString("genre"));
+		if (cols.contains("trailer_url")) m.setTrailerUrl(rs.getString("trailer_url"));
+		if (cols.contains("director")) m.setDirector(rs.getString("director"));
+		if (cols.contains("cast")) m.setCast(rs.getString("cast"));
 		
 		String ratingStr = rs.getString("rating");
 		m.setRating(parseDoubleSafe(ratingStr));
 		m.setStatus(toStatus(rs.getString("status")));
 		return m;
-	}
-
-	private boolean hasColumn(ResultSet rs, String columnName) throws Exception {
-		ResultSetMetaData rsmd = rs.getMetaData();
-		int columns = rsmd.getColumnCount();
-		for (int x = 1; x <= columns; x++) {
-			if (columnName.equalsIgnoreCase(rsmd.getColumnName(x))) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	private static StatusMovie toStatus(String dbValue) {
@@ -91,45 +98,32 @@ public class MovieDAO {
 		}
 	}
 
-	public List<Movie> findNowShowing() {
-		String sql = "SELECT * FROM movies WHERE status = 'NOW_SHOWING' ORDER BY release_date DESC";
-		List<Movie> list = new ArrayList<>();
-		try (Connection cn = DBConnection.getConnection();
-				PreparedStatement ps = cn.prepareStatement(sql);
-				ResultSet rs = ps.executeQuery()) {
-			while (rs.next()) {
-				list.add(mapResultSetToMovie(rs));
-			}
-			return list;
-		} catch (Exception e) {
-			throw new RuntimeException("MovieDAO.findNowShowing failed: " + e.getMessage(), e);
-		}
-	}
-
-	public int countTotalMovies() {
-		String sql = "SELECT COUNT(*) FROM movies";
-		try (Connection cn = DBConnection.getConnection();
-				PreparedStatement ps = cn.prepareStatement(sql);
-				ResultSet rs = ps.executeQuery()) {
-			if (rs.next()) return rs.getInt(1);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return 0;
-	}
-
 	public boolean insert(Movie m) {
-		String sql = "INSERT INTO movies (title, description, duration, release_date, rating, poster, status, genre, trailer_url) VALUES (?,?,?,?,?,?,?,?,?)";
-		try (Connection cn = DBConnection.getConnection(); PreparedStatement ps = cn.prepareStatement(sql)) {
-			ps.setString(1, m.getTitle());
-			ps.setString(2, m.getDescription());
-			ps.setInt(3, m.getDuration());
-			ps.setDate(4, m.getReleaseDate() != null ? new java.sql.Date(m.getReleaseDate().getTime()) : null);
-			ps.setString(5, String.valueOf(m.getRating()));
-			ps.setString(6, m.getPoster());
-			ps.setString(7, m.getStatus() != null ? m.getStatus().name() : "NOW_SHOWING");
-			ps.setString(8, m.getGenre());
-			ps.setString(9, m.getTrailerUrl());
+		Set<String> existingCols = getExistingColumns();
+		StringBuilder sql = new StringBuilder("INSERT INTO movies (title, description, duration, release_date, rating, poster, status");
+		StringBuilder values = new StringBuilder("VALUES (?,?,?,?,?,?,?");
+		
+		boolean hasGenre = existingCols.contains("genre");
+		boolean hasTrailer = existingCols.contains("trailer_url");
+		
+		if (hasGenre) { sql.append(", genre"); values.append(",?"); }
+		if (hasTrailer) { sql.append(", trailer_url"); values.append(",?"); }
+		
+		sql.append(") ").append(values).append(")");
+		
+		try (Connection cn = DBConnection.getConnection(); PreparedStatement ps = cn.prepareStatement(sql.toString())) {
+			int paramIdx = 1;
+			ps.setString(paramIdx++, m.getTitle());
+			ps.setString(paramIdx++, m.getDescription());
+			ps.setInt(paramIdx++, m.getDuration());
+			ps.setDate(paramIdx++, m.getReleaseDate() != null ? new java.sql.Date(m.getReleaseDate().getTime()) : null);
+			ps.setString(paramIdx++, String.valueOf(m.getRating()));
+			ps.setString(paramIdx++, m.getPoster());
+			ps.setString(paramIdx++, m.getStatus() != null ? m.getStatus().name() : "NOW_SHOWING");
+			
+			if (hasGenre) ps.setString(paramIdx++, m.getGenre());
+			if (hasTrailer) ps.setString(paramIdx++, m.getTrailerUrl());
+			
 			return ps.executeUpdate() > 0;
 		} catch (Exception e) {
 			throw new RuntimeException("MovieDAO.insert failed: " + e.getMessage(), e);
@@ -137,18 +131,32 @@ public class MovieDAO {
 	}
 
 	public boolean update(Movie m) {
-		String sql = "UPDATE movies SET title=?, description=?, duration=?, release_date=?, rating=?, poster=?, status=?, genre=?, trailer_url=? WHERE movie_id=?";
-		try (Connection cn = DBConnection.getConnection(); PreparedStatement ps = cn.prepareStatement(sql)) {
-			ps.setString(1, m.getTitle());
-			ps.setString(2, m.getDescription());
-			ps.setInt(3, m.getDuration());
-			ps.setDate(4, m.getReleaseDate() != null ? new java.sql.Date(m.getReleaseDate().getTime()) : null);
-			ps.setString(5, String.valueOf(m.getRating()));
-			ps.setString(6, m.getPoster());
-			ps.setString(7, m.getStatus() != null ? m.getStatus().name() : "NOW_SHOWING");
-			ps.setString(8, m.getGenre());
-			ps.setString(9, m.getTrailerUrl());
-			ps.setInt(10, m.getMovieId());
+		Set<String> existingCols = getExistingColumns();
+		StringBuilder sql = new StringBuilder("UPDATE movies SET title=?, description=?, duration=?, release_date=?, rating=?, poster=?, status=?");
+		
+		boolean hasGenre = existingCols.contains("genre");
+		boolean hasTrailer = existingCols.contains("trailer_url");
+		
+		if (hasGenre) sql.append(", genre=?");
+		if (hasTrailer) sql.append(", trailer_url=?");
+		
+		sql.append(" WHERE movie_id=?");
+		
+		try (Connection cn = DBConnection.getConnection(); PreparedStatement ps = cn.prepareStatement(sql.toString())) {
+			int paramIdx = 1;
+			ps.setString(paramIdx++, m.getTitle());
+			ps.setString(paramIdx++, m.getDescription());
+			ps.setInt(paramIdx++, m.getDuration());
+			ps.setDate(paramIdx++, m.getReleaseDate() != null ? new java.sql.Date(m.getReleaseDate().getTime()) : null);
+			ps.setString(paramIdx++, String.valueOf(m.getRating()));
+			ps.setString(paramIdx++, m.getPoster());
+			ps.setString(paramIdx++, m.getStatus() != null ? m.getStatus().name() : "NOW_SHOWING");
+			
+			if (hasGenre) ps.setString(paramIdx++, m.getGenre());
+			if (hasTrailer) ps.setString(paramIdx++, m.getTrailerUrl());
+			
+			ps.setInt(paramIdx++, m.getMovieId());
+			
 			return ps.executeUpdate() > 0;
 		} catch (Exception e) {
 			throw new RuntimeException("MovieDAO.update failed: " + e.getMessage(), e);

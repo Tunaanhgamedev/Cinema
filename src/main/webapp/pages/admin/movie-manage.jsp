@@ -85,7 +85,7 @@
                                 <td class="px-8 py-5 text-right">
                                     <div class="flex justify-end gap-3">
                                         <button class="w-9 h-9 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center hover:bg-indigo-500 hover:text-white transition-all" 
-                                                title="Chỉnh sửa" onclick="prepareEdit('${m.movieId}', '${m.title}', '${m.poster}', '${m.description}', '${m.genre}', '${m.duration}', '${m.trailer}')">
+                                                title="Chỉnh sửa" onclick="prepareEdit('${m.movieId}', '${m.title}', '${m.poster}', '${m.description}', '${m.genre}', '${m.duration}', '${m.trailerUrl}')">
                                             <i class="fas fa-edit text-xs"></i>
                                         </button>
                                         <form action="${pageContext.request.contextPath}/admin/movies" method="POST" class="inline" onsubmit="return confirm('Bạn có chắc muốn xóa phim này?')">

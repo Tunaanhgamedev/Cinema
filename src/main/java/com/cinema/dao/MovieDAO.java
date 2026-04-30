@@ -56,6 +56,33 @@ public class MovieDAO {
 		}
 	}
 
+	public List<Movie> findNowShowing() {
+		String sql = "SELECT * FROM movies WHERE status = 'NOW_SHOWING' ORDER BY release_date DESC";
+		List<Movie> list = new ArrayList<>();
+		try (Connection cn = DBConnection.getConnection();
+				PreparedStatement ps = cn.prepareStatement(sql);
+				ResultSet rs = ps.executeQuery()) {
+			while (rs.next()) {
+				list.add(mapResultSetToMovie(rs));
+			}
+			return list;
+		} catch (Exception e) {
+			throw new RuntimeException("MovieDAO.findNowShowing failed: " + e.getMessage(), e);
+		}
+	}
+
+	public int countTotalMovies() {
+		String sql = "SELECT COUNT(*) FROM movies";
+		try (Connection cn = DBConnection.getConnection();
+				PreparedStatement ps = cn.prepareStatement(sql);
+				ResultSet rs = ps.executeQuery()) {
+			if (rs.next()) return rs.getInt(1);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
 	private Movie mapResultSetToMovie(ResultSet rs) throws Exception {
 		Movie m = new Movie();
 		m.setMovieId(rs.getInt("movie_id"));

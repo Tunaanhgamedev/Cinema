@@ -10,9 +10,9 @@ public interface ComboDAO {
 
 	Combo findById(int comboId);
 
-	boolean insertCombo(String name, String description, BigDecimal price);
+	boolean insertCombo(String name, String description, BigDecimal price, String imageUrl);
 
-	boolean updateCombo(int comboId, String name, String description, BigDecimal price);
+	boolean updateCombo(int comboId, String name, String description, BigDecimal price, String imageUrl);
 
 	boolean deleteCombo(int comboId);
 }

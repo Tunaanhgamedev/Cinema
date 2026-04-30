@@ -3,6 +3,7 @@ package com.cinema.dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +22,7 @@ public class MovieDAO {
 				return mapResultSetToMovie(rs);
 			}
 		} catch (Exception e) {
-			throw new RuntimeException("MovieDAO.findById failed", e);
+			throw new RuntimeException("MovieDAO.findById failed: " + e.getMessage(), e);
 		}
 	}
 
@@ -36,7 +37,7 @@ public class MovieDAO {
 			}
 			return list;
 		} catch (Exception e) {
-			throw new RuntimeException("MovieDAO.findAll failed", e);
+			throw new RuntimeException("MovieDAO.findAll failed: " + e.getMessage(), e);
 		}
 	}
 
@@ -48,15 +49,28 @@ public class MovieDAO {
 		m.setDuration(rs.getInt("duration"));
 		m.setReleaseDate(rs.getDate("release_date"));
 		m.setPoster(rs.getString("poster"));
-		m.setGenre(rs.getString("genre"));
-		m.setTrailerUrl(rs.getString("trailer_url"));
-		m.setDirector(rs.getString("director"));
-		m.setCast(rs.getString("cast"));
+		
+		// Phòng thủ: Kiểm tra cột tồn tại trước khi lấy để tránh lỗi 500
+		if (hasColumn(rs, "genre")) m.setGenre(rs.getString("genre"));
+		if (hasColumn(rs, "trailer_url")) m.setTrailerUrl(rs.getString("trailer_url"));
+		if (hasColumn(rs, "director")) m.setDirector(rs.getString("director"));
+		if (hasColumn(rs, "cast")) m.setCast(rs.getString("cast"));
 		
 		String ratingStr = rs.getString("rating");
 		m.setRating(parseDoubleSafe(ratingStr));
 		m.setStatus(toStatus(rs.getString("status")));
 		return m;
+	}
+
+	private boolean hasColumn(ResultSet rs, String columnName) throws Exception {
+		ResultSetMetaData rsmd = rs.getMetaData();
+		int columns = rsmd.getColumnCount();
+		for (int x = 1; x <= columns; x++) {
+			if (columnName.equalsIgnoreCase(rsmd.getColumnName(x))) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private static StatusMovie toStatus(String dbValue) {
@@ -88,7 +102,7 @@ public class MovieDAO {
 			}
 			return list;
 		} catch (Exception e) {
-			throw new RuntimeException("MovieDAO.findNowShowing failed", e);
+			throw new RuntimeException("MovieDAO.findNowShowing failed: " + e.getMessage(), e);
 		}
 	}
 

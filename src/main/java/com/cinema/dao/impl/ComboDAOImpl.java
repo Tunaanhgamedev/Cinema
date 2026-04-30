@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,92 +17,98 @@ public class ComboDAOImpl implements ComboDAO {
 	@Override
 	public List<Combo> findAll() {
 		List<Combo> list = new ArrayList<>();
-		String sql = "SELECT combo_id, name, price, description FROM combos ORDER BY combo_id DESC";
+		String sql = "SELECT * FROM combos ORDER BY combo_id DESC";
 
 		try (Connection conn = DBConnection.getConnection();
 				PreparedStatement ps = conn.prepareStatement(sql);
 				ResultSet rs = ps.executeQuery()) {
 
 			while (rs.next()) {
-				Combo c = new Combo();
-				c.setComboId(rs.getInt("combo_id"));
-				c.setName(rs.getString("name"));
-				c.setPrice(rs.getBigDecimal("price"));
-				c.setDescription(rs.getString("description"));
-				list.add(c);
+				list.add(mapResultSetToCombo(rs));
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException("ComboDAO.findAll failed: " + e.getMessage(), e);
 		}
 		return list;
 	}
 
 	@Override
 	public Combo findById(int comboId) {
-		String sql = "SELECT combo_id, name, price, description FROM combos WHERE combo_id = ?";
+		String sql = "SELECT * FROM combos WHERE combo_id = ?";
 		try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-
 			ps.setInt(1, comboId);
 			try (ResultSet rs = ps.executeQuery()) {
 				if (rs.next()) {
-					Combo c = new Combo();
-					c.setComboId(rs.getInt("combo_id"));
-					c.setName(rs.getString("name"));
-					c.setPrice(rs.getBigDecimal("price"));
-					c.setDescription(rs.getString("description"));
-					return c;
+					return mapResultSetToCombo(rs);
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException("ComboDAO.findById failed: " + e.getMessage(), e);
 		}
 		return null;
 	}
 
-	@Override
-	public boolean insertCombo(String name, String description, BigDecimal price) {
-		String sql = "INSERT INTO combos(name, price, description) VALUES(?,?,?)";
-		try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+	private Combo mapResultSetToCombo(ResultSet rs) throws Exception {
+		Combo c = new Combo();
+		c.setComboId(rs.getInt("combo_id"));
+		c.setName(rs.getString("name"));
+		c.setPrice(rs.getBigDecimal("price"));
+		c.setDescription(rs.getString("description"));
+		
+		if (hasColumn(rs, "image_url")) {
+			c.setImageUrl(rs.getString("image_url"));
+		}
+		return c;
+	}
 
-			ps.setString(1, name);
-			ps.setBigDecimal(2, price);
-			ps.setString(3, description);
-			return ps.executeUpdate() > 0;
-
-		} catch (Exception e) {
-			e.printStackTrace();
+	private boolean hasColumn(ResultSet rs, String columnName) throws Exception {
+		ResultSetMetaData rsmd = rs.getMetaData();
+		int columns = rsmd.getColumnCount();
+		for (int x = 1; x <= columns; x++) {
+			if (columnName.equalsIgnoreCase(rsmd.getColumnName(x))) {
+				return true;
+			}
 		}
 		return false;
 	}
 
 	@Override
-	public boolean updateCombo(int comboId, String name, String description, BigDecimal price) {
-		String sql = "UPDATE combos SET name=?, price=?, description=? WHERE combo_id=?";
+	public boolean insertCombo(String name, String description, BigDecimal price, String imageUrl) {
+		String sql = "INSERT INTO combos(name, price, description, image_url) VALUES(?,?,?,?)";
 		try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-
 			ps.setString(1, name);
 			ps.setBigDecimal(2, price);
 			ps.setString(3, description);
-			ps.setInt(4, comboId);
+			ps.setString(4, imageUrl);
 			return ps.executeUpdate() > 0;
-
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException("ComboDAO.insertCombo failed: " + e.getMessage(), e);
 		}
-		return false;
+	}
+
+	@Override
+	public boolean updateCombo(int comboId, String name, String description, BigDecimal price, String imageUrl) {
+		String sql = "UPDATE combos SET name=?, price=?, description=?, image_url=? WHERE combo_id=?";
+		try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setString(1, name);
+			ps.setBigDecimal(2, price);
+			ps.setString(3, description);
+			ps.setString(4, imageUrl);
+			ps.setInt(5, comboId);
+			return ps.executeUpdate() > 0;
+		} catch (Exception e) {
+			throw new RuntimeException("ComboDAO.updateCombo failed: " + e.getMessage(), e);
+		}
 	}
 
 	@Override
 	public boolean deleteCombo(int comboId) {
 		String sql = "DELETE FROM combos WHERE combo_id=?";
 		try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-
 			ps.setInt(1, comboId);
 			return ps.executeUpdate() > 0;
-
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException("ComboDAO.deleteCombo failed: " + e.getMessage(), e);
 		}
-		return false;
 	}
 }

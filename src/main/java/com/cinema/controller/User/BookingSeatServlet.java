@@ -24,8 +24,11 @@ import com.cinema.dao.BookingSeatDAO;
 import com.cinema.dao.MovieDAO;
 import com.cinema.dao.SeatDAO;
 import com.cinema.dao.ShowtimeDAO;
+import com.cinema.dao.ShowtimeDAO.ShowtimeView;
 import com.cinema.dao.impl.BookingSeatDAOImpl;
+import com.cinema.model.Movie;
 import com.cinema.model.Seat;
+import com.cinema.model.Showtime;
 import com.cinema.model.User;
 import com.cinema.utils.DBConnection;
 
@@ -328,10 +331,10 @@ public class BookingSeatServlet extends HttpServlet {
 			return;
 		}
 
-		List<com.cinema.dao.ShowtimeDAO.ShowtimeView> list = showtimeDAO.findByMovieAndDate(movieId, showDate);
+		List<ShowtimeView> list = showtimeDAO.findByMovieAndDate(movieId, showDate);
 		StringBuilder json = new StringBuilder("[");
 		for (int i = 0; i < list.size(); i++) {
-			com.cinema.dao.ShowtimeDAO.ShowtimeView st = list.get(i);
+			ShowtimeView st = list.get(i);
 			java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm");
 			String timeRange = sdf.format(st.getStartTime()) + " - " + sdf.format(st.getEndTime());
 

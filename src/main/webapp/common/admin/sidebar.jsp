@@ -29,6 +29,11 @@
                 <i class="fas fa-clock"></i> <span>Lịch chiếu phim</span>
             </a>
 
+            <a href="${pageContext.request.contextPath}/admin/rooms" 
+               class="nav-link <%= currentUri.contains("/rooms") || currentUri.contains("/room-manage.jsp") ? "active" : "" %>">
+                <i class="fas fa-door-open"></i> <span>Quản lý Phòng</span>
+            </a>
+
             <div class="pt-6">
                 <p class="text-[10px] font-black text-slate-500 uppercase tracking-[2px] mb-4 ml-4">GIAO DỊCH & HỖ TRỢ</p>
                 

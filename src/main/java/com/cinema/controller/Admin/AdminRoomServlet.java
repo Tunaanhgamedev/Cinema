@@ -48,6 +48,11 @@ public class AdminRoomServlet extends HttpServlet {
                 if (idStr != null && !idStr.isEmpty()) {
                     roomDAO.delete(Integer.parseInt(idStr));
                 }
+            } else if ("generateSeats".equals(action)) {
+                int roomId = Integer.parseInt(request.getParameter("roomId"));
+                int rows = Integer.parseInt(request.getParameter("rows"));
+                int seatsPerRow = Integer.parseInt(request.getParameter("seatsPerRow"));
+                roomDAO.generateDefaultSeats(roomId, rows, seatsPerRow);
             }
         } catch (Exception e) {
             error = "Lỗi thao tác: " + e.getMessage();

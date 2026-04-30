@@ -106,4 +106,23 @@ public class RoomDAO {
 			throw new RuntimeException("RoomDAO.delete failed. Note: Check if any showtimes use this room.", e);
 		}
 	}
+
+	public void generateDefaultSeats(int roomId, int rows, int seatsPerRow) {
+		String sql = "INSERT INTO seats (room_id, seat_row, seat_number, seat_type) VALUES (?, ?, ?, ?)";
+		try (Connection cn = DBConnection.getConnection(); PreparedStatement ps = cn.prepareStatement(sql)) {
+			for (int r = 0; r < rows; r++) {
+				char rowChar = (char) ('A' + r);
+				for (int s = 1; s <= seatsPerRow; s++) {
+					ps.setInt(1, roomId);
+					ps.setString(2, String.valueOf(rowChar));
+					ps.setInt(3, s);
+					ps.setString(4, "NORMAL");
+					ps.addBatch();
+				}
+			}
+			ps.executeBatch();
+		} catch (Exception e) {
+			throw new RuntimeException("RoomDAO.generateDefaultSeats failed: " + e.getMessage(), e);
+		}
+	}
 }

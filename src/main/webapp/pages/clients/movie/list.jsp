@@ -140,7 +140,7 @@
                        Chi tiết
                     </a>
                     <a class="btn-book"
-                       href="${pageContext.request.contextPath}/showtime?movieId=${m.movieId}">
+                       href="${pageContext.request.contextPath}/booking-seat?movieId=${m.movieId}">
                        Đặt vé
                     </a>
                   </div>

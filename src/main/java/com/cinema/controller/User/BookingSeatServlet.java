@@ -73,6 +73,11 @@ public class BookingSeatServlet extends HttpServlet {
 		String ticketQty = trim(req.getParameter("ticketQty"));
 
 		String showDate = normalizeToSqlDate(showDateRaw);
+		
+		// Nếu chưa có ngày, mặc định lấy ngày hôm nay
+		if (showDate.isEmpty()) {
+			showDate = java.time.LocalDate.now().toString();
+		}
 
 		req.setAttribute("movieId", movieId);
 		req.setAttribute("showDate", showDate);

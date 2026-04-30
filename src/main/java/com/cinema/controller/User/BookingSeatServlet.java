@@ -69,6 +69,18 @@ public class BookingSeatServlet extends HttpServlet {
 		String showtimeId = trim(req.getParameter("showtimeId"));
 		String ticketQty = trim(req.getParameter("ticketQty"));
 
+		// ✅ Nếu có showtimeId nhưng thiếu movieId/date (đi từ trang lịch chiếu sang)
+		if (!showtimeId.isEmpty() && (movieId.isEmpty() || showDateRaw.isEmpty())) {
+			Integer stId = parseIntOrNull(showtimeId);
+			if (stId != null) {
+				ShowtimeDAO.ShowtimeView st = showtimeDAO.findById(stId);
+				if (st != null) {
+					movieId = String.valueOf(st.getMovieId());
+					showDateRaw = new java.text.SimpleDateFormat("yyyy-MM-dd").format(st.getStartTime());
+				}
+			}
+		}
+
 		String showDate = normalizeToSqlDate(showDateRaw);
 
 		req.setAttribute("movieId", movieId);

@@ -8,19 +8,24 @@ const makeDateLabel = (d) => {
   };
 };
 
+const selectedDate = document.body.dataset.selectedDate || new Date().toISOString().split('T')[0];
+
 const today = new Date();
 for (let i = 0; i < 7; i++){
   const d = new Date(today);
   d.setDate(today.getDate() + i);
   const {d1,d2} = makeDateLabel(d);
+  
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  const dateStr = `${yyyy}-${mm}-${dd}`;
 
   const div = document.createElement("div");
-  div.className = "st-date" + (i===0 ? " active" : "");
+  div.className = "st-date" + (dateStr === selectedDate ? " active" : "");
   div.innerHTML = `<div class="d1">${d1}</div><div class="d2">${d2}</div>`;
   div.addEventListener("click", () => {
-    document.querySelectorAll(".st-date").forEach(x => x.classList.remove("active"));
-    div.classList.add("active");
-    // Demo: chưa đổi dữ liệu theo ngày (khi nối DB sẽ render theo ngày)
+    window.location.href = "showtime?date=" + dateStr;
   });
   datesEl.appendChild(div);
 }

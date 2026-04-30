@@ -258,7 +258,21 @@
 
           <div id="tab-schedule" class="tab-pane">
             <div class="mv-box">
-              Lịch chiếu (demo): Vui lòng vào <a style="color:#22d3ee;" href="${pageContext.request.contextPath}/showtime?movieId=${movieId}">trang lịch chiếu</a>.
+              <h6 class="fw-bold mb-3">Suất chiếu hôm nay (${today})</h6>
+              <div class="d-flex gap-2 flex-wrap">
+                <c:forEach var="st" items="${showtimes}">
+                  <a href="${pageContext.request.contextPath}/booking-seat?showtimeId=${st.showtimeId}" 
+                     class="btn" style="min-width: 100px; text-align: center; border-color: #22d3ee;">
+                    <fmt:formatDate value="${st.startTime}" pattern="HH:mm" />
+                    <span class="d-block small opacity-50" style="font-size: 10px;">${st.roomName}</span>
+                  </a>
+                </c:forEach>
+                <c:if test="${empty showtimes}">
+                  <p class="text-muted small">Hiện chưa có suất chiếu cho phim này trong ngày hôm nay.</p>
+                </c:if>
+              </div>
+              <hr class="border-light opacity-10 my-4">
+              <p class="small text-muted">Xem lịch của các ngày khác tại <a style="color:#22d3ee;" href="${pageContext.request.contextPath}/showtime">Trang Lịch Chiếu</a>.</p>
             </div>
           </div>
 

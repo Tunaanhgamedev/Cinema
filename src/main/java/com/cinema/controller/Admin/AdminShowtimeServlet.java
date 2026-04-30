@@ -12,6 +12,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import com.cinema.dao.ShowtimeDAO;
+import com.cinema.dao.MovieDAO;
+import com.cinema.dao.RoomDAO;
 import com.cinema.model.Showtime;
 
 @WebServlet("/admin/showtimes")
@@ -19,10 +21,14 @@ public class AdminShowtimeServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	private final ShowtimeDAO showtimeDAO = new ShowtimeDAO();
+	private final MovieDAO movieDAO = new MovieDAO();
+	private final RoomDAO roomDAO = new RoomDAO();
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		req.setAttribute("showtimeList", showtimeDAO.getAll());
+		req.setAttribute("movieList", movieDAO.findAll());
+		req.setAttribute("roomList", roomDAO.findAll());
 		req.getRequestDispatcher("/pages/admin/showtime-manage.jsp").forward(req, resp);
 	}
 
@@ -51,6 +57,8 @@ public class AdminShowtimeServlet extends HttpServlet {
 		} catch (Exception e) {
 			req.setAttribute("error", "Lỗi: " + e.getMessage());
 			req.setAttribute("showtimeList", showtimeDAO.getAll());
+			req.setAttribute("movieList", movieDAO.findAll());
+			req.setAttribute("roomList", roomDAO.findAll());
 			req.getRequestDispatcher("/pages/admin/showtime-manage.jsp").forward(req, resp);
 			return;
 		}
@@ -83,6 +91,9 @@ public class AdminShowtimeServlet extends HttpServlet {
 
 	// input datetime-local: yyyy-MM-ddTHH:mm
 	private Timestamp parseTimestamp(String s) {
+		if (s == null || s.isEmpty()) return null;
+		// If the string contains seconds, remove them for LocalDateTime.parse
+		if (s.length() > 16) s = s.substring(0, 16);
 		LocalDateTime ldt = LocalDateTime.parse(s);
 		return Timestamp.valueOf(ldt);
 	}

@@ -90,7 +90,20 @@ public class BookingSeatServlet extends HttpServlet {
 			req.setAttribute("error", err);
 
 		// movies dropdown
-		req.setAttribute("movies", movieDAO.findNowShowing());
+		List<Movie> movies = movieDAO.findNowShowing();
+		req.setAttribute("movies", movies);
+		
+		// Nếu có movieId từ URL mà không có trong list NOW_SHOWING, hãy lấy riêng nó ra
+		if (movieIdInt != null) {
+			boolean exists = false;
+			for(Movie m : movies) {
+				if(m.getMovieId() == movieIdInt) { exists = true; break; }
+			}
+			if(!exists) {
+				Movie currentMovie = movieDAO.findById(movieIdInt);
+				if(currentMovie != null) req.setAttribute("selectedMovie", currentMovie);
+			}
+		}
 
 		// cleanup holds hết hạn
 		try (Connection con = DBConnection.getConnection()) {

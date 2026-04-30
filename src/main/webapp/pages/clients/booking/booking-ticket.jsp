@@ -145,6 +145,9 @@
                                 <c:forEach var="m" items="${movies}">
                                     <option value="${m.movieId}" ${param.movieId == m.movieId ? 'selected' : ''}>${m.title}</option>
                                 </c:forEach>
+                                <c:if test="${not empty selectedMovie}">
+                                    <option value="${selectedMovie.movieId}" selected>${selectedMovie.title} (Phim đã chọn)</option>
+                                </c:if>
                             </select>
                         </div>
 

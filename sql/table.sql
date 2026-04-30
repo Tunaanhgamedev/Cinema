@@ -1,6 +1,3 @@
-create database cinema_db;
-use cinema_db;
-
 CREATE TABLE users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     full_name VARCHAR(100),
@@ -128,4 +125,13 @@ CREATE TABLE banners (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+ALTER TABLE movies 
+ADD COLUMN genre VARCHAR(255) AFTER status,
+ADD COLUMN trailer_url VARCHAR(500) AFTER genre,
+ADD COLUMN director VARCHAR(255) AFTER trailer_url,
+ADD COLUMN cast TEXT AFTER director;
 
+ALTER TABLE combos 
+ADD COLUMN image_url VARCHAR(500) AFTER description;
+-- Đảm bảo cột price có định dạng tiền tệ chuẩn
+ALTER TABLE showtimes MODIFY COLUMN price DECIMAL(10,2);

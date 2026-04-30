@@ -48,6 +48,10 @@ public class AdminMovieServlet extends HttpServlet {
 					movieDAO.delete(Integer.parseInt(movieIdStr));
 				}
 			}
+			
+			// Xóa cache để khách hàng thấy phim mới ngay lập tức
+			com.cinema.utils.CacheManager.clear("nowShowingMovies");
+			
 			resp.sendRedirect(req.getContextPath() + "/admin/movies");
 		} catch (Exception e) {
 			req.setAttribute("error", "Lỗi thao tác: " + e.getMessage());

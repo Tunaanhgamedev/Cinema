@@ -175,4 +175,31 @@ public class ShowtimeDAO {
 		return 0;
 	}
 
+	public List<com.cinema.model.Movie> getDistinctMoviesByDate(String showDate) {
+		String sql = """
+				    SELECT DISTINCT m.*
+				    FROM movies m
+				    JOIN showtimes s ON m.movie_id = s.movie_id
+				    WHERE DATE(s.start_time) = ?
+				    ORDER BY m.title ASC
+				""";
+		List<com.cinema.model.Movie> list = new ArrayList<>();
+		try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+			ps.setDate(1, java.sql.Date.valueOf(showDate));
+			try (ResultSet rs = ps.executeQuery()) {
+				while (rs.next()) {
+					com.cinema.model.Movie m = new com.cinema.model.Movie();
+					m.setMovieId(rs.getInt("movie_id"));
+					m.setTitle(rs.getString("title"));
+					m.setPoster(rs.getString("poster"));
+					m.setDuration(rs.getInt("duration"));
+					m.setGenre(rs.getString("genre"));
+					list.add(m);
+				}
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException("ShowtimeDAO.getDistinctMoviesByDate error", e);
+		}
+		return list;
+	}
 }

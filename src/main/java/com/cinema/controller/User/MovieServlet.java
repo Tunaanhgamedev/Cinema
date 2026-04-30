@@ -16,6 +16,7 @@ import com.cinema.model.Movie;
 public class MovieServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private final MovieDAO movieDAO = new MovieDAO();
+	private final com.cinema.dao.ShowtimeDAO showtimeDAO = new com.cinema.dao.ShowtimeDAO();
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -31,7 +32,13 @@ public class MovieServlet extends HttpServlet {
 				return;
 			}
 
+
 			req.setAttribute("movie", movie);
+			
+			// Lấy lịch chiếu hôm nay của phim này
+			String today = java.time.LocalDate.now().toString();
+			req.setAttribute("todayShowtimes", showtimeDAO.findByMovieAndDate(movieId, today));
+			
 			req.getRequestDispatcher("/pages/clients/movie/detail.jsp").forward(req, resp);
 
 		} else {

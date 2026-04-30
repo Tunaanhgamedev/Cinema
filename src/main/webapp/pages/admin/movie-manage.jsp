@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -95,7 +96,16 @@
                                     <div class="flex justify-end gap-3">
                                         <button class="w-9 h-9 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center hover:bg-indigo-500 hover:text-white transition-all" 
                                                 title="Chỉnh sửa" 
-                                                onclick="prepareEdit('${m.movieId}', '${m.title}', '${m.genre}', '${m.duration}', '${m.poster}', '${m.trailerUrl}', '${m.status}', '${m.description}', '${m.releaseDate}', '${m.rating}')">
+                                                onclick="prepareEdit('${m.movieId}', 
+                                                                    '${m.title.replace("'", "\\'")}', 
+                                                                    '${m.genre.replace("'", "\\'")}', 
+                                                                    '${m.duration}', 
+                                                                    '${m.poster}', 
+                                                                    '${m.trailerUrl}', 
+                                                                    '${m.status}', 
+                                                                    '${m.description.replace("'", "\\'").replace("\n", " ")}', 
+                                                                    '<fmt:formatDate value="${m.releaseDate}" pattern="yyyy-MM-dd" />', 
+                                                                    '${m.rating}')">
                                             <i class="fas fa-edit text-xs"></i>
                                         </button>
                                         <form action="${pageContext.request.contextPath}/admin/movies" method="POST" class="inline" onsubmit="return confirm('Bạn có chắc muốn xóa phim này?')">

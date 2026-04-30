@@ -21,12 +21,6 @@ public class AdminMovieServlet extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		String action = req.getParameter("action");
-		if ("edit".equals(action)) {
-			int id = Integer.parseInt(req.getParameter("id"));
-			req.setAttribute("movie", movieDAO.findById(id));
-		}
-		
 		List<Movie> movies = movieDAO.findAll();
 		req.setAttribute("movieList", movies);
 		req.getRequestDispatcher("/pages/admin/movie-manage.jsp").forward(req, resp);
@@ -43,30 +37,50 @@ public class AdminMovieServlet extends HttpServlet {
 				movieDAO.insert(m);
 			} else if ("update".equals(action)) {
 				Movie m = buildMovieFromRequest(req);
-				m.setMovieId(Integer.parseInt(req.getParameter("movieId")));
-				movieDAO.update(m);
+				String movieIdStr = req.getParameter("movieId");
+				if (movieIdStr != null && !movieIdStr.isEmpty()) {
+					m.setMovieId(Integer.parseInt(movieIdStr));
+					movieDAO.update(m);
+				}
 			} else if ("delete".equals(action)) {
-				int id = Integer.parseInt(req.getParameter("movieId"));
-				movieDAO.delete(id);
+				String movieIdStr = req.getParameter("movieId");
+				if (movieIdStr != null && !movieIdStr.isEmpty()) {
+					movieDAO.delete(Integer.parseInt(movieIdStr));
+				}
 			}
+			resp.sendRedirect(req.getContextPath() + "/admin/movies");
 		} catch (Exception e) {
-			e.printStackTrace();
+			req.setAttribute("error", "Lỗi thao tác: " + e.getMessage());
+			req.setAttribute("movieList", movieDAO.findAll());
+			req.getRequestDispatcher("/pages/admin/movie-manage.jsp").forward(req, resp);
 		}
-
-		resp.sendRedirect(req.getContextPath() + "/admin/movies");
 	}
 
 	private Movie buildMovieFromRequest(HttpServletRequest req) {
 		Movie m = new Movie();
 		m.setTitle(req.getParameter("title"));
 		m.setDescription(req.getParameter("description"));
-		m.setDuration(Integer.parseInt(req.getParameter("duration")));
-		m.setReleaseDate(Date.valueOf(req.getParameter("releaseDate")));
-		m.setRating(Double.parseDouble(req.getParameter("rating")));
+		
+		String durationStr = req.getParameter("duration");
+		m.setDuration(durationStr != null && !durationStr.isEmpty() ? Integer.parseInt(durationStr) : 0);
+		
+		String releaseDateStr = req.getParameter("releaseDate");
+		if (releaseDateStr != null && !releaseDateStr.isEmpty()) {
+			m.setReleaseDate(Date.valueOf(releaseDateStr));
+		}
+		
+		String ratingStr = req.getParameter("rating");
+		m.setRating(ratingStr != null && !ratingStr.isEmpty() ? Double.parseDouble(ratingStr) : 0.0);
+		
 		m.setPoster(req.getParameter("poster"));
 		m.setGenre(req.getParameter("genre"));
 		m.setTrailerUrl(req.getParameter("trailerUrl"));
-		m.setStatus(StatusMovie.valueOf(req.getParameter("status")));
+		
+		String statusStr = req.getParameter("status");
+		if (statusStr != null) {
+			m.setStatus(StatusMovie.valueOf(statusStr));
+		}
+		
 		return m;
 	}
 }

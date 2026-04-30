@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
+<%@ taglib uri="jakarta.tags.fmt" prefix="fmt" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -30,7 +31,7 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Phim</th>
+                        <th style="width: 300px;">Thông tin phim</th>
                         <th>Thời lượng</th>
                         <th>Khởi chiếu</th>
                         <th>Đánh giá</th>
@@ -43,15 +44,15 @@
                         <tr>
                             <td>
                                 <div class="d-flex align-items-center">
-                                    <img src="${pageContext.request.contextPath}/${m.poster}" class="movie-poster-sm me-3" alt="">
-                                    <div>
-                                        <div class="fw-bold">${m.title}</div>
-                                        <div class="text-muted small">ID: #${m.movieId}</div>
+                                    <img src="${pageContext.request.contextPath}/${m.poster}" class="movie-poster-sm me-3" alt="${m.title}">
+                                    <div style="max-width: 200px;">
+                                        <div class="fw-bold text-white text-truncate">${m.title}</div>
+                                        <div class="text-muted small text-truncate-2">${m.description}</div>
                                     </div>
                                 </div>
                             </td>
-                            <td>${m.duration} phút</td>
-                            <td>${m.releaseDate}</td>
+                            <td><span class="badge bg-dark border border-secondary">${m.duration} phút</span></td>
+                            <td><fmt:formatDate value="${m.releaseDate}" pattern="dd/MM/yyyy" /></td>
                             <td><span class="text-warning"><i class="fas fa-star me-1"></i></span> ${m.rating}</td>
                             <td>
                                 <span class="badge ${m.status == 'NOW_SHOWING' ? 'bg-success' : 'bg-warning'} rounded-pill px-3">
@@ -59,7 +60,17 @@
                                 </span>
                             </td>
                             <td class="text-end">
-                                <button class="btn btn-outline-info btn-action me-1" onclick="prepareEdit('${m.movieId}', '${m.title}', '${m.description}', '${m.duration}', '${m.releaseDate}', '${m.rating}', '${m.poster}', '${m.status}')">
+                                <!-- Hidden data for robust JS access -->
+                                <div class="d-none" id="data-${m.movieId}">
+                                    <span class="d-title">${m.title}</span>
+                                    <span class="d-desc">${m.description}</span>
+                                    <span class="d-dur">${m.duration}</span>
+                                    <span class="d-date"><fmt:formatDate value="${m.releaseDate}" pattern="yyyy-MM-dd" /></span>
+                                    <span class="d-rate">${m.rating}</span>
+                                    <span class="d-poster">${m.poster}</span>
+                                    <span class="d-status">${m.status}</span>
+                                </div>
+                                <button class="btn btn-outline-info btn-action me-1" onclick="prepareEdit('${m.movieId}')">
                                     <i class="fas fa-edit small"></i>
                                 </button>
                                 <form action="${pageContext.request.contextPath}/admin/movies" method="POST" class="d-inline" onsubmit="return confirm('Xóa phim này?')">
@@ -93,15 +104,15 @@
                 <div class="row g-3">
                     <div class="col-md-8">
                         <label class="form-label small text-muted fw-bold">Tên phim</label>
-                        <input type="text" name="title" id="inputTitle" class="form-control" required>
+                        <input type="text" name="title" id="inputTitle" class="form-control" placeholder="Ví dụ: Avengers: Endgame" required>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label small text-muted fw-bold">Đánh giá (Rating)</label>
-                        <input type="number" step="0.1" name="rating" id="inputRating" class="form-control" required>
+                        <input type="number" step="0.1" name="rating" id="inputRating" class="form-control" placeholder="0.0 - 10.0" required>
                     </div>
                     <div class="col-12">
-                        <label class="form-label small text-muted fw-bold">Mô tả</label>
-                        <textarea name="description" id="inputDescription" class="form-control" rows="3"></textarea>
+                        <label class="form-label small text-muted fw-bold">Mô tả phim</label>
+                        <textarea name="description" id="inputDescription" class="form-control" rows="4" placeholder="Nhập nội dung tóm tắt của phim..."></textarea>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label small text-muted fw-bold">Thời lượng (phút)</label>
@@ -120,17 +131,32 @@
                     </div>
                     <div class="col-12">
                         <label class="form-label small text-muted fw-bold">Đường dẫn Poster</label>
-                        <input type="text" name="poster" id="inputPoster" class="form-control" placeholder="assets/images/movies/poster.jpg">
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark border-secondary text-muted"><i class="fas fa-image"></i></span>
+                            <input type="text" name="poster" id="inputPoster" class="form-control" placeholder="assets/images/movies/poster.jpg">
+                        </div>
+                        <p class="text-muted x-small mt-1">Đường dẫn tương đối từ gốc thư mục web.</p>
                     </div>
                 </div>
             </div>
             <div class="modal-footer border-0 p-4 pt-0">
                 <button type="button" class="btn btn-link text-white text-decoration-none" data-bs-dismiss="modal">Hủy</button>
-                <button type="submit" class="btn btn-primary px-4 rounded-3">Lưu thay đổi</button>
+                <button type="submit" class="btn btn-primary px-4 rounded-3 shadow">Lưu thông tin</button>
             </div>
         </form>
     </div>
 </div>
+
+<style>
+    .text-truncate-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        font-size: 0.8rem;
+    }
+    .x-small { font-size: 0.75rem; }
+</style>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
@@ -147,17 +173,20 @@
         document.getElementById('inputStatus').value = 'NOW_SHOWING';
     }
 
-    function prepareEdit(id, title, desc, dur, date, rate, poster, status) {
+    function prepareEdit(id) {
+        const container = document.getElementById('data-' + id);
+        
         document.getElementById('modalTitle').innerText = 'Chỉnh sửa phim';
         document.getElementById('modalAction').value = 'update';
         document.getElementById('modalMovieId').value = id;
-        document.getElementById('inputTitle').value = title;
-        document.getElementById('inputDescription').value = desc;
-        document.getElementById('inputDuration').value = dur;
-        document.getElementById('inputReleaseDate').value = date;
-        document.getElementById('inputRating').value = rate;
-        document.getElementById('inputPoster').value = poster;
-        document.getElementById('inputStatus').value = status;
+        
+        document.getElementById('inputTitle').value = container.querySelector('.d-title').innerText;
+        document.getElementById('inputDescription').value = container.querySelector('.d-desc').innerText;
+        document.getElementById('inputDuration').value = container.querySelector('.d-dur').innerText;
+        document.getElementById('inputReleaseDate').value = container.querySelector('.d-date').innerText;
+        document.getElementById('inputRating').value = container.querySelector('.d-rate').innerText;
+        document.getElementById('inputPoster').value = container.querySelector('.d-poster').innerText;
+        document.getElementById('inputStatus').value = container.querySelector('.d-status').innerText;
         
         var myModal = new bootstrap.Modal(document.getElementById('movieModal'));
         myModal.show();

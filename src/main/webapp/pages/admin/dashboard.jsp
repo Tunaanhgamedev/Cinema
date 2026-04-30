@@ -23,8 +23,9 @@
 </head>
 <body>
 
-<c:set var="activePage" value="dashboard" scope="request" />
-<jsp:include page="/common/admin-sidebar.jsp" />
+<jsp:include page="/common/admin-sidebar.jsp">
+    <jsp:param name="activeTab" value="dashboard" />
+</jsp:include>
 
 <div class="main-content">
     <div class="mb-5">

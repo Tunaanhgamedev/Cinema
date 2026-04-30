@@ -47,9 +47,6 @@ public class AdminComboServlet extends HttpServlet {
 				String description = req.getParameter("description");
 				BigDecimal price = new BigDecimal(req.getParameter("price"));
 				comboDAO.updateCombo(comboId, name, description, price);
-
-				comboDAO.updateCombo(comboId, name, description, price);
-
 			} else if ("delete".equals(action)) {
 				int comboId = Integer.parseInt(req.getParameter("comboId"));
 				comboDAO.deleteCombo(comboId);

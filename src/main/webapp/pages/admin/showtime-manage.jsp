@@ -27,16 +27,9 @@
 </head>
 <body>
 
-<div class="sidebar">
-    <div class="brand">BOBIXI • ADMIN</div>
-    <nav>
-        <a href="${pageContext.request.contextPath}/admin" class="nav-link"><i class="fas fa-chart-line me-2"></i> Dashboard</a>
-        <a href="${pageContext.request.contextPath}/admin/movies" class="nav-link"><i class="fas fa-film me-2"></i> Quản lý Phim</a>
-        <a href="${pageContext.request.contextPath}/admin/showtimes" class="nav-link active"><i class="fas fa-calendar-alt me-2"></i> Lịch chiếu</a>
-        <a href="${pageContext.request.contextPath}/admin/bookings" class="nav-link"><i class="fas fa-ticket-alt me-2"></i> Đơn hàng</a>
-        <a href="${pageContext.request.contextPath}/home" class="nav-link"><i class="fas fa-external-link-alt me-2"></i> Về Web</a>
-    </nav>
-</div>
+<jsp:include page="/common/admin-sidebar.jsp">
+    <jsp:param name="activeTab" value="showtimes" />
+</jsp:include>
 
 <div class="main-content">
     <div class="d-flex justify-content-between align-items-center mb-5">
@@ -70,8 +63,14 @@
                     <c:forEach var="s" items="${showtimeList}">
                         <tr>
                             <td>#${s.showtimeId}</td>
-                            <td><span class="fw-bold text-white">${s.movieName}</span> <span class="text-muted small">(ID: ${s.movieId})</span></td>
-                            <td>${s.roomName} <span class="text-muted small">(ID: ${s.roomId})</span></td>
+                            <td>
+                                <div class="fw-bold text-white">${s.movieName}</div>
+                                <div class="text-muted small">ID Phim: ${s.movieId}</div>
+                            </td>
+                            <td>
+                                <div class="text-white">${s.roomName}</div>
+                                <div class="text-muted small">Phòng ID: ${s.roomId}</div>
+                            </td>
                             <td>
                                 <div class="small"><i class="far fa-clock me-1 text-primary"></i> <fmt:formatDate value="${s.startTime}" pattern="dd/MM/yyyy HH:mm" /></div>
                                 <div class="text-muted small"><i class="far fa-clock me-1"></i> <fmt:formatDate value="${s.endTime}" pattern="dd/MM/yyyy HH:mm" /></div>
@@ -110,20 +109,30 @@
             </div>
             <div class="modal-body p-4 pt-0">
                 <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label small text-muted fw-bold">ID Phim</label>
-                        <input type="number" name="movieId" id="inputMovieId" class="form-control" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label small text-muted fw-bold">ID Phòng</label>
-                        <input type="number" name="roomId" id="inputRoomId" class="form-control" required>
+                    <div class="col-12">
+                        <label class="form-label small text-muted fw-bold">Chọn Phim</label>
+                        <select name="movieId" id="inputMovieId" class="form-select" required>
+                            <option value="">-- Chọn phim --</option>
+                            <c:forEach var="m" items="${movieList}">
+                                <option value="${m.movieId}">${m.title} (ID: ${m.movieId})</option>
+                            </c:forEach>
+                        </select>
                     </div>
                     <div class="col-12">
-                        <label class="form-label small text-muted fw-bold">Thời gian bắt đầu</label>
+                        <label class="form-label small text-muted fw-bold">Chọn Phòng</label>
+                        <select name="roomId" id="inputRoomId" class="form-select" required>
+                            <option value="">-- Chọn phòng --</option>
+                            <c:forEach var="r" items="${roomList}">
+                                <option value="${r.roomId}">${r.roomName} (Ghế: ${r.totalSeats})</option>
+                            </c:forEach>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small text-muted fw-bold">Bắt đầu</label>
                         <input type="datetime-local" name="startTime" id="inputStartTime" class="form-control" required>
                     </div>
-                    <div class="col-12">
-                        <label class="form-label small text-muted fw-bold">Thời gian kết thúc</label>
+                    <div class="col-md-6">
+                        <label class="form-label small text-muted fw-bold">Kết thúc</label>
                         <input type="datetime-local" name="endTime" id="inputEndTime" class="form-control" required>
                     </div>
                     <div class="col-12">

@@ -1,194 +1,149 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="java.util.*" %>
-<%@ page import="java.math.BigDecimal" %>
-<%@ page import="com.cinema.model.Combo" %>
-
-<%!
-  // Escape cho HTML attribute/value (an toàn khi đưa vào value="")
-  public static String esc(String s){
-    if (s == null) return "";
-    return s.replace("&","&amp;")
-            .replace("<","&lt;")
-            .replace(">","&gt;")
-            .replace("\"","&quot;")
-            .replace("'","&#39;");
-  }
-%>
-
+<%@ taglib uri="jakarta.tags.core" prefix="c" %>
+<%@ taglib uri="jakarta.tags.fmt" prefix="fmt" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8"/>
-  <title>Admin - Quản lí Combo</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-  <style>
-    body{ background: linear-gradient(180deg,#2e2a44 0%,#1f1b2e 100%); color:#e5e7eb; min-height:100vh; }
-    .cardx{ background: rgba(46,42,68,.85); border:1px solid rgba(255,255,255,.12); border-radius:16px; }
-    .btnx{ border-radius:12px; font-weight:800; }
-    .tbl th{ background: rgba(124,58,237,.25); color:#fff; }
-    .tbl td,.tbl th{ border-color: rgba(255,255,255,.12) !important; vertical-align: middle; }
-    input,textarea{ background: rgba(31,27,46,.9) !important; color:#e5e7eb !important; border:1px solid rgba(255,255,255,.15) !important; }
-  </style>
+    <meta charset="UTF-8">
+    <title>Quản lý Combo | Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background: #0b0f19; color: #e5e7eb; font-family: 'Inter', sans-serif; }
+        .main-content { margin-left: 260px; padding: 40px; }
+        .card-glass { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(10px); border: 1px solid #1f2937; border-radius: 20px; }
+        .table { color: #e5e7eb; }
+        .table thead th { border-bottom: 2px solid #1f2937; color: #9ca3af; font-weight: 600; text-transform: uppercase; font-size: 12px; }
+        .table tbody td { border-bottom: 1px solid #1f2937; vertical-align: middle; padding: 15px; }
+        .btn-action { width: 32px; height: 32px; padding: 0; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; }
+        .modal-content { background: #111827; border: 1px solid #1f2937; border-radius: 20px; color: #e5e7eb; }
+        .form-control { background: #1f2937; border: 1px solid #374151; color: #fff; border-radius: 10px; }
+        .form-control:focus { background: #1f2937; color: #fff; border-color: #6366f1; box-shadow: none; }
+    </style>
 </head>
+<body>
 
-<body class="p-4">
-<div class="container">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3 class="m-0">ADMIN • Quản lí Combo</h3>
-    <a class="btn btn-outline-light btnx" href="<%=request.getContextPath()%>/pages/admin/dashboard.jsp">Về Dashboard</a>
-  </div>
+<jsp:include page="/common/admin-sidebar.jsp">
+    <jsp:param name="activeTab" value="combos" />
+</jsp:include>
 
-  <%
-    String error = (String) request.getAttribute("error");
-    List<Combo> comboList = (List<Combo>) request.getAttribute("comboList");
-    if (comboList == null) comboList = new ArrayList<>();
-  %>
-
-  <% if (error != null) { %>
-    <div class="alert alert-danger"><%= error %></div>
-  <% } %>
-
-  <div class="row g-3">
-    <!-- Form thêm combo -->
-    <div class="col-lg-4">
-      <div class="cardx p-3">
-        <h5 class="fw-bold">Thêm combo</h5>
-
-        <form action="<%=request.getContextPath()%>/admin/combos" method="post">
-          <input type="hidden" name="action" value="add"/>
-
-          <div class="mb-2">
-            <label class="form-label">Tên</label>
-            <input class="form-control" name="name" required/>
-          </div>
-
-          <div class="mb-2">
-            <label class="form-label">Mô tả</label>
-            <textarea class="form-control" name="description" rows="3"></textarea>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Giá (VNĐ)</label>
-            <input class="form-control" name="price" type="number" min="0" required/>
-          </div>
-
-          <button class="btn btn-primary btnx w-100" type="submit">Thêm</button>
-        </form>
-      </div>
+<div class="main-content">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h2 class="fw-bold mb-1">Quản lý Bắp nước & Combo</h2>
+            <p class="text-muted small mb-0">Thiết lập thực đơn và giá bán cho các gói combo</p>
+        </div>
+        <button class="btn btn-primary px-4 rounded-3" data-bs-toggle="modal" data-bs-target="#comboModal" onclick="prepareAdd()">
+            <i class="fas fa-plus me-2"></i> Thêm Combo mới
+        </button>
     </div>
 
-    <!-- Danh sách combo -->
-    <div class="col-lg-8">
-      <div class="cardx p-3">
-        <h5 class="fw-bold">Danh sách combo</h5>
+    <c:if test="${not empty error}">
+        <div class="alert alert-danger mb-4 rounded-3">${error}</div>
+    </c:if>
 
+    <div class="card-glass p-4">
         <div class="table-responsive">
-          <table class="table table-dark table-hover tbl">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Tên</th>
-                <th>Mô tả</th>
-                <th>Giá</th>
-                <th style="width:240px;">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody>
-            <% if (comboList.isEmpty()) { %>
-              <tr>
-                <td colspan="5" class="text-center text-white-50">Chưa có combo nào</td>
-              </tr>
-            <% } else {
-                 for (Combo c : comboList) {
-                   int id = c.getComboId();
-                   String name = c.getName();
-                   String desc = (c.getDescription() == null) ? "" : c.getDescription();
-                   BigDecimal price = c.getPrice();
-            %>
-              <tr>
-                <td><%= id %></td>
-                <td><%= name %></td>
-                <td><%= desc %></td>
-                <td><%= price %> VNĐ</td>
-                <td>
-
-                  <!-- Hidden để JS lấy dữ liệu an toàn 100% -->
-                  <input type="hidden" id="name_<%=id%>" value="<%= esc(name) %>"/>
-                  <input type="hidden" id="desc_<%=id%>" value="<%= esc(desc) %>"/>
-                  <input type="hidden" id="price_<%=id%>" value="<%= price %>"/>
-
-                  <!-- Nút Sửa: chỉ truyền ID -->
-                  <button type="button" class="btn btn-warning btnx"
-                          onclick="fillEdit2(<%=id%>)">
-                    Sửa
-                  </button>
-
-                  <!-- Nút Xóa -->
-                  <form class="d-inline" action="<%=request.getContextPath()%>/admin/combos" method="post"
-                        onsubmit="return confirm('Xóa combo này?');">
-                    <input type="hidden" name="action" value="delete"/>
-                    <input type="hidden" name="comboId" value="<%= id %>"/>
-                    <button class="btn btn-danger btnx" type="submit">Xóa</button>
-                  </form>
-
-                </td>
-              </tr>
-            <% } } %>
-            </tbody>
-          </table>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tên Combo</th>
+                        <th>Mô tả chi tiết</th>
+                        <th>Đơn giá</th>
+                        <th class="text-end">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <c:forEach var="c" items="${comboList}">
+                        <tr>
+                            <td>#${c.comboId}</td>
+                            <td><span class="fw-bold text-white">${c.name}</span></td>
+                            <td><span class="text-muted">${c.description}</span></td>
+                            <td><fmt:formatNumber value="${c.price}" type="currency" currencySymbol="₫" maxFractionDigits="0" /></td>
+                            <td class="text-end">
+                                <button class="btn btn-outline-info btn-action me-1" 
+                                        onclick="prepareEdit('${c.comboId}', '${c.name}', '${c.description}', '${c.price}')">
+                                    <i class="fas fa-edit small"></i>
+                                </button>
+                                <form action="${pageContext.request.contextPath}/admin/combos" method="POST" class="d-inline" onsubmit="return confirm('Xóa combo này?')">
+                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="comboId" value="${c.comboId}">
+                                    <button class="btn btn-outline-danger btn-action">
+                                        <i class="fas fa-trash small"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </c:forEach>
+                    <c:if test="${empty comboList}">
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted small">Chưa có combo nào trong danh sách.</td>
+                        </tr>
+                    </c:if>
+                </tbody>
+            </table>
         </div>
-
-        <!-- Form sửa combo -->
-        <div class="cardx p-3 mt-3">
-          <h5 class="fw-bold">Sửa combo</h5>
-
-          <form action="<%=request.getContextPath()%>/admin/combos" method="post">
-            <input type="hidden" name="action" value="update"/>
-
-            <div class="row g-2">
-              <div class="col-md-2">
-                <label class="form-label">ID</label>
-                <input id="editId" class="form-control" name="comboId" required/>
-              </div>
-
-              <div class="col-md-4">
-                <label class="form-label">Tên</label>
-                <input id="editName" class="form-control" name="name" required/>
-              </div>
-
-              <div class="col-md-4">
-                <label class="form-label">Mô tả</label>
-                <input id="editDesc" class="form-control" name="description"/>
-              </div>
-
-              <div class="col-md-2">
-                <label class="form-label">Giá</label>
-                <input id="editPrice" class="form-control" name="price" type="number" min="0" required/>
-              </div>
-            </div>
-
-            <button class="btn btn-success btnx w-100 mt-3" type="submit">Cập nhật</button>
-          </form>
-        </div>
-
-      </div>
     </div>
-  </div>
 </div>
 
+<!-- Combo Modal -->
+<div class="modal fade" id="comboModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form action="${pageContext.request.contextPath}/admin/combos" method="POST" class="modal-content">
+            <input type="hidden" name="action" id="modalAction" value="add">
+            <input type="hidden" name="comboId" id="modalId">
+            
+            <div class="modal-header border-0 p-4">
+                <h5 class="modal-title fw-bold" id="modalTitle">Thêm Combo mới</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 pt-0">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label small text-muted fw-bold">Tên Combo / Đồ ăn</label>
+                        <input type="text" name="name" id="inputName" class="form-control" placeholder="Ví dụ: Combo Bắp 1 Nước" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small text-muted fw-bold">Mô tả chi tiết</label>
+                        <textarea name="description" id="inputDescription" class="form-control" rows="3" placeholder="Chi tiết gồm những gì..."></textarea>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small text-muted fw-bold">Giá bán (VNĐ)</label>
+                        <input type="number" name="price" id="inputPrice" class="form-control" required>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 p-4 pt-0">
+                <button type="button" class="btn btn-link text-white text-decoration-none" data-bs-dismiss="modal">Hủy</button>
+                <button type="submit" class="btn btn-primary px-4 rounded-3">Lưu Combo</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-  // Không nhét chuỗi vào onclick => không bao giờ lỗi dấu nháy
-  function fillEdit2(id){
-    document.getElementById('editId').value = id;
-    document.getElementById('editName').value = document.getElementById('name_' + id).value;
-    document.getElementById('editDesc').value = document.getElementById('desc_' + id).value;
-    document.getElementById('editPrice').value = document.getElementById('price_' + id).value;
+    function prepareAdd() {
+        document.getElementById('modalTitle').innerText = 'Thêm Combo mới';
+        document.getElementById('modalAction').value = 'add';
+        document.getElementById('modalId').value = '';
+        document.getElementById('inputName').value = '';
+        document.getElementById('inputDescription').value = '';
+        document.getElementById('inputPrice').value = '';
+    }
 
-    // kéo xuống form sửa
-    window.scrollTo(0, document.body.scrollHeight);
-  }
+    function prepareEdit(id, name, desc, price) {
+        document.getElementById('modalTitle').innerText = 'Chỉnh sửa Combo';
+        document.getElementById('modalAction').value = 'update';
+        document.getElementById('modalId').value = id;
+        document.getElementById('inputName').value = name;
+        document.getElementById('inputDescription').value = desc;
+        document.getElementById('inputPrice').value = price;
+        
+        var myModal = new bootstrap.Modal(document.getElementById('comboModal'));
+        myModal.show();
+    }
 </script>
-
 </body>
 </html>

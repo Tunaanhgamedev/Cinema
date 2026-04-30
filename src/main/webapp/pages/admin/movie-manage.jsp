@@ -27,8 +27,9 @@
 </head>
 <body>
 
-<c:set var="activePage" value="movies" scope="request" />
-<jsp:include page="/common/admin-sidebar.jsp" />
+<jsp:include page="/common/admin-sidebar.jsp">
+    <jsp:param name="activeTab" value="movies" />
+</jsp:include>
 
 <div class="main-content">
     <div class="d-flex justify-content-between align-items-center mb-5">

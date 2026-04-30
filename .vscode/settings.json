@@ -1,0 +1,9 @@
+{
+    "java.project.referencedLibraries": [
+        "src/main/webapp/WEB-INF/lib/*.jar"
+    ],
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.debug.settings.enableRunDebugCodeLens": true,
+    "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx1G -Xms100m",
+    "rsp-ui.enableAsyncStart": true
+}

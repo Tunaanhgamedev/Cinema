@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
+<%@ taglib uri="jakarta.tags.fmt" prefix="fmt" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -63,15 +64,15 @@
     <!-- Nếu bạn vẫn muốn banner cũ thì để lại, không muốn thì xoá -->
     <jsp:include page="/common/banner.jsp" />
 
-    <!-- NOW SHOWING -->
+    <!-- NOW SHOWING (DYNAMIC BY SCHEDULE) -->
     <section class="home-section wow-section" id="nowshowing">
         <div class="section-head">
-            <h2 class="section-title">PHIM ĐANG CHIẾU</h2>
+            <h2 class="section-title">LỊCH CHIẾU HÔM NAY</h2>
             <div class="section-line"></div>
         </div>
 
         <div class="movie-grid wow-grid">
-            <c:forEach var="m" items="${nowShowingMovies}">
+            <c:forEach var="m" items="${moviesToday}">
                 <div class="movie-item wow-card">
                     <div class="movie-poster">
                         <img src="${pageContext.request.contextPath}/${m.poster}" alt="${m.title}">
@@ -82,13 +83,32 @@
                     <div class="movie-body">
                         <h3>${m.title}</h3>
                         <div class="movie-meta">${m.duration} phút • ${m.rating}/10</div>
+                        
+                        <div class="quick-times mt-3 mb-3">
+                            <label class="small text-muted d-block mb-2">Suất chiếu:</label>
+                            <div class="d-flex flex-wrap gap-1">
+                                <c:forEach var="st" items="${m.showtimes}">
+                                    <a href="${pageContext.request.contextPath}/booking-seat?showtimeId=${st.showtimeId}" 
+                                       class="badge text-decoration-none" 
+                                       style="background: rgba(34,211,238,0.1); color: #22d3ee; border: 1px solid rgba(34,211,238,0.2); padding: 6px 8px;">
+                                        <fmt:formatDate value="${st.startTime}" pattern="HH:mm" />
+                                    </a>
+                                </c:forEach>
+                            </div>
+                        </div>
+
                         <div class="movie-actions">
-                            <a href="${pageContext.request.contextPath}/booking-seat?movieId=${m.movieId}" class="btn-buy btn-wow">Mua vé</a>
-                            <a href="${pageContext.request.contextPath}/movie?id=${m.movieId}" class="btn-trailer">Chi tiết</a>
+                            <a href="${pageContext.request.contextPath}/movie?id=${m.movieId}" class="btn-trailer w-100 text-center">Chi tiết phim</a>
                         </div>
                     </div>
                 </div>
             </c:forEach>
+            
+            <c:if test="${empty moviesToday}">
+                <div class="col-12 text-center py-5">
+                    <p class="text-muted">Hôm nay hiện chưa có suất chiếu nào. Vui lòng quay lại sau!</p>
+                </div>
+            </c:if>
         </div>
     </section>
 

@@ -18,7 +18,6 @@
 					<a href="${pageContext.request.contextPath}/pages/clients/cinema/cinema-detail.jsp">RẠP</a>
 					<a href="${pageContext.request.contextPath}/contact">LIÊN HỆ</a>
 					<a href="${pageContext.request.contextPath}/pages/clients/about.jsp">THÀNH VIÊN</a>
-					
 				</nav>
 
 				<div class="user-menu">

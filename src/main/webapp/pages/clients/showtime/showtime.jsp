@@ -21,49 +21,16 @@
           <h1 class="st-title">BOBIXI Cinema • Đà Nẵng</h1>
           <p class="st-sub">Lịch chiếu phim cho ngày: <span class="text-info font-bold"><fmt:parseDate value="${selectedDate}" pattern="yyyy-MM-dd" var="parsedDate"/><fmt:formatDate value="${parsedDate}" pattern="dd/MM/yyyy"/></span></p>
         </div>
+        <div class="st-search">
+          <input id="q" type="text" class="form-control" placeholder="Tìm phim nhanh...">
+          <button class="btn btn-light" id="btnClear">Xóa</button>
+        </div>
       </div>
     </section>
 
     <main class="container st-wrap">
       <div class="st-panel">
-        <div class="st-dates" id="dates" data-selected="${selectedDate}">
-          <c:forEach var="d" items="${availableDates}">
-            <fmt:formatDate value="${d}" pattern="yyyy-MM-dd" var="iso"/>
-            <div class="st-date ${iso == selectedDate ? 'active' : ''}" data-iso="${iso}">
-              <div class="d1">
-                <fmt:formatDate value="${d}" pattern="E" var="dayName"/>
-                <c:choose>
-                    <c:when test="${dayName == 'Mon'}">T2</c:when>
-                    <c:when test="${dayName == 'Tue'}">T3</c:when>
-                    <c:when test="${dayName == 'Wed'}">T4</c:when>
-                    <c:when test="${dayName == 'Thu'}">T5</c:when>
-                    <c:when test="${dayName == 'Fri'}">T6</c:when>
-                    <c:when test="${dayName == 'Sat'}">T7</c:when>
-                    <c:when test="${dayName == 'Sun'}">CN</c:when>
-                    <c:otherwise>${dayName}</c:otherwise>
-                </c:choose>
-              </div>
-              <div class="d2"><fmt:formatDate value="${d}" pattern="dd/MM"/></div>
-            </div>
-          </c:forEach>
-        </div>
-      </div>
-
-      <!-- Search & Filter Toolbar (Below Dates) -->
-      <div class="st-toolbar">
-        <div class="st-search-box">
-          <i class="fas fa-search"></i>
-          <input id="movieSearch" type="text" placeholder="Tìm tên phim..." value="<c:out value='${param.q}'/>">
-        </div>
-        <div class="st-sort-box">
-          <label>Sắp xếp:</label>
-          <select id="movieSort">
-              <option value="newest" ${selectedSort == 'newest' ? 'selected' : ''}>Mới nhất</option>
-              <option value="hot" ${selectedSort == 'hot' ? 'selected' : ''}>Hot nhất</option>
-              <option value="oldest" ${selectedSort == 'oldest' ? 'selected' : ''}>Cũ nhất</option>
-              <option value="alphabetical" ${selectedSort == 'alphabetical' ? 'selected' : ''}>Tên phim (A-Z)</option>
-          </select>
-        </div>
+        <div class="st-dates" id="dates" data-selected="${selectedDate}"></div>
       </div>
 
       <div class="st-list" id="movieList">
@@ -75,7 +42,7 @@
                     
                     <article class="st-movie" data-title="${m.title.toLowerCase()}">
                         <div class="st-poster">
-                          <img src="${pageContext.request.contextPath}/assets/images/movies/${m.poster}" alt="${m.title}" onerror="this.src='${pageContext.request.contextPath}/assets/images/movies/movie1.jpg'">
+                          <img src="${m.poster}" alt="${m.title}" onerror="this.src='${pageContext.request.contextPath}/assets/images/movies/movie1.jpg'">
                         </div>
 
                         <div class="st-info">

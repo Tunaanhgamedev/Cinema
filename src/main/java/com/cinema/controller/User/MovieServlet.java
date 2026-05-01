@@ -22,6 +22,9 @@ public class MovieServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
 		String id = req.getParameter("id");
+		String keyword = req.getParameter("q");
+		String dateStr = req.getParameter("date");
+		boolean isAjax = "true".equals(req.getParameter("ajax"));
 
 		if (id != null && !id.trim().isEmpty()) {
 			int movieId = Integer.parseInt(id);
@@ -42,9 +45,23 @@ public class MovieServlet extends HttpServlet {
 			req.getRequestDispatcher("/pages/clients/movie/detail.jsp").forward(req, resp);
 
 		} else {
-			List<Movie> movies = movieDAO.findAll();
+			// Danh sách phim có bộ lọc
+			if (dateStr == null || dateStr.isEmpty()) {
+				dateStr = java.time.LocalDate.now().toString();
+			}
+			
+			List<Movie> movies = showtimeDAO.getMoviesWithShowtimes(dateStr, keyword, "newest");
+			List<java.sql.Date> availableDates = showtimeDAO.getAvailableDates();
+
 			req.setAttribute("movies", movies);
-			req.getRequestDispatcher("/pages/clients/movie/list.jsp").forward(req, resp);
+			req.setAttribute("availableDates", availableDates);
+			req.setAttribute("selectedDate", dateStr);
+
+			if (isAjax) {
+				req.getRequestDispatcher("/pages/clients/movie/movie-grid-fragment.jsp").forward(req, resp);
+			} else {
+				req.getRequestDispatcher("/pages/clients/movie/list.jsp").forward(req, resp);
+			}
 		}
 	}
 }

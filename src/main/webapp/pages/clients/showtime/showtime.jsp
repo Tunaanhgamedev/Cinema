@@ -39,7 +39,27 @@
 
     <main class="container st-wrap">
       <div class="st-panel">
-        <div class="st-dates" id="dates" data-selected="${selectedDate}"></div>
+        <div class="st-dates" id="dates" data-selected="${selectedDate}">
+          <c:forEach var="d" items="${availableDates}">
+            <fmt:formatDate value="${d}" pattern="yyyy-MM-dd" var="iso"/>
+            <div class="st-date ${iso == selectedDate ? 'active' : ''}" data-iso="${iso}">
+              <div class="d1">
+                <fmt:formatDate value="${d}" pattern="E" var="dayName"/>
+                <c:choose>
+                    <c:when test="${dayName == 'Mon'}">T2</c:when>
+                    <c:when test="${dayName == 'Tue'}">T3</c:when>
+                    <c:when test="${dayName == 'Wed'}">T4</c:when>
+                    <c:when test="${dayName == 'Thu'}">T5</c:when>
+                    <c:when test="${dayName == 'Fri'}">T6</c:when>
+                    <c:when test="${dayName == 'Sat'}">T7</c:when>
+                    <c:when test="${dayName == 'Sun'}">CN</c:when>
+                    <c:otherwise>${dayName}</c:otherwise>
+                </c:choose>
+              </div>
+              <div class="d2"><fmt:formatDate value="${d}" pattern="dd/MM"/></div>
+            </div>
+          </c:forEach>
+        </div>
       </div>
 
       <div class="st-list" id="movieList">

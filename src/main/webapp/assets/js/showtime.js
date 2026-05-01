@@ -6,34 +6,22 @@ const sortSelect = document.getElementById("sort");
 let currentSelectedDate = datesEl.getAttribute("data-selected") || new Date().toISOString().split('T')[0];
 
 // ===== Tạo 7 ngày chiếu =====
-const makeDateLabel = (d) => {
-    const days = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
-    return {
-        d1: days[d.getDay()],
-        d2: `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}`,
-        iso: d.toISOString().split('T')[0]
-    };
-};
-
-function renderDates() {
-    datesEl.innerHTML = "";
-    const today = new Date();
-    for (let i = 0; i < 7; i++) {
-        const d = new Date(today);
-        d.setDate(today.getDate() + i);
-        const { d1, d2, iso } = makeDateLabel(d);
-
-        const div = document.createElement("div");
-        div.className = "st-date" + (iso === currentSelectedDate ? " active" : "");
-        div.innerHTML = `<div class="d1">${d1}</div><div class="d2">${d2}</div>`;
-        div.addEventListener("click", () => {
+// ===== Khởi tạo sự kiện cho các tab ngày =====
+function initDateEvents() {
+    const dateTabs = document.querySelectorAll(".st-date");
+    dateTabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+            const iso = tab.getAttribute("data-iso");
             if (iso === currentSelectedDate) return;
+            
+            // Cập nhật UI active
+            dateTabs.forEach(t => t.classList.remove("active"));
+            tab.classList.add("active");
+            
             currentSelectedDate = iso;
-            renderDates();
             fetchMovies();
         });
-        datesEl.appendChild(div);
-    }
+    });
 }
 
 // ===== AJAX Load Phim =====
@@ -78,5 +66,5 @@ qInput.addEventListener("input", () => {
 sortSelect.addEventListener("change", fetchMovies);
 
 // Khởi tạo
-renderDates();
+initDateEvents();
 // Không cần gọi fetchMovies() ở đây vì server đã render sẵn lần đầu

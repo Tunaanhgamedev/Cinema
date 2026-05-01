@@ -253,6 +253,22 @@ public class ShowtimeDAO {
 		}
 		return false;
 	}
+	// Lấy danh sách các ngày duy nhất có suất chiếu (để hiển thị thanh chọn ngày)
+	public List<java.sql.Date> getAvailableDates() {
+		List<java.sql.Date> list = new ArrayList<>();
+		String sql = "SELECT DISTINCT show_date FROM showtimes WHERE show_date >= CURDATE() ORDER BY show_date ASC LIMIT 10";
+		try (Connection con = DBConnection.getConnection();
+				PreparedStatement ps = con.prepareStatement(sql);
+				ResultSet rs = ps.executeQuery()) {
+			while (rs.next()) {
+				list.add(rs.getDate("show_date"));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+
 	public List<com.cinema.model.Movie> getMoviesWithShowtimes(String date, String keyword, String sort) {
 		StringBuilder sql = new StringBuilder("""
 				    SELECT DISTINCT m.*

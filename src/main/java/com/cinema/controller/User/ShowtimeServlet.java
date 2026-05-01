@@ -24,11 +24,14 @@ public class ShowtimeServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String dateStr = req.getParameter("date");
         String keyword = req.getParameter("q");
-        String sort = req.getParameter("sort");
-        boolean isAjax = "true".equals(req.getParameter("ajax"));
-
+        // Lấy danh sách ngày có suất chiếu từ DB
+        List<java.sql.Date> availableDates = showtimeDAO.getAvailableDates();
         if (dateStr == null || dateStr.isEmpty()) {
-            dateStr = LocalDate.now().toString();
+            if (!availableDates.isEmpty()) {
+                dateStr = availableDates.get(0).toString();
+            } else {
+                dateStr = LocalDate.now().toString();
+            }
         }
 
         // Lấy danh sách phim theo filter
@@ -39,6 +42,7 @@ public class ShowtimeServlet extends HttpServlet {
             movieShowtimes.put(m, showtimeDAO.findByMovieAndDate(m.getMovieId(), dateStr));
         }
 
+        req.setAttribute("availableDates", availableDates);
         req.setAttribute("selectedDate", dateStr);
         req.setAttribute("movieShowtimes", movieShowtimes);
 

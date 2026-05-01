@@ -1,8 +1,8 @@
 // ===== Cấu hình =====
 const datesEl = document.getElementById("dates");
 const movieListEl = document.getElementById("movieList");
-const qInput = document.getElementById("q");
-const sortSelect = document.getElementById("sort");
+const qInput = document.getElementById("movieSearch");
+const sortSelect = document.getElementById("movieSort");
 let currentSelectedDate = datesEl.getAttribute("data-selected") || new Date().toISOString().split('T')[0];
 
 // ===== Tạo 7 ngày chiếu =====

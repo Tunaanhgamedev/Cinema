@@ -24,13 +24,14 @@
         <div class="st-filters">
           <div class="st-search">
             <i class="fas fa-search search-icon"></i>
-            <input id="q" type="text" class="form-control" placeholder="Tìm tên phim...">
+            <input id="movieSearch" type="text" class="form-control" placeholder="Tìm tên phim...">
           </div>
           <div class="st-sort">
-            <select id="sort" class="form-select">
-              <option value="newest">Mới nhất</option>
-              <option value="oldest">Cũ nhất</option>
-              <option value="alphabetical">Tên phim (A-Z)</option>
+            <select id="movieSort" class="form-select">
+              <option value="newest" ${selectedSort == 'newest' ? 'selected' : ''}>Mới nhất</option>
+              <option value="hot" ${selectedSort == 'hot' ? 'selected' : ''}>Hot nhất</option>
+              <option value="oldest" ${selectedSort == 'oldest' ? 'selected' : ''}>Cũ nhất</option>
+              <option value="alphabetical" ${selectedSort == 'alphabetical' ? 'selected' : ''}>Tên phim (A-Z)</option>
             </select>
           </div>
         </div>
@@ -71,7 +72,7 @@
                     
                     <article class="st-movie" data-title="${m.title.toLowerCase()}">
                         <div class="st-poster">
-                          <img src="${m.poster}" alt="${m.title}" onerror="this.src='${pageContext.request.contextPath}/assets/images/movies/movie1.jpg'">
+                          <img src="${pageContext.request.contextPath}/assets/images/movies/${m.poster}" alt="${m.title}" onerror="this.src='${pageContext.request.contextPath}/assets/images/movies/movie1.jpg'">
                         </div>
 
                         <div class="st-info">

@@ -9,293 +9,245 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>${movie.title} | BOBIXI Cinema</title>
 
-<!-- Google Fonts & FontAwesome -->
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+<!-- FontAwesome & Google Fonts -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-    body { font-family: 'Outfit', sans-serif; background-color: #020617; color: #f8fafc; margin: 0; }
-    
-    .hero-bg {
-        position: fixed;
-        inset: 0;
-        z-index: -1;
-        background: linear-gradient(to bottom, rgba(2, 6, 23, 0.85), #020617), url('${movie.poster}');
-        background-size: cover;
-        background-position: center;
-        filter: blur(100px);
-        transform: scale(1.2);
-        opacity: 0.5;
-    }
+  body { font-family: 'Roboto', sans-serif; background-color: #0b0f19; color: #e2e8f0; margin: 0; }
+  .mv-detail { padding-top: 40px; padding-bottom: 80px; }
+  .mv-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+  .mv-link { color: #818cf8; text-decoration: none; font-weight: bold; margin-bottom: 20px; display: inline-block; }
+  .mv-link:hover { text-decoration: underline; }
+  
+  .mv-card { 
+    background: #161d2f; 
+    border-radius: 12px; 
+    overflow: hidden; 
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); 
+  }
+  .mv-main { display: flex; gap: 40px; padding: 30px; }
+  @media(max-width: 768px) { .mv-main { flex-direction: column; } }
+  
+  .mv-poster { flex-shrink: 0; width: 320px; border-radius: 8px; overflow: hidden; }
+  .mv-poster img { width: 100%; height: auto; display: block; }
+  
+  .mv-content { flex: 1; }
+  .mv-title { font-size: 2.5rem; font-weight: 700; margin-bottom: 15px; color: #fff; }
+  
+  .tag { 
+    display: inline-block; 
+    padding: 4px 12px; 
+    background: #1e293b; 
+    border: 1px solid #334155; 
+    border-radius: 6px; 
+    font-size: 0.85rem; 
+    margin-right: 10px; 
+    color: #94a3b8; 
+  }
+  
+  .mv-table { width: 100%; margin-top: 20px; }
+  .mv-table td { padding: 8px 0; vertical-align: top; }
+  .mv-table td.label { width: 120px; color: #64748b; font-weight: 600; }
+  .mv-table td.value { color: #cbd5e1; }
+  
+  .btn-booking { 
+    display: inline-block; 
+    margin-top: 30px; 
+    padding: 12px 30px; 
+    background: #ef4444; 
+    color: #fff; 
+    text-decoration: none; 
+    border-radius: 6px; 
+    font-weight: 700; 
+    transition: 0.2s; 
+  }
+  .btn-booking:hover { background: #dc2626; transform: scale(1.02); }
+  
+  .btn-trailer {
+    display: inline-block;
+    margin-top: 30px;
+    margin-left: 15px;
+    padding: 11px 29px;
+    background: transparent;
+    border: 1px solid #475569;
+    color: #fff;
+    border-radius: 6px;
+    font-weight: 600;
+  }
+  .btn-trailer:hover { background: #1e293b; }
 
-    .glass-panel {
-        background: rgba(15, 23, 42, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 40px;
-        backdrop-filter: blur(30px);
-        box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.8);
-    }
-
-    .movie-title-premium {
-        font-size: clamp(3rem, 8vw, 5.5rem);
-        font-weight: 900;
-        line-height: 0.95;
-        letter-spacing: -4px;
-        color: #ffffff;
-        margin-bottom: 2rem;
-    }
-
-    .info-row {
-        display: flex;
-        padding: 1.2rem 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .info-label {
-        width: 160px;
-        font-size: 0.8rem;
-        font-weight: 900;
-        color: #fbbf24;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-    }
-    .info-value { font-size: 1.1rem; font-weight: 600; color: #ffffff; }
-
-    .action-btn-main {
-        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-        color: white;
-        font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        padding: 22px 48px;
-        border-radius: 24px;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-    .action-btn-main:hover { transform: translateY(-8px) scale(1.05); box-shadow: 0 20px 40px rgba(99, 102, 241, 0.4); }
-
-    /* Trailer Modal Overhaul */
-    #trailerModal {
-        position: fixed;
-        inset: 0;
-        z-index: 9999;
-        background: rgba(0, 0, 0, 0.98);
-        backdrop-filter: blur(20px);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        padding: 40px;
-    }
-    .trailer-content {
-        width: 100%;
-        max-width: 1400px;
-        height: auto;
-        aspect-ratio: 16/9;
-        position: relative;
-    }
-    .trailer-close-btn {
-        position: absolute;
-        top: -60px;
-        right: 0;
-        color: white;
-        font-size: 2rem;
-        cursor: pointer;
-        transition: 0.3s;
-    }
-    .trailer-close-btn:hover { color: #f43f5e; transform: rotate(90deg); }
-    
-    .iframe-wrap {
-        width: 100%;
-        height: 100%;
-        border-radius: 40px;
-        overflow: hidden;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 0 100px rgba(99, 102, 241, 0.2);
-    }
+  /* Tabs */
+  .tabs-nav { display: flex; border-bottom: 1px solid #1e293b; margin-top: 40px; padding: 0 30px; }
+  .tab-item { padding: 15px 25px; cursor: pointer; font-weight: 600; color: #64748b; border-bottom: 3px solid transparent; }
+  .tab-item.active { color: #ef4444; border-bottom-color: #ef4444; }
+  
+  .tab-content { padding: 30px; }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+  
+  .st-chip { 
+    display: inline-block; 
+    padding: 10px 18px; 
+    background: #1e293b; 
+    border-radius: 6px; 
+    margin: 5px; 
+    text-decoration: none; 
+    color: #fff; 
+    border: 1px solid #334155; 
+  }
+  .st-chip:hover { background: #3b82f6; border-color: #3b82f6; }
+  
+  /* Modal */
+  .modal-overlay { 
+    position: fixed; inset: 0; background: rgba(0,0,0,0.85); 
+    display: none; align-items: center; justify-content: center; z-index: 1000; 
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-body { width: 90%; max-width: 900px; position: relative; }
+  .btn-close-modal { position: absolute; top: -40px; right: 0; color: #fff; font-size: 1.5rem; cursor: pointer; }
 </style>
 </head>
 
 <body>
-    <jsp:include page="/common/header.jsp"/>
+  <jsp:include page="/common/header.jsp"/>
 
-    <div class="hero-bg"></div>
+  <div class="mv-detail">
+    <div class="mv-container">
+      <a href="${pageContext.request.contextPath}/movie" class="mv-link">
+        <i class="fas fa-arrow-left"></i> Danh sách phim
+      </a>
 
-    <div class="relative z-10 min-h-screen py-16 px-6">
-        <div class="max-w-7xl mx-auto">
+      <div class="mv-card">
+        <div class="mv-main">
+          <div class="mv-poster">
+            <img src="${pageContext.request.contextPath}/assets/images/movies/${movie.poster}" 
+                 alt="${movie.title}" 
+                 onerror="this.src='${pageContext.request.contextPath}/assets/images/movies/movie1.jpg'">
+          </div>
+
+          <div class="mv-content">
+            <div class="mb-4">
+              <span class="tag">${movie.status}</span>
+              <span class="tag"><i class="fas fa-star text-warning"></i> ${movie.rating}</span>
+            </div>
+            <h1 class="mv-title">${movie.title}</h1>
             
-            <div class="mb-12">
-                <a href="${pageContext.request.contextPath}/movie" class="inline-flex items-center gap-3 text-amber-400 font-black uppercase tracking-widest text-xs hover:text-white transition-all group">
-                    <i class="fas fa-chevron-left group-hover:-translate-x-2 transition-transform"></i>
-                    Danh sách phim
-                </a>
-            </div>
+            <table class="mv-table">
+              <tr>
+                <td class="label">Thể loại</td>
+                <td class="value">${movie.genre}</td>
+              </tr>
+              <tr>
+                <td class="label">Thời lượng</td>
+                <td class="value">${movie.duration} phút</td>
+              </tr>
+              <tr>
+                <td class="label">Đạo diễn</td>
+                <td class="value">${movie.director != null ? movie.director : 'Đang cập nhật'}</td>
+              </tr>
+              <tr>
+                <td class="label">Diễn viên</td>
+                <td class="value">${movie.cast != null ? movie.cast : 'Đang cập nhật'}</td>
+              </tr>
+              <tr>
+                <td class="label">Khởi chiếu</td>
+                <td class="value"><fmt:formatDate value="${movie.releaseDate}" pattern="dd/MM/yyyy"/></td>
+              </tr>
+            </table>
 
-            <div class="glass-panel p-10 lg:p-20 mb-16">
-                <div class="flex flex-col lg:flex-row gap-20">
-                    <div class="lg:w-[420px] shrink-0">
-                        <div class="relative group">
-                            <img src="${movie.poster}" alt="${movie.title}" 
-                                 class="relative rounded-[40px] w-full shadow-2xl border border-white/10"
-                                 onerror="this.src='${pageContext.request.contextPath}/assets/images/movies/movie1.jpg'">
-                        </div>
-                        <div class="flex gap-4 mt-10">
-                            <div class="flex-1 bg-white/5 border border-white/10 p-5 rounded-[24px] text-center">
-                                <p class="text-[10px] text-slate-500 font-black uppercase mb-1">Thời lượng</p>
-                                <p class="text-white font-bold">${movie.duration} Phút</p>
-                            </div>
-                            <div class="flex-1 bg-amber-500/10 border border-amber-500/20 p-5 rounded-[24px] text-center">
-                                <p class="text-[10px] text-amber-500 font-black uppercase mb-1">Trạng thái</p>
-                                <p class="text-amber-400 font-bold">${movie.status}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex-1 pt-6">
-                        <h1 class="movie-title-premium">${movie.title}</h1>
-                        <div class="mb-12">
-                            <div class="info-row">
-                                <div class="info-label">Thể loại</div>
-                                <div class="info-value">${movie.genre}</div>
-                            </div>
-                            <div class="info-row">
-                                <div class="info-label">Đạo diễn</div>
-                                <div class="info-value">${movie.director != null ? movie.director : 'Đang cập nhật'}</div>
-                            </div>
-                            <div class="info-row">
-                                <div class="info-label">Diễn viên</div>
-                                <div class="info-value">${movie.cast != null ? movie.cast : 'Đang cập nhật'}</div>
-                            </div>
-                            <div class="info-row">
-                                <div class="info-label">Khởi chiếu</div>
-                                <div class="info-value"><fmt:formatDate value="${movie.releaseDate}" pattern="dd/MM/yyyy"/></div>
-                            </div>
-                        </div>
-                        <div class="flex flex-wrap gap-8 items-center">
-                            <a href="${pageContext.request.contextPath}/booking-seat?movieId=${movie.movieId}" class="action-btn-main shadow-xl shadow-indigo-500/20">
-                                <i class="fas fa-ticket-alt mr-2"></i> Mua vé ngay
-                            </a>
-                            <button id="btnTrailer" class="text-white font-black uppercase tracking-wider flex items-center gap-4 hover:text-amber-400 transition-all p-4">
-                                <div class="w-14 h-14 rounded-full border-2 border-white/30 flex items-center justify-center hover:border-amber-400 transition-all">
-                                    <i class="fas fa-play text-sm"></i>
-                                </div>
-                                Xem Trailer
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            <div class="flex flex-wrap gap-2">
+              <a href="${pageContext.request.contextPath}/booking-seat?movieId=${movie.movieId}" class="btn-booking">
+                <i class="fas fa-ticket-alt"></i> ĐẶT VÉ NGAY
+              </a>
+              <button id="btnTrailer" class="btn-trailer">
+                <i class="fas fa-play"></i> XEM TRAILER
+              </button>
             </div>
-
-            <div id="booking-section" class="glass-panel p-10 lg:p-20">
-                <div class="flex mb-12 border-b border-white/5 overflow-x-auto">
-                    <button class="tab-trigger active whitespace-nowrap" data-tab="synopsis">Nội dung phim</button>
-                    <button class="tab-trigger whitespace-nowrap" data-tab="schedule">Suất chiếu hôm nay</button>
-                </div>
-                <div id="tab-synopsis" class="tab-content block">
-                    <p class="text-slate-300 text-xl leading-relaxed font-light italic max-w-4xl">
-                        "${movie.description != null ? movie.description : 'Thông tin chi tiết về bộ phim đang được cập nhật.'}"
-                    </p>
-                </div>
-                <div id="tab-schedule" class="tab-content hidden">
-                    <c:choose>
-                        <c:when test="${not empty todayShowtimes}">
-                            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8">
-                                <c:forEach var="s" items="${todayShowtimes}">
-                                    <a href="${pageContext.request.contextPath}/booking-seat?showtimeId=${s.showtimeId}" class="st-chip-premium group">
-                                        <div class="text-3xl font-black text-white group-hover:text-indigo-400 transition-colors">
-                                            <fmt:formatDate value="${s.startTime}" pattern="HH:mm" />
-                                        </div>
-                                        <div class="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-2">
-                                            ${s.roomName}
-                                        </div>
-                                    </a>
-                                </c:forEach>
-                            </div>
-                        </c:when>
-                        <c:otherwise>
-                            <div class="text-center py-20 bg-white/5 rounded-3xl border border-dashed border-white/10">
-                                <i class="fas fa-calendar-times text-5xl text-slate-700 mb-6 block"></i>
-                                <h3 class="text-2xl font-bold text-slate-400">Không có suất chiếu hôm nay</h3>
-                                <a href="${pageContext.request.contextPath}/showtime" class="text-indigo-400 font-bold hover:underline mt-4 inline-block">Xem lịch chiếu các ngày khác</a>
-                            </div>
-                        </c:otherwise>
-                    </c:choose>
-                </div>
-            </div>
+          </div>
         </div>
-    </div>
 
-    <!-- Trailer Modal (IMAX Screen) -->
-    <div id="trailerModal">
-        <div class="trailer-content">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-white font-black italic tracking-tighter uppercase">Trailer: ${movie.title}</h2>
-                <div class="flex gap-4">
-                    <a id="btnExternal" href="#" target="_blank" class="px-6 py-2 rounded-full bg-white/10 hover:bg-white/20 text-xs font-bold text-white transition-all flex items-center gap-2">
-                        <i class="fab fa-youtube text-red-500"></i> Xem trên YouTube
+        <div class="tabs-nav">
+          <div class="tab-item active" data-tab="synopsis">Nội dung</div>
+          <div class="tab-item" data-tab="schedule">Suất chiếu hôm nay</div>
+        </div>
+
+        <div class="tab-content">
+          <div id="tab-synopsis" class="tab-pane active">
+            <p style="line-height: 1.8; color: #94a3b8;">${movie.description != null ? movie.description : 'Đang cập nhật nội dung...'}</p>
+          </div>
+          <div id="tab-schedule" class="tab-pane">
+            <c:choose>
+              <c:when test="${not empty todayShowtimes}">
+                <div class="flex flex-wrap">
+                  <c:forEach var="s" items="${todayShowtimes}">
+                    <a href="${pageContext.request.contextPath}/booking-seat?showtimeId=${s.showtimeId}" class="st-chip">
+                      <strong><fmt:formatDate value="${s.startTime}" pattern="HH:mm" /></strong>
+                      <span style="font-size: 0.7rem; opacity: 0.7; margin-left: 5px;">${s.roomName}</span>
                     </a>
-                    <div id="closeTrailer" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-rose-500 transition-all text-white cursor-pointer">
-                        <i class="fas fa-times"></i>
-                    </div>
+                  </c:forEach>
                 </div>
-            </div>
-            <div class="iframe-wrap">
-                <iframe id="trailerFrame" width="100%" height="100%" src="" 
-                        title="YouTube video player" frameborder="0" 
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                        allowfullscreen></iframe>
-            </div>
+              </c:when>
+              <c:otherwise>
+                <div class="py-10 text-center border border-dashed border-slate-700 rounded-lg">
+                  <p class="text-slate-500">Hiện tại không có suất chiếu nào cho ngày hôm nay.</p>
+                  <a href="${pageContext.request.contextPath}/showtime" class="text-blue-400 text-sm mt-2 inline-block">Xem tất cả lịch chiếu</a>
+                </div>
+              </c:otherwise>
+            </c:choose>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 
-    <jsp:include page="/common/footer.jsp"/>
+  <!-- Trailer Modal -->
+  <div id="trailerModal" class="modal-overlay">
+    <div class="modal-body">
+      <span class="btn-close-modal" id="closeTrailer">&times;</span>
+      <div style="aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden;">
+        <iframe id="trailerFrame" width="100%" height="100%" src="" frameborder="0" allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
 
-    <script>
-        // Tabs Switching
-        document.querySelectorAll('.tab-trigger').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.tab-trigger').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                document.querySelectorAll('.tab-content').forEach(p => { p.classList.add('hidden'); p.classList.remove('block'); });
-                const pane = document.getElementById('tab-' + btn.dataset.tab);
-                pane.classList.remove('hidden'); pane.classList.add('block');
-            });
-        });
+  <jsp:include page="/common/footer.jsp"/>
 
-        // Trailer Management - Pro Version
-        const modal = document.getElementById('trailerModal');
-        const frame = document.getElementById('trailerFrame');
-        const btnExt = document.getElementById('btnExternal');
-        const rawUrl = "${movie.trailerUrl}";
+  <script>
+    // Tabs logic
+    document.querySelectorAll('.tab-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.tab-item').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        document.getElementById('tab-' + item.dataset.tab).classList.add('active');
+      });
+    });
 
-        function parseVideoId(url) {
-            if (!url) return null;
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : null;
-        }
+    // Trailer logic
+    const modal = document.getElementById('trailerModal');
+    const frame = document.getElementById('trailerFrame');
+    const rawUrl = "${movie.trailerUrl}";
+    
+    function getEmbedUrl(url) {
+      if(!url) return "";
+      let id = "";
+      if(url.includes("v=")) id = url.split("v=")[1].split("&")[0];
+      else if(url.includes("youtu.be/")) id = url.split("youtu.be/")[1].split("?")[0];
+      return id ? "https://www.youtube.com/embed/" + id : "";
+    }
 
-        const videoId = parseVideoId(rawUrl);
-        // Thêm tham số mute=1 và origin để tránh lỗi trên localhost
-        const embedUrl = videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&rel=0&origin=` + window.location.origin : "";
+    document.getElementById('btnTrailer').addEventListener('click', () => {
+      const embed = getEmbedUrl(rawUrl);
+      if(!embed) { alert("Trailer không khả dụng."); return; }
+      frame.src = embed + "?autoplay=1";
+      modal.classList.add('show');
+    });
 
-        document.getElementById('btnTrailer').addEventListener('click', () => {
-            if (!videoId) { alert("Trailer chưa khả dụng cho phim này."); return; }
-            
-            frame.src = embedUrl;
-            btnExt.href = `https://www.youtube.com/watch?v=${videoId}`;
-            modal.style.display = 'flex';
-        });
-
-        const closeT = () => { modal.style.display = 'none'; frame.src = ""; };
-        document.getElementById('closeTrailer').addEventListener('click', closeT);
-        modal.addEventListener('click', (e) => { if(e.target === modal) closeT(); });
-        document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeT(); });
-    </script>
-
-    <style>
-        .tab-trigger { font-size: 1.1rem; font-weight: 800; color: #64748b; padding: 1.5rem 0; margin-right: 3rem; border-bottom: 4px solid transparent; transition: all 0.3s; }
-        .tab-trigger.active { color: #ffffff; border-bottom-color: #6366f1; }
-        .st-chip-premium { background: rgba(255, 255, 255, 0.03); border: 2px solid rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 24px; text-align: center; transition: all 0.3s; cursor: pointer; display: block; text-decoration: none; }
-        .st-chip-premium:hover { background: rgba(99, 102, 241, 0.1); border-color: #6366f1; transform: scale(1.05); }
-    </style>
+    const closeModal = () => { modal.classList.remove('show'); frame.src = ""; };
+    document.getElementById('closeTrailer').addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => { if(e.target === modal) closeModal(); });
+  </script>
 </body>
 </html>

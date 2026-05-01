@@ -311,8 +311,14 @@ public class ShowtimeDAO {
 					m.setPoster(rs.getString("poster"));
 					m.setDuration(rs.getInt("duration"));
 					m.setGenre(rs.getString("genre"));
-					m.setRating(rs.getString("rating"));
+					m.setRating(rs.getDouble("rating"));
 					m.setReleaseDate(rs.getDate("release_date"));
+					String statusStr = rs.getString("status");
+					try {
+						m.setStatus(com.cinema.enums.StatusMovie.valueOf(statusStr));
+					} catch (Exception e) {
+						m.setStatus(com.cinema.enums.StatusMovie.NOW_SHOWING);
+					}
 					list.add(m);
 				}
 			}

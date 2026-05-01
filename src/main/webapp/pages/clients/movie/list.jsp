@@ -113,28 +113,68 @@
     <div class="movie-container">
 
       <div class="movie-header">
-        <h1 class="movie-title">🎬 PHIM</h1>
+        <h1 class="movie-title">🎬 PHIM ĐANG CHIẾU</h1>
         <a href="${pageContext.request.contextPath}/showtime">Xem lịch chiếu</a>
+      </div>
+
+      <!-- Simple Filter Bar -->
+      <div class="filter-section mb-4">
+        <form action="${pageContext.request.contextPath}/movie" method="GET" class="row g-3">
+          <div class="col-md-4">
+            <input type="text" name="q" class="form-control" placeholder="Tìm tên phim..." value="${param.q}">
+          </div>
+          <div class="col-md-3">
+             <select name="sort" class="form-select" onchange="this.form.submit()">
+                <option value="newest" ${selectedSort == 'newest' ? 'selected' : ''}>Mới nhất</option>
+                <option value="hot" ${selectedSort == 'hot' ? 'selected' : ''}>Hot nhất</option>
+                <option value="alphabetical" ${selectedSort == 'alphabetical' ? 'selected' : ''}>A - Z</option>
+             </select>
+          </div>
+          <div class="col-md-5">
+            <div class="d-flex overflow-auto pb-2" style="gap: 8px;">
+               <c:forEach var="d" items="${availableDates}">
+                  <fmt:formatDate value="${d}" pattern="yyyy-MM-dd" var="iso"/>
+                  <fmt:formatDate value="${d}" pattern="dd/MM" var="label"/>
+                  <a href="${pageContext.request.contextPath}/movie?date=${iso}&q=${param.q}&sort=${selectedSort}" 
+                     class="btn ${iso == selectedDate ? 'btn-warning' : 'btn-outline-secondary'} btn-sm px-3">
+                     ${label}
+                  </a>
+               </c:forEach>
+            </div>
+          </div>
+          <input type="hidden" name="date" value="${selectedDate}">
+        </form>
       </div>
 
       <c:choose>
         <c:when test="${not empty movies}">
           <div class="movie-grid">
             <c:forEach items="${movies}" var="m">
-              <div class="movie-card">
-                <img src="${pageContext.request.contextPath}/assets/images/movies/${m.poster}"
-                     alt="${m.title}"
-                     onerror="this.src='${pageContext.request.contextPath}/assets/images/movies/movie.jpg'">
+              <div class="movie-card shadow-sm">
+                <div style="position:relative; height:320px; background:#eee;">
+                  <c:choose>
+                    <c:when test="${not empty m.poster}">
+                      <img src="${pageContext.request.contextPath}/assets/images/movies/${m.poster}"
+                           alt="${m.title}"
+                           style="width:100%; height:100%; object-fit:cover;"
+                           onerror="this.src='${pageContext.request.contextPath}/assets/images/movies/movie1.jpg'">
+                    </c:when>
+                    <c:otherwise>
+                      <img src="${pageContext.request.contextPath}/assets/images/movies/movie1.jpg"
+                           alt="Placeholder"
+                           style="width:100%; height:100%; object-fit:cover;">
+                    </c:otherwise>
+                  </c:choose>
+                </div>
 
                 <div class="movie-body">
-                  <h3 class="movie-name">${m.title}</h3>
+                  <h3 class="movie-name text-truncate" title="${m.title}">${m.title}</h3>
                   <div class="movie-info">
-                    ⏱ ${m.duration} phút<br>
-                    🔞 ${m.rating}<br>
-                    📌 ${m.status}
+                    <span class="text-warning">★ ${m.rating}</span> | ${m.duration} phút<br>
+                    <span class="badge bg-light text-dark border mt-1">${m.status}</span>
                   </div>
 
-                  <div class="movie-actions">
+                  <div class="movie-actions mt-2">
                     <a class="btn-detail"
                        href="${pageContext.request.contextPath}/movie?id=${m.movieId}">
                        Chi tiết
@@ -149,14 +189,13 @@
             </c:forEach>
           </div>
         </c:when>
-
         <c:otherwise>
-          <div class="empty-box">
-            Chưa có phim trong hệ thống. Vui lòng thêm dữ liệu vào bảng <b>movies</b>.
+          <div class="text-center py-5 border rounded bg-white">
+            <h4 class="text-muted">Không tìm thấy phim nào cho ngày này</h4>
+            <p>Vui lòng chọn ngày khác hoặc thay đổi từ khóa tìm kiếm.</p>
           </div>
         </c:otherwise>
       </c:choose>
-
     </div>
   </div>
 

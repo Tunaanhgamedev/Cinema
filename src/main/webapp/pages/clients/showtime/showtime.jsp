@@ -22,8 +22,14 @@
           <p class="st-sub">Lịch chiếu phim cho ngày: <span class="text-info font-bold"><fmt:parseDate value="${selectedDate}" pattern="yyyy-MM-dd" var="parsedDate"/><fmt:formatDate value="${parsedDate}" pattern="dd/MM/yyyy"/></span></p>
         </div>
         <div class="st-search">
-          <input id="q" type="text" class="form-control" placeholder="Tìm phim nhanh...">
-          <button class="btn btn-light" id="btnClear">Xóa</button>
+          <form action="${pageContext.request.contextPath}/showtime" method="GET" class="d-flex gap-2">
+            <input type="hidden" name="date" value="${selectedDate}">
+            <input name="q" id="q" type="text" class="form-control" placeholder="Tìm tên phim..." value="${param.q}">
+            <button type="submit" class="btn btn-warning font-bold">TÌM</button>
+            <c:if test="${not empty param.q}">
+                <a href="${pageContext.request.contextPath}/showtime?date=${selectedDate}" class="btn btn-secondary">Hủy</a>
+            </c:if>
+          </form>
         </div>
       </div>
     </section>

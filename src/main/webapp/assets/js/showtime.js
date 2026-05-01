@@ -1,6 +1,8 @@
 // ===== Date tabs: tạo 7 ngày =====
 const datesEl = document.getElementById("dates");
 const selectedDateAttr = datesEl.getAttribute("data-selected");
+const urlParams = new URLSearchParams(window.location.search);
+const currentSearch = urlParams.get('q') || "";
 
 const makeDateLabel = (d) => {
   const days = ["CN","T2","T3","T4","T5","T6","T7"];
@@ -21,38 +23,10 @@ for (let i = 0; i < 7; i++){
   div.className = "st-date" + (iso === selectedDateAttr ? " active" : "");
   div.innerHTML = `<div class="d1">${d1}</div><div class="d2">${d2}</div>`;
   div.addEventListener("click", () => {
-    // Chuyển hướng trang kèm theo tham số ngày
-    const currentPath = window.location.pathname;
-    window.location.href = currentPath + "?date=" + iso;
+    // Chuyển hướng trang kèm theo tham số ngày và GIỮ LẠI từ khóa tìm kiếm
+    let url = window.location.pathname + "?date=" + iso;
+    if(currentSearch) url += "&q=" + encodeURIComponent(currentSearch);
+    window.location.href = url;
   });
   datesEl.appendChild(div);
 }
-
-// ===== Filters =====
-const q = document.getElementById("q");
-const btnClear = document.getElementById("btnClear");
-const list = document.getElementById("movieList");
-
-const getMovies = () => Array.from(document.querySelectorAll(".st-movie"));
-
-function apply(){
-  const keyword = (q.value || "").trim().toLowerCase();
-  let any = false;
-
-  getMovies().forEach(item => {
-    const title = (item.dataset.title || "").toLowerCase();
-    const show = !keyword || title.includes(keyword);
-    item.style.display = show ? "" : "none";
-    if (show) any = true;
-  });
-
-  const emptyState = document.getElementById("emptyState");
-  if(emptyState) emptyState.style.display = any ? "none" : "";
-}
-
-if(q) {
-    q.addEventListener("input", apply);
-    btnClear.addEventListener("click", () => { q.value=""; apply(); });
-}
-
-apply();

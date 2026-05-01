@@ -188,7 +188,7 @@ public class BookingSeatServlet extends HttpServlet {
 		req.setAttribute("bookedMap", toMap(bookedSeats));
 		req.setAttribute("selectedMap", toMap(selectedSeats));
 		req.setAttribute("selectedSeats", selectedSeats);
-		req.setAttribute("seatPrices", seatPriceDAO.getAll());
+		req.setAttribute("seatPrices", seatPriceDAO.getAllSeatPrices());
 
 		req.getRequestDispatcher("/pages/clients/booking/booking-ticket.jsp").forward(req, resp);
 	}

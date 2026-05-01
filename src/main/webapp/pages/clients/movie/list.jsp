@@ -25,13 +25,20 @@
     <div class="container" style="position: relative; z-index: 10;">
         <div class="filter-bar">
             <div class="row align-items-center g-4">
-                <div class="col-lg-4">
+                <div class="col-lg-3">
                     <div class="search-box">
                         <i class="fas fa-search search-icon"></i>
                         <input type="text" id="movieSearch" class="form-control shadow-none" placeholder="Tìm tên phim...">
                     </div>
                 </div>
-                <div class="col-lg-8">
+                <div class="col-lg-2">
+                    <select id="movieSort" class="form-select shadow-none bg-dark text-white border-secondary rounded-3" style="padding: 11px;">
+                        <option value="newest" ${selectedSort == 'newest' ? 'selected' : ''}>Mới nhất</option>
+                        <option value="oldest" ${selectedSort == 'oldest' ? 'selected' : ''}>Cũ nhất</option>
+                        <option value="alphabetical" ${selectedSort == 'alphabetical' ? 'selected' : ''}>A - Z</option>
+                    </select>
+                </div>
+                <div class="col-lg-7">
                     <div class="date-scroller" id="movieDates" data-selected="${selectedDate}">
                         <c:forEach var="d" items="${availableDates}">
                             <fmt:formatDate value="${d}" pattern="yyyy-MM-dd" var="iso"/>
@@ -67,13 +74,15 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const searchInput = document.getElementById('movieSearch');
+        const sortSelect = document.getElementById('movieSort');
         const gridContainer = document.getElementById('movieGridContainer');
         const dateItems = document.querySelectorAll('.date-item');
         let selectedDate = document.getElementById('movieDates').dataset.selected;
 
         async function updateMovies() {
             const q = searchInput.value;
-            const url = `${window.location.pathname}?q=${encodeURIComponent(q)}&date=${selectedDate}&ajax=true`;
+            const sort = sortSelect.value;
+            const url = `${window.location.pathname}?q=${encodeURIComponent(q)}&date=${selectedDate}&sort=${sort}&ajax=true`;
             
             gridContainer.style.opacity = '0.5';
             try {
@@ -92,6 +101,8 @@
             clearTimeout(timeout);
             timeout = setTimeout(updateMovies, 500);
         });
+
+        sortSelect.addEventListener('change', updateMovies);
 
         dateItems.forEach(item => {
             item.addEventListener('click', () => {

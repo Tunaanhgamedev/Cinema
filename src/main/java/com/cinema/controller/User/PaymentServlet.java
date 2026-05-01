@@ -157,13 +157,20 @@ public class PaymentServlet extends HttpServlet {
 					} else {
 						discountAmount = new BigDecimal(vResult.discountAmount);
 					}
+					double discountAmountValue = discountAmount.doubleValue();
 					grandTotal = grandTotal.subtract(discountAmount);
 					if (grandTotal.compareTo(BigDecimal.ZERO) < 0) grandTotal = BigDecimal.ZERO;
+					
+					request.setAttribute("discountAmountValue", discountAmountValue);
 				}
 			}
+			
+			double finalDiscount = 0;
+			Object attr = request.getAttribute("discountAmountValue");
+			if(attr != null) finalDiscount = (double)attr;
 
-			// 3) update bookings => PAID + total_price
-			updateBookingPaid(con, bookingId, grandTotal);
+			// 3) update bookings => PAID + total_price + discount_amount
+			updateBookingPaid(con, bookingId, grandTotal, BigDecimal.valueOf(finalDiscount));
 
 			// 4) insert payments
 			insertPayment(con, bookingId, method);
@@ -172,32 +179,39 @@ public class PaymentServlet extends HttpServlet {
 
 			// ✅ Gửi Email xác nhận (Chạy ngầm)
 			try {
-				String movieTitle = (seatList != null && !seatList.isEmpty()) ? "Phim đã chọn" : "Phim"; 
-				// Lưu ý: Trong thực tế nên lấy Movie Title từ DB qua bookingId
+				final BigDecimal finalTotal = grandTotal;
+				final String userEmail = u.getEmail();
+				final String userName = u.getFullName();
 				
-				StringBuilder seats = new StringBuilder();
-				if (seatList != null) {
-					for (com.cinema.model.Seat seat : seatList) {
-						if (seats.length() > 0) seats.append(", ");
-						seats.append(seat.getSeatNumber());
-					}
-				}
+				new Thread(() -> {
+					try {
+						StringBuilder seatsStr = new StringBuilder();
+						if (seatList != null) {
+							for (com.cinema.model.Seat seat : seatList) {
+								if (seatsStr.length() > 0) seatsStr.append(", ");
+								seatsStr.append(seat.getSeatNumber());
+							}
+						}
 
-				String body = com.cinema.utils.EmailUtil.getBookingConfirmationTemplate(
-					u.getFullName(), 
-					movieTitle, 
-					seats.toString(), 
-					"Tại BOBIXI Cinema", 
-					String.format("%,.0f", grandTotal)
-				);
-				
-				com.cinema.utils.EmailUtil.sendEmail(u.getEmail(), "Xác nhận đặt vé thành công - BOBIXI Cinema", body);
+						String body = com.cinema.utils.EmailUtil.getBookingConfirmationTemplate(
+							userName, 
+							"Vé xem phim tại BOBIXI", 
+							seatsStr.toString(), 
+							"Rạp BOBIXI Đà Nẵng", 
+							String.format("%,.0f", finalTotal)
+						);
+						
+						com.cinema.utils.EmailUtil.sendEmail(userEmail, "Xác nhận đặt vé thành công - BOBIXI Cinema", body);
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
+				}).start();
 			} catch (Exception ex) {
-				ex.printStackTrace(); // Lỗi gửi mail không được làm hỏng luồng thanh toán
+				ex.printStackTrace();
 			}
 
-			// ✅ sau khi PAID: ghế sẽ khóa vĩnh viễn (bookedSeats query có b.status='PAID')
-			response.sendRedirect(request.getContextPath() + "/booking/payment?bookingId=" + bookingId + "&success=1");
+			// ✅ sau khi PAID: Chuyển sang trang Hóa đơn
+			response.sendRedirect(request.getContextPath() + "/booking/invoice?bookingId=" + bookingId);
 
 		} catch (Exception e) {
 			if (con != null) {
@@ -238,11 +252,12 @@ public class PaymentServlet extends HttpServlet {
 		}
 	}
 
-	private void updateBookingPaid(Connection con, int bookingId, BigDecimal total) {
-		String sql = "UPDATE bookings SET total_price=?, status='PAID' WHERE booking_id=?";
+	private void updateBookingPaid(Connection con, int bookingId, BigDecimal total, BigDecimal discount) {
+		String sql = "UPDATE bookings SET total_price=?, discount_amount=?, status='PAID' WHERE booking_id=?";
 		try (PreparedStatement ps = con.prepareStatement(sql)) {
 			ps.setBigDecimal(1, total);
-			ps.setInt(2, bookingId);
+			ps.setBigDecimal(2, discount);
+			ps.setInt(3, bookingId);
 			int updated = ps.executeUpdate();
 			if (updated != 1)
 				throw new RuntimeException("updateBookingPaid failed");

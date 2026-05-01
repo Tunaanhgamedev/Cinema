@@ -81,4 +81,48 @@ public class BookingDAO {
 		}
 	}
 
+	public com.cinema.model.Booking findById(int bookingId) {
+		String sql = "SELECT * FROM bookings WHERE booking_id = ?";
+		try (Connection con = com.cinema.utils.DBConnection.getConnection();
+				PreparedStatement ps = con.prepareStatement(sql)) {
+			ps.setInt(1, bookingId);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) {
+					com.cinema.model.Booking b = new com.cinema.model.Booking();
+					b.setBookingId(rs.getInt("booking_id"));
+					b.setUserId(rs.getInt("user_id"));
+					b.setShowtimeId(rs.getInt("showtime_id"));
+					b.setBookingDate(rs.getTimestamp("booking_date"));
+					b.setTotalPrice(rs.getLong("total_price"));
+					b.setDiscountAmount(rs.getLong("discount_amount"));
+					b.setStatus(com.cinema.enums.StatusBooking.valueOf(rs.getString("status")));
+					return b;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public java.util.List<com.cinema.model.Seat> getSeatsByBookingId(int bookingId) {
+		java.util.List<com.cinema.model.Seat> list = new java.util.ArrayList<>();
+		String sql = "SELECT s.* FROM seats s JOIN booking_seats bs ON s.seat_id = bs.seat_id WHERE bs.booking_id = ?";
+		try (Connection con = com.cinema.utils.DBConnection.getConnection();
+				PreparedStatement ps = con.prepareStatement(sql)) {
+			ps.setInt(1, bookingId);
+			try (ResultSet rs = ps.executeQuery()) {
+				while (rs.next()) {
+					com.cinema.model.Seat s = new com.cinema.model.Seat();
+					s.setSeatId(rs.getInt("seat_id"));
+					s.setSeatNumber(rs.getString("seat_number"));
+					s.setSeatRow(rs.getString("seat_row"));
+					list.add(s);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
 }

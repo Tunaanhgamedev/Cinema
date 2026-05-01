@@ -182,4 +182,6 @@ UPDATE showtimes SET show_date = DATE(start_time);
 ALTER TABLE showtimes MODIFY COLUMN show_date DATE NOT NULL;
 
 -- Đảm bảo index để truy vấn nhanh
-CREATE INDEX idx_showtime_date ON showtimes(movie_id, show_date);
+-- Thêm cột discount_amount vào bookings
+ALTER TABLE bookings ADD COLUMN discount_amount DECIMAL(10,2) DEFAULT 0 AFTER total_price;
+ALTER TABLE bookings CHANGE COLUMN booking_time booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP;

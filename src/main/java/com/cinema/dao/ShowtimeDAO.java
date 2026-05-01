@@ -311,7 +311,8 @@ public class ShowtimeDAO {
 					m.setPoster(rs.getString("poster"));
 					m.setDuration(rs.getInt("duration"));
 					m.setGenre(rs.getString("genre"));
-					m.setRating(rs.getDouble("rating"));
+					String ratingStr = rs.getString("rating");
+					m.setRating(parseDoubleSafe(ratingStr));
 					m.setReleaseDate(rs.getDate("release_date"));
 					String statusStr = rs.getString("status");
 					try {
@@ -326,5 +327,14 @@ public class ShowtimeDAO {
 			throw new RuntimeException("ShowtimeDAO.getMoviesWithShowtimes error", e);
 		}
 		return list;
+	}
+
+	private static double parseDoubleSafe(String s) {
+		if (s == null) return 0.0;
+		try {
+			return Double.parseDouble(s.trim());
+		} catch (Exception e) {
+			return 0.0;
+		}
 	}
 }

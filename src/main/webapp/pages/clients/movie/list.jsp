@@ -112,38 +112,44 @@
   <div class="movie-page">
     <div class="movie-container">
 
-      <div class="movie-header">
-        <h1 class="movie-title">🎬 PHIM ĐANG CHIẾU</h1>
-        <a href="${pageContext.request.contextPath}/showtime">Xem lịch chiếu</a>
-      </div>
-
-      <!-- Simple Filter Bar -->
-      <div class="filter-section mb-4">
-        <form action="${pageContext.request.contextPath}/movie" method="GET" class="row g-3">
-          <div class="col-md-4">
-            <input type="text" name="q" class="form-control" placeholder="Tìm tên phim..." value="${param.q}">
-          </div>
-          <div class="col-md-3">
-             <select name="sort" class="form-select" onchange="this.form.submit()">
+      <div class="movie-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+        <h1 class="movie-title mb-0">🎬 PHIM ĐANG CHIẾU</h1>
+        
+        <div class="header-actions d-flex gap-3 align-items-center">
+            <form action="${pageContext.request.contextPath}/movie" method="GET" class="d-flex gap-2">
+              <div class="input-group" style="width: 280px;">
+                <span class="input-group-text bg-white border-end-0 rounded-start-pill">
+                    <i class="fas fa-search text-muted"></i>
+                </span>
+                <input type="text" name="q" class="form-control border-start-0 rounded-end-pill ps-0" 
+                       placeholder="Tìm tên phim..." value="${param.q}">
+              </div>
+              
+              <select name="sort" class="form-select rounded-pill" style="width: 130px;" onchange="this.form.submit()">
                 <option value="newest" ${selectedSort == 'newest' ? 'selected' : ''}>Mới nhất</option>
                 <option value="hot" ${selectedSort == 'hot' ? 'selected' : ''}>Hot nhất</option>
                 <option value="alphabetical" ${selectedSort == 'alphabetical' ? 'selected' : ''}>A - Z</option>
-             </select>
-          </div>
-          <div class="col-md-5">
-            <div class="d-flex overflow-auto pb-2" style="gap: 8px;">
-               <c:forEach var="d" items="${availableDates}">
-                  <fmt:formatDate value="${d}" pattern="yyyy-MM-dd" var="iso"/>
-                  <fmt:formatDate value="${d}" pattern="dd/MM" var="label"/>
-                  <a href="${pageContext.request.contextPath}/movie?date=${iso}&q=${param.q}&sort=${selectedSort}" 
-                     class="btn ${iso == selectedDate ? 'btn-warning' : 'btn-outline-secondary'} btn-sm px-3">
-                     ${label}
-                  </a>
-               </c:forEach>
-            </div>
-          </div>
-          <input type="hidden" name="date" value="${selectedDate}">
-        </form>
+              </select>
+              <input type="hidden" name="date" value="${selectedDate}">
+            </form>
+            <a href="${pageContext.request.contextPath}/showtime" class="btn btn-warning rounded-pill px-4 fw-bold shadow-sm">
+                XEM LỊCH CHIẾU
+            </a>
+        </div>
+      </div>
+
+      <!-- Date Selection Bar -->
+      <div class="date-selection mb-4">
+        <div class="d-flex overflow-auto pb-2" style="gap: 10px;">
+           <c:forEach var="d" items="${availableDates}">
+              <fmt:formatDate value="${d}" pattern="yyyy-MM-dd" var="iso"/>
+              <fmt:formatDate value="${d}" pattern="dd/MM" var="label"/>
+              <a href="${pageContext.request.contextPath}/movie?date=${iso}&q=${param.q}&sort=${selectedSort}" 
+                 class="btn ${iso == selectedDate ? 'btn-primary' : 'btn-outline-dark'} rounded-pill px-4 shadow-sm">
+                 ${label}
+              </a>
+           </c:forEach>
+        </div>
       </div>
 
       <c:choose>

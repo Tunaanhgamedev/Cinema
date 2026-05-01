@@ -19,7 +19,7 @@ public class SeatDAO {
 		List<Seat> list = new ArrayList<>();
 
 		// ✅ bảng của bạn là "seats" (không phải "seat")
-		String sql = "SELECT seat_id, room_id, seat_row, seat_number, seat_type "
+		String sql = "SELECT seat_id, room_id, seat_row, seat_number, seat_type, grid_row, grid_col "
 				+ "FROM seats WHERE room_id = ? ORDER BY seat_row, seat_number";
 
 		try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
@@ -38,6 +38,13 @@ public class SeatDAO {
 
 					String type = rs.getString("seat_type");
 					s.setSeatType(type != null ? SeatType.valueOf(type) : SeatType.NORMAL);
+					
+					// Đọc grid nếu có (để xử lý layout tự do)
+					int gRow = rs.getInt("grid_row");
+					if (!rs.wasNull()) s.setGridRow(gRow);
+					
+					int gCol = rs.getInt("grid_col");
+					if (!rs.wasNull()) s.setGridCol(gCol);
 
 					list.add(s);
 				}

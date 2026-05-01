@@ -193,7 +193,7 @@
                                             <option value="">-- Chọn phim --</option>
                                             <c:if test="${not empty selectedMovie}">
                                                 <option value="${selectedMovie.movieId}" selected
-                                                    data-poster="${selectedMovie.poster}"
+                                                    data-poster="${pageContext.request.contextPath}/${selectedMovie.poster}"
                                                     data-genre="${selectedMovie.genre}"
                                                     data-duration="${selectedMovie.duration}">
                                                     ${selectedMovie.title}
@@ -203,8 +203,9 @@
                                                 <%-- Tránh lặp lại phim nếu nó đã là selectedMovie --%>
                                                     <c:if test="${selectedMovie.movieId != m.movieId}">
                                                         <option value="${m.movieId}" ${movieId==m.movieId ? 'selected'
-                                                            : '' } data-poster="${m.poster}" data-genre="${m.genre}"
-                                                            data-duration="${m.duration}">
+                                                            : '' }
+                                                            data-poster="${pageContext.request.contextPath}/${m.poster}"
+                                                            data-genre="${m.genre}" data-duration="${m.duration}">
                                                             ${m.title}
                                                         </option>
                                                     </c:if>
@@ -237,8 +238,10 @@
                                             name="showtimeId" id="showtimeSelect" required>
                                             <option value="">-- Chọn suất --</option>
                                             <c:forEach var="st" items="${showtimes}">
-                                                <option value="${st.showtimeId}" ${showtimeId==st.showtimeId ? 'selected' : '' }>
-                                                    ${st.roomName} | <fmt:formatDate value="${st.startTime}" pattern="HH:mm" />
+                                                <option value="${st.showtimeId}" ${showtimeId==st.showtimeId
+                                                    ? 'selected' : '' }>
+                                                    ${st.roomName} |
+                                                    <fmt:formatDate value="${st.startTime}" pattern="HH:mm" />
                                                 </option>
                                             </c:forEach>
                                         </select>
@@ -387,18 +390,23 @@
                                         </div>
                                     </div>
 
-                                    <div class="grid grid-cols-2 gap-8">
+                                    <div class="grid grid-cols-3 gap-4">
+                                        <div class="space-y-2">
+                                            <label
+                                                class="text-[10px] font-black text-indigo-200/40 uppercase tracking-widest">Ngày
+                                                Chiếu</label>
+                                            <p id="summary-date" class="text-sm font-black italic">---</p>
+                                        </div>
                                         <div class="space-y-2">
                                             <label
                                                 class="text-[10px] font-black text-indigo-200/40 uppercase tracking-widest">Giờ
                                                 Chiếu</label>
-                                            <p id="summary-time" class="text-xl font-black italic">---</p>
+                                            <p id="summary-time" class="text-sm font-black italic">---</p>
                                         </div>
                                         <div class="space-y-2">
                                             <label
-                                                class="text-[10px] font-black text-indigo-200/40 uppercase tracking-widest">Phòng
-                                                Chiếu</label>
-                                            <p id="summary-room" class="text-xl font-black italic">---</p>
+                                                class="text-[10px] font-black text-indigo-200/40 uppercase tracking-widest">Phòng</label>
+                                            <p id="summary-room" class="text-sm font-black italic">---</p>
                                         </div>
                                     </div>
 
@@ -442,11 +450,86 @@
                                         </div>
                                     </div>
 
-                                    <button type="submit" id="submitBtn"
-                                        class="w-full bg-amber-500 hover:bg-amber-400 text-black font-black uppercase tracking-widest py-6 rounded-2xl shadow-2xl shadow-amber-500/30 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                                    <button type="button" id="nextToCombo"
+                                        class="w-full bg-amber-500 hover:bg-amber-400 text-black font-black uppercase tracking-widest py-6 rounded-2xl shadow-2xl shadow-amber-500/30 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-30 disabled:cursor-not-allowed mb-10"
                                         disabled>
-                                        <i class="fas fa-arrow-right mr-2"></i> Tiếp tục (Chọn Combo)
+                                        <i class="fas fa-arrow-right mr-2"></i> Tiếp tục chọn Combo
                                     </button>
+
+                                    <!-- SECTION 2: BẮP NƯỚC (COMBO) -->
+                                    <div id="comboSection" class="hidden space-y-12 animate-fade-in">
+                                        <div class="flex items-center justify-center gap-6">
+                                            <div
+                                                class="w-14 h-14 rounded-2xl bg-amber-500 text-black flex items-center justify-center text-xl font-black italic shadow-lg shadow-amber-500/30">
+                                                2</div>
+                                            <div class="text-left">
+                                                <h2 class="text-2xl font-black uppercase tracking-tight italic">Combo
+                                                    Bắp Nước</h2>
+                                                <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">
+                                                    Thêm hương vị cho buổi xem phim</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                            <c:forEach var="c" items="${allCombos}">
+                                                <div
+                                                    class="glass-card p-6 flex gap-6 hover:border-amber-500/50 transition-all group">
+                                                    <div
+                                                        class="w-24 h-24 rounded-2xl overflow-hidden bg-slate-900 flex-shrink-0">
+                                                        <img src="${pageContext.request.contextPath}/${c.imageUrl}"
+                                                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                                            alt="${c.name}">
+                                                    </div>
+                                                    <div class="flex-grow text-left flex flex-col justify-between">
+                                                        <div>
+                                                            <h3 class="font-black italic uppercase text-sm mb-1">
+                                                                ${c.name}</h3>
+                                                            <p
+                                                                class="text-slate-500 text-[10px] leading-relaxed line-clamp-2">
+                                                                ${c.description}</p>
+                                                        </div>
+                                                        <div class="flex items-center justify-between mt-4">
+                                                            <span class="text-amber-500 font-black italic text-sm">
+                                                                <fmt:formatNumber value="${c.price}" type="currency"
+                                                                    currencySymbol="đ" />
+                                                            </span>
+                                                            <div
+                                                                class="flex items-center gap-3 bg-white/5 rounded-xl p-1 border border-white/5">
+                                                                <button type="button"
+                                                                    class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-xs minus-combo"
+                                                                    data-id="${c.comboId}">-</button>
+                                                                <input type="number" name="combo_${c.comboId}" value="0"
+                                                                    min="0"
+                                                                    data-price="${c.price}"
+                                                                    class="w-8 bg-transparent text-center font-black text-xs outline-none combo-qty"
+                                                                    readonly />
+                                                                <button type="button"
+                                                                    class="w-7 h-7 rounded-lg bg-amber-500 text-black hover:bg-amber-400 flex items-center justify-center text-xs plus-combo"
+                                                                    data-id="${c.comboId}">+</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </c:forEach>
+                                        </div>
+                                        <div class="border-t-2 border-dashed border-white/10 my-8"></div>
+                                        
+                                        <!-- Tổng Tiền -->
+                                        <div class="flex items-center justify-between bg-indigo-900/40 p-6 rounded-2xl border border-indigo-500/30">
+                                            <div>
+                                                <h3 class="text-sm font-black text-indigo-200 uppercase tracking-widest">Tổng Thanh Toán</h3>
+                                                <p class="text-[10px] text-indigo-300/60 mt-1">Đã bao gồm thuế và phụ phí ghế</p>
+                                            </div>
+                                            <div class="text-right">
+                                                <span id="totalPriceUI" class="text-3xl font-black text-white italic tracking-tight">0đ</span>
+                                            </div>
+                                        </div>
+
+                                        <button type="submit" id="submitBtn"
+                                            class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase tracking-widest py-6 rounded-2xl shadow-2xl shadow-indigo-500/30 hover:scale-[1.02] active:scale-95 transition-all">
+                                            <i class="fas fa-check-circle mr-2"></i> Xác nhận & Thanh toán
+                                        </button>
+                                    </div>
                                 </form>
                             </div>
                         </div>
@@ -456,6 +539,13 @@
                 <jsp:include page="/common/footer.jsp" />
 
                 <script>
+                        // Dữ liệu bảng giá ghế động từ Backend
+                        window.seatPrices = {
+                            <c:forEach var="sp" items="${seatPrices}">
+                            '${sp.seatType}': ${sp.surcharge},
+                            </c:forEach>
+                        };
+
                         (function () {
                             const movieSelect = document.getElementById('movieSelect');
                             const dateInput = document.getElementById('showDateInput');
@@ -477,6 +567,8 @@
                                 const duration = opt?.dataset.duration;
 
                                 const timeText = showtimeSelect.options[showtimeSelect.selectedIndex]?.text || "---";
+                                const basePriceStr = showtimeSelect.options[showtimeSelect.selectedIndex]?.dataset.price || "0";
+                                const basePrice = parseFloat(basePriceStr);
 
                                 // Update Movie Info
                                 document.getElementById('summary-movie').textContent = movie.replace(' (Phim đang chọn)', '');
@@ -496,6 +588,8 @@
                                 document.getElementById('summary-duration').innerHTML = `<i class="far fa-clock mr-1"></i> ${duration || '--'} Phút`;
 
                                 // Update Time and Room
+                                document.getElementById('summary-date').textContent = dateInput.value || '---';
+
                                 if (timeText && timeText.includes('|')) {
                                     const parts = timeText.split('|');
                                     document.getElementById('summary-room').textContent = parts[0].trim();
@@ -513,8 +607,22 @@
                                 maxCount.textContent = max;
 
                                 summarySeats.innerHTML = checked.length ? '' : '<span class="text-white/20 font-bold italic text-sm">Chưa chọn ghế...</span>';
+                                
+                                let totalSeatsPrice = 0;
+                                const basePrice = parseFloat(showtimeSelect.options[showtimeSelect.selectedIndex]?.dataset.price || "0");
+
                                 checked.forEach(s => {
-                                    summarySeats.innerHTML += `<span class="px-3 py-1 bg-white/20 border border-white/10 rounded-lg text-xs font-black text-white italic tracking-tighter">${s.value}</span>`;
+                                    // Hiển thị danh sách ghế đã chọn
+                                    let typeLabel = '';
+                                    const sType = s.dataset.type;
+                                    if(sType === 'VIP') typeLabel = '👑 ';
+                                    else if(sType === 'COUPLE') typeLabel = '💕 ';
+                                    
+                                    summarySeats.innerHTML += `<span class="px-3 py-1 bg-white/20 border border-white/10 rounded-lg text-xs font-black text-white italic tracking-tighter">${typeLabel}${s.value}</span>`;
+                                    
+                                    // Cộng dồn tiền ghế (Giá gốc + phụ phí)
+                                    let surcharge = window.seatPrices && window.seatPrices[sType] ? window.seatPrices[sType] : 0;
+                                    totalSeatsPrice += (basePrice + surcharge);
                                 });
 
                                 document.querySelectorAll('input.seat:not(:checked)').forEach(s => {
@@ -522,11 +630,49 @@
                                     const isOtherSelected = s.dataset.otherSelected === 'true';
                                     const isBooked = s.dataset.booked === 'true';
 
-                                    s.disabled = checked.length >= max || isBooked || isOtherSelected;
+                                    s.disabled = (checked.length >= max && !s.checked) || isBooked || isOtherSelected;
                                 });
 
-                                submitBtn.disabled = checked.length === 0;
+                                const nextBtn = document.getElementById('nextToCombo');
+                                if (nextBtn) nextBtn.disabled = checked.length === 0 || checked.length > max;
+
+                                // Tính tiền Combo
+                                let totalComboPrice = 0;
+                                document.querySelectorAll('.combo-qty').forEach(input => {
+                                    const qty = parseInt(input.value) || 0;
+                                    const price = parseFloat(input.dataset.price || "0");
+                                    totalComboPrice += (qty * price);
+                                });
+
+                                // Cập nhật UI Tổng tiền
+                                const grandTotal = totalSeatsPrice + totalComboPrice;
+                                document.getElementById('totalPriceUI').textContent = grandTotal.toLocaleString('vi-VN') + 'đ';
                             }
+
+                            // Handle Step Navigation and Combos
+                            document.addEventListener('click', (e) => {
+                                if (e.target.id === 'nextToCombo') {
+                                    const comboSection = document.getElementById('comboSection');
+                                    comboSection.classList.remove('hidden');
+                                    e.target.classList.add('hidden');
+                                    comboSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                }
+
+                                // Handle Combo +/-
+                                if (e.target.classList.contains('plus-combo')) {
+                                    const input = e.target.parentElement.querySelector('.combo-qty');
+                                    input.value = parseInt(input.value) + 1;
+                                    updateSeatUI();
+                                }
+                                if (e.target.classList.contains('minus-combo')) {
+                                    const input = e.target.parentElement.querySelector('.combo-qty');
+                                    const val = parseInt(input.value);
+                                    if (val > 0) {
+                                        input.value = val - 1;
+                                        updateSeatUI();
+                                    }
+                                }
+                            });
 
                             // Event Listeners
                             movieSelect.addEventListener('change', async () => {
@@ -637,18 +783,56 @@
                             function renderSeats(data) {
                                 let html = '<div class="w-full max-w-xl mb-16"><div class="screen-line"></div><span class="text-[9px] font-black text-slate-600 tracking-[1.5em] uppercase">Màn hình trung tâm</span></div>';
                                 html += '<div class="flex flex-col items-center gap-5 min-w-[500px]">';
-                                data.rows.forEach(r => {
+                                
+                                if (!data.seats || data.seats.length === 0) {
+                                    html += '<p class="text-white/40 italic text-sm">Chưa có sơ đồ ghế cho phòng này.</p></div>';
+                                    seatGrid.innerHTML = html;
+                                    return;
+                                }
+
+                                // Gom nhóm ghế theo Row (A, B, C...)
+                                const rowMap = {};
+                                data.seats.forEach(s => {
+                                    const rowChar = s.code.charAt(0);
+                                    if (!rowMap[rowChar]) rowMap[rowChar] = [];
+                                    rowMap[rowChar].push(s);
+                                });
+
+                                // Render từng hàng
+                                Object.keys(rowMap).sort().forEach(r => {
                                     html += `<div class="flex gap-4 items-center"><div class="w-6 text-[10px] font-black text-slate-700">${r}</div><div class="flex gap-3">`;
-                                    for (let i = 1; i <= 10; i++) {
-                                        const code = r + i;
-                                        const isBooked = data.booked.includes(code);
-                                        const sid = 's_' + code;
+                                    
+                                    const seatsInRow = rowMap[r];
+                                    // Sắp xếp ghế theo số
+                                    seatsInRow.sort((a,b) => parseInt(a.code.substring(1)) - parseInt(b.code.substring(1)));
+
+                                    seatsInRow.forEach((s, index) => {
+                                        const isBooked = data.booked.includes(s.code);
+                                        const sid = 's_' + s.code;
+                                        
+                                        // CSS tùy chỉnh theo loại ghế
+                                        let extraClass = '';
+                                        if (s.type === 'VIP') {
+                                            extraClass = 'border-amber-500/50 text-amber-500 hover:bg-amber-500 hover:text-black';
+                                        } else if (s.type === 'COUPLE') {
+                                            extraClass = 'border-pink-500/50 text-pink-500 hover:bg-pink-500 hover:text-white w-20'; // Couple thì to hơn
+                                        }
+
                                         html += `<div class="relative">`;
-                                        if (isBooked) html += `<div class="seat-btn booked">${i}</div>`;
-                                        else html += `<input type="checkbox" id="${sid}" name="seats" value="${code}" class="hidden seat-check seat" data-booked="false"><label for="${sid}" class="seat-btn">${i}</label>`;
+                                        if (isBooked) {
+                                            html += `<div class="seat-btn booked" data-type="${s.type}">${s.code.substring(1)}</div>`;
+                                        } else {
+                                            html += `<input type="checkbox" id="${sid}" name="seats" value="${s.code}" class="hidden seat-check seat" data-booked="false" data-type="${s.type}">
+                                                     <label for="${sid}" class="seat-btn ${extraClass}">${s.code.substring(1)}</label>`;
+                                        }
                                         html += `</div>`;
-                                        if (i == 2 || i == 8) html += `<div class="w-4"></div>`;
-                                    }
+                                        
+                                        // Khoảng trống (Aisle) mặc định giữa 2 bên nếu mảng > 4 ghế (tạm thời chia 2-6-2 nếu tổng là 10)
+                                        // Nếu muốn dùng gridRow/Col thì sẽ set CSS grid sau, hiện tại dùng flex wrap gap
+                                        if (seatsInRow.length === 10 && (index === 1 || index === 7)) {
+                                            html += `<div class="w-4"></div>`;
+                                        }
+                                    });
                                     html += `</div><div class="w-6 text-[10px] font-black text-slate-700 text-right">${r}</div></div>`;
                                 });
                                 html += '</div>';

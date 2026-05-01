@@ -135,3 +135,29 @@ ALTER TABLE combos
 ADD COLUMN image_url VARCHAR(500) AFTER description;
 -- Đảm bảo cột price có định dạng tiền tệ chuẩn
 ALTER TABLE showtimes MODIFY COLUMN price DECIMAL(10,2);
+
+-- Thêm bảng quy định phụ phí theo loại ghế
+CREATE TABLE seat_prices (
+    seat_type ENUM('NORMAL','VIP', 'COUPLE') PRIMARY KEY,
+    surcharge DECIMAL(10,2) DEFAULT 0 -- Ví dụ: NORMAL: 0, VIP: +20.000, COUPLE: +50.000
+);
+ALTER TABLE seats 
+ADD COLUMN grid_row INT,    -- Tọa độ Y trên lưới UI
+ADD COLUMN grid_col INT;    -- Tọa độ X trên lưới UI
+
+ALTER TABLE booking_seat 
+ADD COLUMN ticket_code VARCHAR(50) UNIQUE; -- VD: BXI-1A2B3C (Tạo ngẫu nhiên bằng UUID)
+
+CREATE TABLE vouchers (
+    voucher_id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(20) UNIQUE NOT NULL, -- Ví dụ: BOBIXI50
+    discount_value DECIMAL(10,2),     -- Giảm 50.000đ
+    discount_type ENUM('PERCENT', 'FIXED_AMOUNT'),
+    min_order_value DECIMAL(10,2),    -- Đơn tối thiểu
+    valid_from DATETIME,
+    valid_to DATETIME,
+    is_active BOOLEAN DEFAULT TRUE
+);
+ALTER TABLE payments 
+ADD COLUMN transaction_id VARCHAR(100), -- Mã giao dịch từ VNPay/Momo trả về
+ADD COLUMN payment_url TEXT;            -- Lưu lại URL thanh toán nếu khách chưa quét ngay

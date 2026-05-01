@@ -204,7 +204,7 @@ public class ShowtimeDAO {
 
 	public List<String> getDistinctDatesByMovie(int movieId) {
 		String sql = """
-				    SELECT DISTINCT DATE(start_time) as show_date
+				    SELECT DISTINCT DATE_FORMAT(start_time, '%Y-%m-%d') as show_date
 				    FROM showtimes
 				    WHERE movie_id = ?
 				    ORDER BY show_date ASC
@@ -214,11 +214,14 @@ public class ShowtimeDAO {
 			ps.setInt(1, movieId);
 			try (ResultSet rs = ps.executeQuery()) {
 				while (rs.next()) {
-					list.add(rs.getString("show_date"));
+					String dateStr = rs.getString("show_date");
+					if (dateStr != null) {
+						list.add(dateStr);
+					}
 				}
 			}
 		} catch (SQLException e) {
-			throw new RuntimeException("ShowtimeDAO.getDistinctDatesByMovie error", e);
+			throw new RuntimeException("ShowtimeDAO.getDistinctDatesByMovie error: " + e.getMessage(), e);
 		}
 		return list;
 	}

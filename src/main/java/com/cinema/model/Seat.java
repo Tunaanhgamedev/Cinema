@@ -8,6 +8,8 @@ public class Seat {
 	private char seatRow;
 	private int seatNumber;
 	private SeatType seatType;
+	private Integer gridRow;
+	private Integer gridCol;
 
 	public Seat() {
 		super();
@@ -60,5 +62,21 @@ public class Seat {
 
 	public void setSeatType(SeatType seatType) {
 		this.seatType = seatType;
+	}
+
+	public Integer getGridRow() {
+		return gridRow;
+	}
+
+	public void setGridRow(Integer gridRow) {
+		this.gridRow = gridRow;
+	}
+
+	public Integer getGridCol() {
+		return gridCol;
+	}
+
+	public void setGridCol(Integer gridCol) {
+		this.gridCol = gridCol;
 	}
 }

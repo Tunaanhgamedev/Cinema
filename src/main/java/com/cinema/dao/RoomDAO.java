@@ -108,7 +108,7 @@ public class RoomDAO {
 	}
 
 	public void generateDefaultSeats(int roomId, int rows, int seatsPerRow) {
-		String sql = "INSERT INTO seats (room_id, seat_row, seat_number, seat_type) VALUES (?, ?, ?, ?)";
+		String sql = "INSERT INTO seats (room_id, seat_row, seat_number, seat_type, grid_row, grid_col) VALUES (?, ?, ?, ?, ?, ?)";
 		try (Connection cn = DBConnection.getConnection(); PreparedStatement ps = cn.prepareStatement(sql)) {
 			for (int r = 0; r < rows; r++) {
 				char rowChar = (char) ('A' + r);
@@ -117,6 +117,8 @@ public class RoomDAO {
 					ps.setString(2, String.valueOf(rowChar));
 					ps.setInt(3, s);
 					ps.setString(4, "NORMAL");
+					ps.setInt(5, r + 1); // Grid Row (từ 1 đến rows)
+					ps.setInt(6, s);     // Grid Col (từ 1 đến seatsPerRow)
 					ps.addBatch();
 				}
 			}

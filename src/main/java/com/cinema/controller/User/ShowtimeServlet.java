@@ -28,14 +28,20 @@ public class ShowtimeServlet extends HttpServlet {
         if (sort == null || sort.isEmpty()) sort = "newest";
         boolean isAjax = "true".equals(req.getParameter("ajax"));
 
-        // Lấy danh sách ngày có suất chiếu từ DB
-        List<java.sql.Date> availableDates = showtimeDAO.getAvailableDates();
+        // ÉP LOGIC 7 NGÀY NGAY TẠI ĐÂY ĐỂ ĐẢM BẢO HIỂN THỊ
+        List<java.sql.Date> availableDates = new java.util.ArrayList<>();
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.set(java.util.Calendar.HOUR_OF_DAY, 0);
+        cal.set(java.util.Calendar.MINUTE, 0);
+        cal.set(java.util.Calendar.SECOND, 0);
+        cal.set(java.util.Calendar.MILLISECOND, 0);
+        for (int i = 0; i < 7; i++) {
+            availableDates.add(new java.sql.Date(cal.getTimeInMillis()));
+            cal.add(java.util.Calendar.DAY_OF_MONTH, 1);
+        }
+
         if (dateStr == null || dateStr.isEmpty()) {
-            if (!availableDates.isEmpty()) {
-                dateStr = availableDates.get(0).toString();
-            } else {
-                dateStr = LocalDate.now().toString();
-            }
+            dateStr = availableDates.get(0).toString();
         }
 
         // Lấy danh sách phim theo filter

@@ -9,214 +9,138 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>${movie.title} | BOBIXI Cinema</title>
 
-<!-- FontAwesome & Google Fonts -->
+<!-- FontAwesome & Tailwind -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 
 <style>
-  body { 
-    font-family: 'Roboto', sans-serif; 
-    background: radial-gradient(circle at top right, #1e293b, #0f172a); 
-    color: #cbd5e1; 
-    margin: 0; 
-    min-height: 100vh;
-  }
-  .mv-detail { padding-top: 50px; padding-bottom: 80px; }
-  .mv-container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
-  .mv-link { color: #94a3b8; text-decoration: none; font-size: 0.9rem; margin-bottom: 25px; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
-  .mv-link:hover { color: #fff; transform: translateX(-5px); }
-  
-  .mv-card { 
-    background: rgba(30, 41, 59, 0.7); 
-    border-radius: 20px; 
-    overflow: hidden; 
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-  }
-  .mv-main { display: flex; gap: 40px; padding: 40px; }
-  @media(max-width: 768px) { .mv-main { flex-direction: column; padding: 20px; } }
-  
-  .mv-poster { flex-shrink: 0; width: 300px; border-radius: 15px; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); }
-  .mv-poster img { width: 100%; height: auto; display: block; }
-  
-  .mv-content { flex: 1; }
-  .mv-title { font-size: 2.8rem; font-weight: 800; margin-bottom: 10px; color: #fff; line-height: 1.2; }
-  
-  .tag { 
-    display: inline-block; 
-    padding: 5px 14px; 
-    background: rgba(255, 255, 255, 0.05); 
-    border: 1px solid rgba(255, 255, 255, 0.1); 
-    border-radius: 8px; 
-    font-size: 0.8rem; 
-    margin-right: 8px; 
-    color: #94a3b8; 
-    font-weight: 600;
-  }
-  
-  .mv-table { width: 100%; margin-top: 25px; }
-  .mv-table td { padding: 10px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
-  .mv-table tr:last-child td { border-bottom: none; }
-  .mv-table td.label { width: 130px; color: #64748b; font-size: 0.9rem; }
-  .mv-table td.value { color: #e2e8f0; font-weight: 500; }
-  
-  .btn-booking { 
-    display: inline-flex; 
-    align-items: center;
-    gap: 10px;
-    margin-top: 35px; 
-    padding: 14px 35px; 
-    background: linear-gradient(135deg, #ef4444, #b91c1c); 
-    color: #fff; 
-    text-decoration: none; 
-    border-radius: 12px; 
-    font-weight: 700; 
-    box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.3);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-  }
-  .btn-booking:hover { transform: translateY(-3px); box-shadow: 0 20px 25px -5px rgba(239, 68, 68, 0.4); }
-  
-  .btn-trailer {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 35px;
-    margin-left: 15px;
-    padding: 13px 34px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #fff;
-    border-radius: 12px;
-    font-weight: 600;
-    transition: 0.3s;
-  }
-  .btn-trailer:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); }
-
-  /* Tabs */
-  .tabs-nav { display: flex; background: rgba(0, 0, 0, 0.2); padding: 0 40px; }
-  .tab-item { padding: 20px 30px; cursor: pointer; font-weight: 700; color: #64748b; position: relative; transition: 0.3s; }
-  .tab-item.active { color: #fff; }
-  .tab-item.active::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: #ef4444; border-radius: 3px 3px 0 0; }
-  
-  .tab-content { padding: 40px; background: rgba(0, 0, 0, 0.1); }
-  .tab-pane { display: none; }
-  .tab-pane.active { display: block; animation: fadeIn 0.4s ease; }
-  
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-  .st-chip { 
-    display: inline-flex; 
-    flex-direction: column;
-    align-items: center;
-    padding: 12px 20px; 
-    background: #1e293b; 
-    border-radius: 12px; 
-    margin: 6px; 
-    text-decoration: none; 
-    color: #fff; 
-    border: 1px solid rgba(255, 255, 255, 0.1); 
-    transition: all 0.2s;
-  }
-  .st-chip:hover { background: #334155; transform: scale(1.05); border-color: #ef4444; }
-  
-  /* Modal */
-  .modal-overlay { 
-    position: fixed; inset: 0; background: rgba(0,0,0,0.9); 
-    display: none; align-items: center; justify-content: center; z-index: 1000; 
-    backdrop-filter: blur(5px);
-  }
-  .modal-overlay.show { display: flex; }
-  .modal-body { width: 90%; max-width: 960px; position: relative; }
-  .btn-close-modal { position: absolute; top: -50px; right: 0; color: #fff; font-size: 2rem; cursor: pointer; opacity: 0.7; transition: 0.2s; }
-  .btn-close-modal:hover { opacity: 1; }
+  body { font-family: 'Outfit', sans-serif; background-color: #0f172a; }
 </style>
 </head>
 
-<body>
+<body class="text-slate-200">
   <jsp:include page="/common/header.jsp"/>
 
-  <div class="mv-detail">
-    <div class="mv-container">
-      <a href="${pageContext.request.contextPath}/movie" class="mv-link">
-        <i class="fas fa-arrow-left"></i> Danh sách phim
-      </a>
+  <main class="min-h-screen">
+    <!-- Hero Section with Background Backdrop -->
+    <div class="relative w-full py-16 lg:py-24 overflow-hidden">
+      <!-- Background Image with Blur -->
+      <div class="absolute inset-0 z-0">
+        <img src="${pageContext.request.contextPath}/assets/images/movies/${movie.poster}" 
+             class="w-full h-full object-cover blur-3xl opacity-20" alt="backdrop">
+        <div class="absolute inset-0 bg-gradient-to-b from-slate-900/50 via-slate-900 to-slate-900"></div>
+      </div>
 
-      <div class="mv-card">
-        <div class="mv-main">
-          <div class="mv-poster">
-            <img src="${pageContext.request.contextPath}/assets/images/movies/${movie.poster}" 
-                 alt="${movie.title}" 
-                 onerror="this.src='${pageContext.request.contextPath}/assets/images/movies/movie1.jpg'">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <a href="${pageContext.request.contextPath}/movie" class="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-8 group">
+          <i class="fas fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
+          Quay lại danh sách
+        </a>
+
+        <div class="flex flex-col lg:flex-row gap-12">
+          <!-- Poster -->
+          <div class="w-full lg:w-80 flex-shrink-0">
+            <div class="rounded-3xl overflow-hidden shadow-2xl shadow-black/50 border border-white/10">
+              <img src="${pageContext.request.contextPath}/assets/images/movies/${movie.poster}" 
+                   alt="${movie.title}" class="w-full h-auto"
+                   onerror="this.src='${pageContext.request.contextPath}/assets/images/movies/movie1.jpg'">
+            </div>
           </div>
 
-          <div class="mv-content">
-            <div class="mb-4">
-              <span class="tag">${movie.status}</span>
-              <span class="tag"><i class="fas fa-star text-warning"></i> ${movie.rating}</span>
+          <!-- Content -->
+          <div class="flex-1">
+            <div class="flex flex-wrap gap-3 mb-6">
+              <span class="px-4 py-1.5 bg-red-500/20 text-red-400 border border-red-500/30 rounded-xl text-sm font-bold tracking-wider">
+                ${movie.status}
+              </span>
+              <span class="px-4 py-1.5 bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-xl text-sm font-bold flex items-center gap-2">
+                <i class="fas fa-star"></i> ${movie.rating}
+              </span>
             </div>
-            <h1 class="mv-title">${movie.title}</h1>
-            
-            <table class="mv-table">
-              <tr>
-                <td class="label">Thể loại</td>
-                <td class="value">${movie.genre}</td>
-              </tr>
-              <tr>
-                <td class="label">Thời lượng</td>
-                <td class="value">${movie.duration} phút</td>
-              </tr>
-              <tr>
-                <td class="label">Đạo diễn</td>
-                <td class="value">${movie.director != null ? movie.director : 'Đang cập nhật'}</td>
-              </tr>
-              <tr>
-                <td class="label">Diễn viên</td>
-                <td class="value">${movie.cast != null ? movie.cast : 'Đang cập nhật'}</td>
-              </tr>
-              <tr>
-                <td class="label">Khởi chiếu</td>
-                <td class="value"><fmt:formatDate value="${movie.releaseDate}" pattern="dd/MM/yyyy"/></td>
-              </tr>
-            </table>
 
-            <div class="flex flex-wrap gap-2">
-              <a href="${pageContext.request.contextPath}/booking-seat?movieId=${movie.movieId}" class="btn-booking">
+            <h1 class="text-4xl lg:text-6xl font-extrabold text-white mb-8 leading-tight">
+              ${movie.title}
+            </h1>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-12 mb-10 text-slate-300">
+              <div class="flex items-center gap-4 py-3 border-b border-white/5">
+                <span class="w-24 text-slate-500 font-medium">Thể loại</span>
+                <span class="font-semibold text-white">${movie.genre}</span>
+              </div>
+              <div class="flex items-center gap-4 py-3 border-b border-white/5">
+                <span class="w-24 text-slate-500 font-medium">Thời lượng</span>
+                <span class="font-semibold text-white">${movie.duration} phút</span>
+              </div>
+              <div class="flex items-center gap-4 py-3 border-b border-white/5">
+                <span class="w-24 text-slate-500 font-medium">Đạo diễn</span>
+                <span class="font-semibold text-white">${movie.director != null ? movie.director : 'Đang cập nhật'}</span>
+              </div>
+              <div class="flex items-center gap-4 py-3 border-b border-white/5">
+                <span class="w-24 text-slate-500 font-medium">Khởi chiếu</span>
+                <span class="font-semibold text-white"><fmt:formatDate value="${movie.releaseDate}" pattern="dd/MM/yyyy"/></span>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap gap-4">
+              <a href="${pageContext.request.contextPath}/booking-seat?movieId=${movie.movieId}" 
+                 class="px-10 py-4 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-black rounded-2xl shadow-xl shadow-red-900/20 transition-all flex items-center gap-3 transform hover:-translate-y-1">
                 <i class="fas fa-ticket-alt"></i> ĐẶT VÉ NGAY
               </a>
-              <button id="btnTrailer" class="btn-trailer">
+              <button id="btnTrailer" class="px-10 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 font-bold rounded-2xl transition-all flex items-center gap-3 transform hover:-translate-y-1">
                 <i class="fas fa-play"></i> XEM TRAILER
               </button>
             </div>
           </div>
         </div>
+      </div>
+    </div>
 
-        <div class="tabs-nav">
-          <div class="tab-item active" data-tab="synopsis">Nội dung</div>
-          <div class="tab-item" data-tab="schedule">Suất chiếu hôm nay</div>
+    <!-- Details Tabs Section -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
+      <div class="bg-slate-800/40 backdrop-blur-xl rounded-[2.5rem] border border-white/5 overflow-hidden">
+        <div class="flex border-b border-white/5 bg-white/5">
+          <button class="tab-item active px-10 py-6 font-bold text-slate-400 hover:text-white transition-all relative" data-tab="synopsis">
+            NỘI DUNG PHIM
+          </button>
+          <button class="tab-item px-10 py-6 font-bold text-slate-400 hover:text-white transition-all relative" data-tab="schedule">
+            LỊCH CHIẾU HÔM NAY
+          </button>
         </div>
 
-        <div class="tab-content">
-          <div id="tab-synopsis" class="tab-pane active">
-            <p style="line-height: 1.8; color: #94a3b8;">${movie.description != null ? movie.description : 'Đang cập nhật nội dung...'}</p>
+        <div class="p-10">
+          <!-- Synopsis Tab -->
+          <div id="tab-synopsis" class="tab-pane active animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <p class="text-lg leading-relaxed text-slate-400 max-w-4xl italic">
+              ${movie.description != null ? movie.description : 'Đang cập nhật nội dung cho bộ phim này...'}
+            </p>
           </div>
-          <div id="tab-schedule" class="tab-pane">
+
+          <!-- Schedule Tab -->
+          <div id="tab-schedule" class="tab-pane hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
             <c:choose>
               <c:when test="${not empty todayShowtimes}">
-                <div class="flex flex-wrap">
+                <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
                   <c:forEach var="s" items="${todayShowtimes}">
-                    <a href="${pageContext.request.contextPath}/booking-seat?showtimeId=${s.showtimeId}" class="st-chip">
-                      <strong><fmt:formatDate value="${s.startTime}" pattern="HH:mm" /></strong>
-                      <span style="font-size: 0.7rem; opacity: 0.7; margin-left: 5px;">${s.roomName}</span>
+                    <a href="${pageContext.request.contextPath}/booking-seat?showtimeId=${s.showtimeId}" 
+                       class="group bg-slate-900/50 hover:bg-red-500 border border-white/5 hover:border-red-400 p-5 rounded-2xl transition-all text-center">
+                      <span class="block text-2xl font-black text-white group-hover:scale-110 transition-transform">
+                        <fmt:formatDate value="${s.startTime}" pattern="HH:mm" />
+                      </span>
+                      <span class="block text-xs text-slate-500 group-hover:text-red-100 mt-1 uppercase font-bold tracking-tighter">
+                        ${s.roomName}
+                      </span>
                     </a>
                   </c:forEach>
                 </div>
               </c:when>
               <c:otherwise>
-                <div class="py-10 text-center border border-dashed border-slate-700 rounded-lg">
-                  <p class="text-slate-500">Hiện tại không có suất chiếu nào cho ngày hôm nay.</p>
-                  <a href="${pageContext.request.contextPath}/showtime" class="text-blue-400 text-sm mt-2 inline-block">Xem tất cả lịch chiếu</a>
+                <div class="py-16 text-center border-2 border-dashed border-white/5 rounded-3xl">
+                  <i class="fas fa-calendar-times text-slate-700 text-5xl mb-4"></i>
+                  <p class="text-slate-500 text-lg mb-6">Hiện tại không có suất chiếu nào cho ngày hôm nay.</p>
+                  <a href="${pageContext.request.contextPath}/showtime" class="inline-flex items-center gap-2 text-red-500 font-bold hover:underline">
+                    Xem toàn bộ lịch chiếu <i class="fas fa-chevron-right text-xs"></i>
+                  </a>
                 </div>
               </c:otherwise>
             </c:choose>
@@ -224,19 +148,40 @@
         </div>
       </div>
     </div>
-  </div>
+  </main>
 
   <!-- Trailer Modal -->
-  <div id="trailerModal" class="modal-overlay">
-    <div class="modal-body">
-      <span class="btn-close-modal" id="closeTrailer">&times;</span>
-      <div style="aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden;">
-        <iframe id="trailerFrame" width="100%" height="100%" src="" frameborder="0" allowfullscreen></iframe>
+  <div id="trailerModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/95 backdrop-blur-sm">
+    <div class="relative w-full max-w-5xl">
+      <button id="closeTrailer" class="absolute -top-12 right-0 text-white text-4xl hover:text-red-500 transition-colors">
+        <i class="fas fa-times"></i>
+      </button>
+      <div class="aspect-video bg-black rounded-3xl overflow-hidden shadow-2xl">
+        <iframe id="trailerFrame" class="w-full h-full" src="" frameborder="0" allowfullscreen></iframe>
       </div>
     </div>
   </div>
 
   <jsp:include page="/common/footer.jsp"/>
+
+  <style>
+    .tab-item.active { color: white; }
+    .tab-item.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: #ef4444;
+      border-radius: 4px 4px 0 0;
+    }
+    .animate-in { animation-name: enter; }
+    @keyframes enter {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 
   <script>
     // Tabs logic
@@ -244,8 +189,8 @@
       item.addEventListener('click', () => {
         document.querySelectorAll('.tab-item').forEach(i => i.classList.remove('active'));
         item.classList.add('active');
-        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-        document.getElementById('tab-' + item.dataset.tab).classList.add('active');
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
+        document.getElementById('tab-' + item.dataset.tab).classList.remove('hidden');
       });
     });
 
@@ -264,12 +209,17 @@
 
     document.getElementById('btnTrailer').addEventListener('click', () => {
       const embed = getEmbedUrl(rawUrl);
-      if(!embed) { alert("Trailer không khả dụng."); return; }
+      if(!embed) { alert("Trailer hiện tại không khả dụng."); return; }
       frame.src = embed + "?autoplay=1";
-      modal.classList.add('show');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
     });
 
-    const closeModal = () => { modal.classList.remove('show'); frame.src = ""; };
+    const closeModal = () => { 
+      modal.classList.add('hidden'); 
+      modal.classList.remove('flex'); 
+      frame.src = ""; 
+    };
     document.getElementById('closeTrailer').addEventListener('click', closeModal);
     modal.addEventListener('click', (e) => { if(e.target === modal) closeModal(); });
   </script>

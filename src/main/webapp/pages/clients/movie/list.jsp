@@ -1,197 +1,117 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 
 <!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>PHIM | BOBIXI Cinema</title>
+<title>Danh sách phim | BOBIXI Cinema</title>
 
-<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css" />
+<!-- FontAwesome & Tailwind -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 
 <style>
-  .movie-page{
-    background:#f5f6fa;
-    padding:20px 0 40px;
-  }
-  .movie-container{
-    max-width:1100px;
-    margin:0 auto;
-    padding:0 16px;
-  }
-  .movie-header{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    flex-wrap:wrap;
-    margin-bottom:16px;
-  }
-  .movie-title{
-    font-size:24px;
-    font-weight:700;
-    margin:0;
-  }
-  .movie-header a{
-    text-decoration:none;
-    background:#f39c12;
-    color:#000;
-    padding:8px 12px;
-    border-radius:6px;
-    font-weight:600;
-  }
-
-  .movie-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-    gap:16px;
-  }
-  .movie-card{
-    background:#fff;
-    border:1px solid #ddd;
-    border-radius:8px;
-    overflow:hidden;
-  }
-  .movie-card img{
-    width:100%;
-    height:320px;
-    object-fit:cover;
-    display:block;
-  }
-  .movie-body{
-    padding:12px;
-  }
-  .movie-name{
-    font-size:16px;
-    font-weight:600;
-    margin:0 0 6px;
-  }
-  .movie-info{
-    font-size:14px;
-    color:#555;
-    margin-bottom:10px;
-    line-height:1.4;
-  }
-  .movie-actions{
-    display:flex;
-    gap:8px;
-  }
-  .movie-actions a{
-    flex:1;
-    text-align:center;
-    padding:8px 10px;
-    font-size:14px;
-    text-decoration:none;
-    border-radius:6px;
-    font-weight:600;
-  }
-  .btn-detail{
-    background:#eee;
-    color:#333;
-  }
-  .btn-book{
-    background:#f39c12;
-    color:#000;
-  }
-
-  .empty-box{
-    background:#fff;
-    border:1px solid #ddd;
-    border-radius:8px;
-    padding:16px;
-    color:#333;
-  }
-  .movie-header { position: relative; z-index: 10; }
-  .header-actions { flex: 1; }
-  .input-group-text { border-color: #e2e8f0; }
-  .form-control:focus { box-shadow: none; border-color: #ef4444; }
-  .form-select:focus { box-shadow: none; border-color: #ef4444; }
+  body { font-family: 'Outfit', sans-serif; background-color: #f8fafc; }
+  .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 </style>
 </head>
 
 <body>
-  <jsp:include page="/common/header.jsp"/>
+  <jsp:include page="/common/header.jsp" />
 
-  <div class="movie-page">
-    <div class="movie-container">
+  <main class="min-h-screen py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Professional Toolbar -->
+      <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 mb-8">
+        <div class="flex flex-col lg:flex-row justify-between items-center gap-6">
+          <h1 class="text-3xl font-extrabold text-slate-800 flex items-center gap-3">
+            <span class="bg-yellow-400 p-2 rounded-xl text-white shadow-sm">🎬</span>
+            PHIM ĐANG CHIẾU
+          </h1>
 
-      <div class="movie-header d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom gap-3">
-        <h1 class="movie-title mb-0">🎬 PHIM ĐANG CHIẾU</h1>
-        
-        <div class="header-actions d-flex flex-wrap gap-3 justify-content-md-end align-items-center">
-            <form action="${pageContext.request.contextPath}/movie" method="GET" class="d-flex flex-wrap gap-2 mb-0 align-items-center">
-              <div class="input-group" style="min-width: 200px; max-width: 280px;">
-                <span class="input-group-text bg-white border-end-0 rounded-start-pill">
-                    <i class="fas fa-search text-muted"></i>
-                </span>
-                <input type="text" name="q" class="form-control border-start-0 rounded-end-pill ps-0" 
-                       placeholder="Tìm tên phim..." value="${param.q}">
+          <div class="flex flex-col md:flex-row items-center gap-4 w-full lg:w-auto">
+            <form action="${pageContext.request.contextPath}/movie" method="GET" class="flex flex-wrap md:flex-nowrap gap-3 w-full">
+              <!-- Search Input -->
+              <div class="relative w-full md:w-80">
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input type="text" name="q" value="${param.q}" 
+                       class="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-red-500 transition-all outline-none text-slate-700" 
+                       placeholder="Tìm tên phim...">
               </div>
-              
-              <select name="sort" class="form-select rounded-pill" style="width: 125px;" onchange="this.form.submit()">
+
+              <!-- Sort Dropdown -->
+              <select name="sort" onchange="this.form.submit()" 
+                      class="px-4 py-3 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-red-500 outline-none text-slate-600 font-semibold cursor-pointer">
                 <option value="newest" ${selectedSort == 'newest' ? 'selected' : ''}>Mới nhất</option>
                 <option value="hot" ${selectedSort == 'hot' ? 'selected' : ''}>Hot nhất</option>
                 <option value="alphabetical" ${selectedSort == 'alphabetical' ? 'selected' : ''}>A - Z</option>
               </select>
               <input type="hidden" name="date" value="${selectedDate}">
             </form>
-            <a href="${pageContext.request.contextPath}/showtime" class="btn btn-warning rounded-pill px-4 fw-bold shadow-sm text-nowrap">
-                XEM LỊCH CHIẾU
+
+            <a href="${pageContext.request.contextPath}/showtime" 
+               class="w-full md:w-auto bg-slate-800 hover:bg-slate-900 text-white px-8 py-3 rounded-2xl font-bold shadow-lg shadow-slate-200 transition-all text-center whitespace-nowrap">
+               XEM LỊCH CHIẾU
             </a>
+          </div>
+        </div>
+
+        <!-- Date Tabs -->
+        <div class="mt-8 flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+          <c:forEach var="d" items="${availableDates}">
+            <fmt:formatDate value="${d}" pattern="yyyy-MM-dd" var="iso" />
+            <fmt:formatDate value="${d}" pattern="dd/MM" var="label" />
+            <a href="${pageContext.request.contextPath}/movie?date=${iso}&q=${param.q}&sort=${selectedSort}" 
+               class="flex-shrink-0 px-6 py-3 rounded-2xl font-bold transition-all text-sm
+               ${iso == selectedDate ? 'bg-red-500 text-white shadow-lg shadow-red-200 scale-105' : 'bg-white border border-slate-200 text-slate-500 hover:border-red-300 hover:text-red-500'}">
+               ${label}
+            </a>
+          </c:forEach>
         </div>
       </div>
 
-      <!-- Date Selection Bar -->
-      <div class="date-selection mb-4">
-        <div class="d-flex overflow-auto pb-2" style="gap: 10px;">
-           <c:forEach var="d" items="${availableDates}">
-              <fmt:formatDate value="${d}" pattern="yyyy-MM-dd" var="iso"/>
-              <fmt:formatDate value="${d}" pattern="dd/MM" var="label"/>
-              <a href="${pageContext.request.contextPath}/movie?date=${iso}&q=${param.q}&sort=${selectedSort}" 
-                 class="btn ${iso == selectedDate ? 'btn-primary' : 'btn-outline-dark'} rounded-pill px-4 shadow-sm">
-                 ${label}
-              </a>
-           </c:forEach>
-        </div>
-      </div>
-
+      <!-- Movie Grid -->
       <c:choose>
         <c:when test="${not empty movies}">
-          <div class="movie-grid">
-            <c:forEach items="${movies}" var="m">
-              <div class="movie-card shadow-sm">
-                <div style="position:relative; height:320px; background:#eee;">
-                  <c:choose>
-                    <c:when test="${not empty m.poster}">
-                      <img src="${pageContext.request.contextPath}/assets/images/movies/${m.poster}"
-                           alt="${m.title}"
-                           style="width:100%; height:100%; object-fit:cover;"
-                           onerror="this.src='${pageContext.request.contextPath}/assets/images/movies/movie1.jpg'">
-                    </c:when>
-                    <c:otherwise>
-                      <img src="${pageContext.request.contextPath}/assets/images/movies/movie1.jpg"
-                           alt="Placeholder"
-                           style="width:100%; height:100%; object-fit:cover;">
-                    </c:otherwise>
-                  </c:choose>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <c:forEach var="m" items="${movies}">
+              <div class="group bg-white rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
+                <div class="relative aspect-[2/3] overflow-hidden">
+                  <img src="${pageContext.request.contextPath}/assets/images/movies/${m.poster}" 
+                       alt="${m.title}" 
+                       class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                       onerror="this.src='${pageContext.request.contextPath}/assets/images/movies/movie1.jpg'">
+                  
+                  <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                     <p class="text-white text-sm font-medium mb-2"><i class="fas fa-clock mr-2 text-yellow-400"></i>${m.duration} phút</p>
+                     <p class="text-slate-300 text-xs line-clamp-2">${m.description}</p>
+                  </div>
                 </div>
 
-                <div class="movie-body">
-                  <h3 class="movie-name text-truncate" title="${m.title}">${m.title}</h3>
-                  <div class="movie-info">
-                    <span class="text-warning">★ ${m.rating}</span> | ${m.duration} phút<br>
-                    <span class="badge bg-light text-dark border mt-1">${m.status}</span>
+                <div class="p-6">
+                  <div class="flex justify-between items-start mb-2">
+                    <h3 class="text-xl font-bold text-slate-800 line-clamp-1 group-hover:text-red-600 transition-colors">${m.title}</h3>
+                  </div>
+                  
+                  <div class="flex items-center gap-3 mb-6">
+                    <span class="flex items-center gap-1 text-yellow-500 font-bold bg-yellow-50 px-2 py-1 rounded-lg text-sm">
+                        <i class="fas fa-star"></i> ${m.rating}
+                    </span>
+                    <span class="text-slate-400 text-sm font-medium">| ${m.genre}</span>
                   </div>
 
-                  <div class="movie-actions mt-2">
-                    <a class="btn-detail"
-                       href="${pageContext.request.contextPath}/movie?id=${m.movieId}">
+                  <div class="flex gap-2">
+                    <a href="${pageContext.request.contextPath}/movie/detail?id=${m.movieId}" 
+                       class="flex-1 text-center py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors">
                        Chi tiết
                     </a>
-                    <a class="btn-book"
-                       href="${pageContext.request.contextPath}/booking-seat?movieId=${m.movieId}">
+                    <a href="${pageContext.request.contextPath}/booking-seat?movieId=${m.movieId}" 
+                       class="flex-1 text-center py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl shadow-lg shadow-red-100 transition-all">
                        Đặt vé
                     </a>
                   </div>
@@ -201,15 +121,20 @@
           </div>
         </c:when>
         <c:otherwise>
-          <div class="text-center py-5 border rounded bg-white">
-            <h4 class="text-muted">Không tìm thấy phim nào cho ngày này</h4>
-            <p>Vui lòng chọn ngày khác hoặc thay đổi từ khóa tìm kiếm.</p>
+          <div class="bg-white rounded-3xl p-20 text-center border border-slate-100 shadow-sm">
+            <div class="bg-slate-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+               <i class="fas fa-search text-slate-300 text-4xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800 mb-2">Không tìm thấy phim</h2>
+            <p class="text-slate-500 mb-8">Rất tiếc, chúng tôi không tìm thấy bộ phim nào phù hợp với yêu cầu của bạn.</p>
+            <a href="${pageContext.request.contextPath}/movie" class="text-red-500 font-bold hover:underline">Xem tất cả phim</a>
           </div>
         </c:otherwise>
       </c:choose>
-    </div>
-  </div>
 
-  <jsp:include page="/common/footer.jsp"/>
+    </div>
+  </main>
+
+  <jsp:include page="/common/footer.jsp" />
 </body>
 </html>

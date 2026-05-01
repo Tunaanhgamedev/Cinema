@@ -26,7 +26,7 @@
                 </h1>
 
                 <div class="flex flex-col md:flex-row items-center gap-4 w-full lg:w-auto">
-                  <form action="${pageContext.request.contextPath}/movie" method="GET"
+                  <form onsubmit="return false;"
                     class="flex flex-wrap md:flex-nowrap gap-3 w-full">
                     <!-- Search Input -->
                     <div class="relative w-full md:w-80">

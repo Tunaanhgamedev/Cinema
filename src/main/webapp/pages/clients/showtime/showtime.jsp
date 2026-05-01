@@ -71,7 +71,7 @@
         </div>
 
         <div class="w-full md:w-96 relative group">
-          <form action="${pageContext.request.contextPath}/showtime" method="GET">
+          <form onsubmit="return false;">
             <input type="hidden" name="date" value="${selectedDate}">
             <i class="fas fa-search absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-red-500 transition-colors"></i>
             <input type="text" name="q" value="${param.q}" id="qInput"

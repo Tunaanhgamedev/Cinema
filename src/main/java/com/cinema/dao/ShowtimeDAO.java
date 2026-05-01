@@ -271,7 +271,8 @@ public class ShowtimeDAO {
 
 	public List<com.cinema.model.Movie> getMoviesWithShowtimes(String date, String keyword, String sort) {
 		StringBuilder sql = new StringBuilder("""
-				    SELECT m.*, COUNT(b.booking_id) as booking_count
+				    SELECT m.movie_id, m.title, m.poster, m.duration, m.genre, m.rating, m.release_date, m.status, 
+				           COUNT(b.booking_id) as booking_count
 				    FROM movies m
 				    JOIN showtimes s ON m.movie_id = s.movie_id
 				    LEFT JOIN bookings b ON s.showtime_id = b.showtime_id
@@ -282,7 +283,7 @@ public class ShowtimeDAO {
 			sql.append(" AND m.title LIKE ? ");
 		}
 		
-		sql.append(" GROUP BY m.movie_id ");
+		sql.append(" GROUP BY m.movie_id, m.title, m.poster, m.duration, m.genre, m.rating, m.release_date, m.status ");
 
 		if ("newest".equals(sort)) {
 			sql.append(" ORDER BY m.release_date DESC ");
@@ -311,8 +312,11 @@ public class ShowtimeDAO {
 					m.setPoster(rs.getString("poster"));
 					m.setDuration(rs.getInt("duration"));
 					m.setGenre(rs.getString("genre"));
+					
+					// Đảm bảo lấy đúng rating từ cột tường minh
 					String ratingStr = rs.getString("rating");
 					m.setRating(parseDoubleSafe(ratingStr));
+					
 					m.setReleaseDate(rs.getDate("release_date"));
 					String statusStr = rs.getString("status");
 					try {

@@ -115,8 +115,9 @@ public class BookingDAO {
 				while (rs.next()) {
 					com.cinema.model.Seat s = new com.cinema.model.Seat();
 					s.setSeatId(rs.getInt("seat_id"));
-					s.setSeatNumber(rs.getString("seat_number"));
-					s.setSeatRow(rs.getString("seat_row"));
+					s.setSeatNumber(rs.getInt("seat_number"));
+					String rowStr = rs.getString("seat_row");
+					s.setSeatRow(rowStr != null && !rowStr.isEmpty() ? rowStr.charAt(0) : 'A');
 					list.add(s);
 				}
 			}

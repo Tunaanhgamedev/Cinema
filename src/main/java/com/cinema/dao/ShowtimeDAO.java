@@ -72,6 +72,30 @@ public class ShowtimeDAO {
 		return list;
 	}
 
+	// Tìm suất chiếu theo ID (dùng cho Invoice)
+	public Showtime findShowtimeById(int showtimeId) {
+		String sql = "SELECT * FROM showtimes WHERE showtime_id = ?";
+		try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+			ps.setInt(1, showtimeId);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) {
+					Showtime st = new Showtime();
+					st.setShowtimeId(rs.getInt("showtime_id"));
+					st.setMovieId(rs.getInt("movie_id"));
+					st.setRoomId(rs.getInt("room_id"));
+					st.setShowDate(rs.getDate("show_date"));
+					st.setStartTime(rs.getTimestamp("start_time"));
+					st.setEndTime(rs.getTimestamp("end_time"));
+					st.setPrice(rs.getBigDecimal("price"));
+					return st;
+				}
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException("ShowtimeDAO.findShowtimeById error", e);
+		}
+		return null;
+	}
+
 	public boolean insert(Showtime st) {
 		String sql = "INSERT INTO showtimes(movie_id, room_id, show_date, start_time, end_time, price) VALUES (?,?,?,?,?,?)";
 

@@ -53,8 +53,8 @@ public class InvoiceServlet extends HttpServlet {
                 return;
             }
 
-            Showtime showtime = showtimeDAO.getShowtimeById(booking.getShowtimeId());
-            Movie movie = movieDAO.getMovieById(showtime.getMovieId());
+            Showtime showtime = showtimeDAO.findShowtimeById(booking.getShowtimeId());
+            Movie movie = movieDAO.findById(showtime.getMovieId());
             List<Seat> seats = bookingDAO.getSeatsByBookingId(bookingId);
 
             request.setAttribute("booking", booking);

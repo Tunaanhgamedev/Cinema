@@ -271,15 +271,18 @@ public class ShowtimeDAO {
 
 	public List<com.cinema.model.Movie> getMoviesWithShowtimes(String date, String keyword, String sort) {
 		StringBuilder sql = new StringBuilder("""
-				    SELECT DISTINCT m.*
+				    SELECT m.*, COUNT(b.booking_id) as booking_count
 				    FROM movies m
 				    JOIN showtimes s ON m.movie_id = s.movie_id
+				    LEFT JOIN bookings b ON s.showtime_id = b.showtime_id
 				    WHERE s.show_date = ?
 				""");
 
 		if (keyword != null && !keyword.trim().isEmpty()) {
 			sql.append(" AND m.title LIKE ? ");
 		}
+		
+		sql.append(" GROUP BY m.movie_id ");
 
 		if ("newest".equals(sort)) {
 			sql.append(" ORDER BY m.release_date DESC ");
@@ -287,6 +290,8 @@ public class ShowtimeDAO {
 			sql.append(" ORDER BY m.release_date ASC ");
 		} else if ("alphabetical".equals(sort)) {
 			sql.append(" ORDER BY m.title ASC ");
+		} else if ("hot".equals(sort)) {
+			sql.append(" ORDER BY booking_count DESC ");
 		} else {
 			sql.append(" ORDER BY m.release_date DESC "); // Mặc định mới nhất
 		}

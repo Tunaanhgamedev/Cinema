@@ -188,17 +188,28 @@
                                         <label
                                             class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Phim</label>
                                         <select
-                                            class="w-full bg-slate-950/50 border border-white/5 rounded-2xl px-6 py-4 outline-none focus:border-indigo-500 transition-all font-bold text-sm"
+                                            class="w-full bg-slate-950/50 border border-white/5 rounded-2xl px-6 py-4 outline-none focus:border-indigo-500 transition-all font-bold text-sm appearance-none cursor-pointer"
                                             name="movieId" id="movieSelect" required>
                                             <option value="">-- Chọn phim --</option>
-                                            <c:forEach var="m" items="${movies}">
-                                                <option value="${m.movieId}" ${param.movieId==m.movieId ? 'selected'
-                                                    : '' }>${m.title}</option>
-                                            </c:forEach>
                                             <c:if test="${not empty selectedMovie}">
-                                                <option value="${selectedMovie.movieId}" selected>${selectedMovie.title}
+                                                <option value="${selectedMovie.movieId}" selected
+                                                    data-poster="${selectedMovie.poster}"
+                                                    data-genre="${selectedMovie.genre}"
+                                                    data-duration="${selectedMovie.duration}">
+                                                    ${selectedMovie.title} (Phim đang chọn)
                                                 </option>
                                             </c:if>
+                                            <c:forEach var="m" items="${movies}">
+                                                <%-- Tránh lặp lại phim nếu nó đã là selectedMovie --%>
+                                                <c:if test="${selectedMovie.movieId != m.movieId}">
+                                                    <option value="${m.movieId}" ${movieId == m.movieId ? 'selected' : ''}
+                                                        data-poster="${m.poster}"
+                                                        data-genre="${m.genre}"
+                                                        data-duration="${m.duration}">
+                                                        ${m.title}
+                                                    </option>
+                                                </c:if>
+                                            </c:forEach>
                                         </select>
                                     </div>
 
@@ -343,12 +354,30 @@
                                     <input type="hidden" name="movieId" value="${movieId}" />
                                     <input type="hidden" name="showtimeId" value="${showtimeId}" />
 
-                                    <div class="space-y-2">
-                                        <label
-                                            class="text-[10px] font-black text-indigo-200/40 uppercase tracking-widest">Tên
-                                            Phim</label>
-                                        <p id="summary-movie"
-                                            class="text-2xl font-black italic leading-tight uppercase">---</p>
+                                    <!-- Movie Info Section -->
+                                    <div class="flex gap-6 items-start">
+                                        <div class="w-24 h-36 rounded-2xl overflow-hidden shadow-2xl border border-white/10 flex-shrink-0 bg-slate-900">
+                                            <img id="summary-poster" src="${not empty selectedMovie ? selectedMovie.poster : ''}" 
+                                                 class="w-full h-full object-cover ${empty selectedMovie.poster ? 'hidden' : ''}" 
+                                                 alt="Poster">
+                                            <div id="poster-placeholder" class="w-full h-full flex items-center justify-center ${not empty selectedMovie.poster ? 'hidden' : ''}">
+                                                <i class="fas fa-film text-white/10 text-2xl"></i>
+                                            </div>
+                                        </div>
+                                        <div class="space-y-3 pt-2">
+                                            <div class="flex flex-wrap gap-2">
+                                                <span id="summary-genre" class="px-2 py-0.5 bg-indigo-500/20 text-indigo-300 text-[8px] font-black uppercase tracking-tighter rounded border border-indigo-500/30">
+                                                    ${not empty selectedMovie ? selectedMovie.genre : '---'}
+                                                </span>
+                                                <span id="summary-duration" class="px-2 py-0.5 bg-white/5 text-white/50 text-[8px] font-black uppercase tracking-tighter rounded border border-white/10">
+                                                    <i class="far fa-clock mr-1"></i> ${not empty selectedMovie ? selectedMovie.duration : '--'} Phút
+                                                </span>
+                                            </div>
+                                            <label class="text-[10px] font-black text-indigo-200/40 uppercase tracking-widest block">Tên Phim</label>
+                                            <p id="summary-movie" class="text-xl font-black italic leading-tight uppercase tracking-tight">
+                                                ${not empty selectedMovie ? selectedMovie.title : '---'}
+                                            </p>
+                                        </div>
                                     </div>
 
                                     <div class="grid grid-cols-2 gap-8">
@@ -434,13 +463,39 @@
                             let socket = null;
 
                             function syncSummary() {
-                                const movie = movieSelect.options[movieSelect.selectedIndex]?.text || "---";
+                                const opt = movieSelect.options[movieSelect.selectedIndex];
+                                const movie = opt?.text || "---";
+                                const poster = opt?.dataset.poster;
+                                const genre = opt?.dataset.genre;
+                                const duration = opt?.dataset.duration;
+
                                 const timeText = showtimeSelect.options[showtimeSelect.selectedIndex]?.text || "---";
-                                document.getElementById('summary-movie').textContent = movie;
+                                
+                                // Update Movie Info
+                                document.getElementById('summary-movie').textContent = movie.replace(' (Phim đang chọn)', '');
+                                
+                                const img = document.getElementById('summary-poster');
+                                const placeholder = document.getElementById('poster-placeholder');
+                                if (poster) {
+                                    img.src = poster;
+                                    img.classList.remove('hidden');
+                                    placeholder.classList.add('hidden');
+                                } else {
+                                    img.classList.add('hidden');
+                                    placeholder.classList.remove('hidden');
+                                }
+
+                                document.getElementById('summary-genre').textContent = genre || '---';
+                                document.getElementById('summary-duration').innerHTML = `<i class="far fa-clock mr-1"></i> ${duration || '--'} Phút`;
+
+                                // Update Time and Room
                                 if (timeText !== "---") {
                                     const parts = timeText.split(' (P.');
                                     document.getElementById('summary-time').textContent = parts[0];
                                     document.getElementById('summary-room').textContent = 'PHÒNG ' + (parts[1]?.replace(/[)]/g, '') || "---");
+                                } else {
+                                    document.getElementById('summary-time').textContent = "---";
+                                    document.getElementById('summary-room').textContent = "---";
                                 }
                             }
 
@@ -506,6 +561,9 @@
                                             dateInput.innerHTML += `<option value="${d}">${d}</option>`;
                                         });
                                         dateInput.disabled = false;
+                                        // Auto load showtimes for first date
+                                        dateInput.selectedIndex = 1;
+                                        await loadShowtimes();
                                     } else {
                                         dateInput.innerHTML = '<option value="">🚫 Hết lịch chiếu</option>';
                                         dateInput.disabled = true;

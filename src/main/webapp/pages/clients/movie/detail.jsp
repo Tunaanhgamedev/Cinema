@@ -170,7 +170,7 @@
                             </div>
                         </div>
                         <div class="flex flex-wrap gap-8 items-center">
-                            <a href="#booking-section" class="action-btn-main shadow-xl shadow-indigo-500/20">
+                            <a href="${pageContext.request.contextPath}/booking-seat?movieId=${movie.movieId}" class="action-btn-main shadow-xl shadow-indigo-500/20">
                                 <i class="fas fa-ticket-alt mr-2"></i> Mua vé ngay
                             </a>
                             <button id="btnTrailer" class="text-white font-black uppercase tracking-wider flex items-center gap-4 hover:text-amber-400 transition-all p-4">

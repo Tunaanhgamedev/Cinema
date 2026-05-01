@@ -88,25 +88,41 @@ public class BookingSeatServlet extends HttpServlet {
 		if (!err.isEmpty())
 			req.setAttribute("error", err);
 
-		// movies dropdown
+		Integer movieIdInt = parseIntOrNull(movieId);
+		Movie currentMovie = null;
+
+		// movies dropdown (luôn lấy danh sách phim đang chiếu)
 		List<Movie> movies = movieDAO.findNowShowing();
 		req.setAttribute("movies", movies);
 		
-		Integer movieIdInt = parseIntOrNull(movieId);
-		
-		// Nếu có movieId từ URL mà không có trong list NOW_SHOWING, hãy lấy riêng nó ra
 		if (movieIdInt != null) {
+			// Kiểm tra xem phim đang chọn có trong danh sách đang chiếu không
 			boolean exists = false;
 			for(Movie m : movies) {
-				if(m.getMovieId() == movieIdInt) { exists = true; break; }
+				if(m.getMovieId() == movieIdInt) { 
+					exists = true; 
+					currentMovie = m;
+					break; 
+				}
 			}
+			
+			// Nếu phim không nằm trong list đang chiếu (ví dụ xem lại phim cũ), lấy riêng nó
 			if(!exists) {
-				Movie currentMovie = movieDAO.findById(movieIdInt);
+				currentMovie = movieDAO.findById(movieIdInt);
 				if(currentMovie != null) req.setAttribute("selectedMovie", currentMovie);
+			} else {
+				req.setAttribute("selectedMovie", currentMovie);
 			}
 			
 			// ✅ Chuẩn bị danh sách ngày từ DB cho phim này
-			req.setAttribute("availableDates", showtimeDAO.getDistinctDatesByMovie(movieIdInt));
+			List<String> availableDates = showtimeDAO.getDistinctDatesByMovie(movieIdInt);
+			req.setAttribute("availableDates", availableDates);
+			
+			// ✅ Nếu chưa chọn ngày nhưng có danh sách ngày, tự động lấy ngày đầu tiên
+			if (showDate.isEmpty() && !availableDates.isEmpty()) {
+				showDate = availableDates.get(0);
+				req.setAttribute("showDate", showDate);
+			}
 		}
 
 		// cleanup holds hết hạn

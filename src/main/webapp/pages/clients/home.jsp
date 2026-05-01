@@ -26,6 +26,14 @@
                     Chọn phim, chọn suất, chọn ghế trong vài giây.
                 </p>
 
+                <div class="search-hero-wrapper mb-5">
+                    <form action="${pageContext.request.contextPath}/movie" method="GET" class="search-hero-form">
+                        <i class="fas fa-search"></i>
+                        <input type="text" name="q" placeholder="Tìm tên phim bạn muốn xem..." class="search-hero-input">
+                        <button type="submit" class="btn-search-hero">Tìm kiếm</button>
+                    </form>
+                </div>
+
                 <div class="hero-actions">
                     <a href="#nowshowing" class="btn-neon">Xem phim đang chiếu</a>
                     <a href="${pageContext.request.contextPath}/pages/clients/booking-seat" class="btn-ghost">Đặt vé ngay</a>

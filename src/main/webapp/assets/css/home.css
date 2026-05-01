@@ -123,6 +123,61 @@ body{
 }
 
 /* actions */
+.search-hero-wrapper {
+  max-width: 580px;
+  position: relative;
+  z-index: 5;
+}
+.search-hero-form {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 6px;
+  border-radius: 14px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 14px 40px rgba(0,0,0,0.35);
+  transition: all 0.3s ease;
+}
+.search-hero-form:focus-within {
+  border-color: var(--red);
+  box-shadow: 0 14px 40px rgba(227, 0, 27, 0.2);
+  background: rgba(255, 255, 255, 0.12);
+}
+.search-hero-form i {
+  color: var(--muted);
+  font-size: 1.1rem;
+  margin-left: 14px;
+  margin-right: 10px;
+}
+.search-hero-input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-weight: 600;
+  padding: 10px 0;
+  font-size: 1rem;
+}
+.search-hero-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+.btn-search-hero {
+  background: linear-gradient(180deg, var(--red), var(--red2));
+  color: #fff;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-search-hero:hover {
+  filter: brightness(1.1);
+  transform: scale(1.03);
+}
+
 .hero-actions{
   display:flex;
   gap: 12px;

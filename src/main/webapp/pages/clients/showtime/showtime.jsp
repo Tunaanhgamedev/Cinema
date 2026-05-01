@@ -126,7 +126,7 @@
 
                             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                                 <c:forEach var="s" items="${sts}">
-                                    <a href="${pageContext.request.contextPath}/booking-seat?showtimeId=${s.showtimeId}" 
+                                    <a href="${pageContext.request.contextPath}/booking-seat?movieId=${m.movieId}&showDate=${selectedDate}&showtimeId=${s.showtimeId}" 
                                        class="flex flex-col items-center bg-slate-50 hover:bg-red-500 border border-slate-100 hover:border-red-500 p-4 rounded-2xl transition-all group/btn shadow-sm hover:shadow-xl hover:shadow-red-200 active:scale-95">
                                         <span class="text-xl font-black text-slate-800 group-hover/btn:text-white leading-none">
                                             <fmt:formatDate value="${s.startTime}" pattern="HH:mm" />

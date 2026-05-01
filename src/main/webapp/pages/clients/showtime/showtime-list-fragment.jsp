@@ -10,7 +10,7 @@
             
             <article class="st-movie animate-fade-in" data-title="${m.title.toLowerCase()}">
                 <div class="st-poster">
-                  <img src="${m.poster}" alt="${m.title}" onerror="this.src='${pageContext.request.contextPath}/assets/images/movies/movie1.jpg'">
+                  <img src="${pageContext.request.contextPath}/assets/images/movies/${m.poster}" alt="${m.title}" onerror="this.src='${pageContext.request.contextPath}/assets/images/movies/movie1.jpg'">
                 </div>
 
                 <div class="st-info">

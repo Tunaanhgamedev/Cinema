@@ -6,7 +6,7 @@
         <div class="col-6 col-md-4 col-lg-3 animate-fade-in">
             <div class="movie-card">
                 <div class="movie-poster">
-                    <img src="${m.poster}" alt="${m.title}" onerror="this.src='${pageContext.request.contextPath}/assets/images/movies/movie1.jpg'">
+                    <img src="${pageContext.request.contextPath}/assets/images/movies/${m.poster}" alt="${m.title}" onerror="this.src='${pageContext.request.contextPath}/assets/images/movies/movie1.jpg'">
                     <div class="movie-overlay">
                         <a href="${pageContext.request.contextPath}/movie?id=${m.movieId}" class="btn btn-primary btn-sm rounded-pill">Chi tiết</a>
                         <a href="${pageContext.request.contextPath}/showtime?date=${selectedDate}" class="btn btn-light btn-sm rounded-pill mt-2">Đặt vé</a>

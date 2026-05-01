@@ -21,20 +21,6 @@
           <h1 class="st-title">BOBIXI Cinema • Đà Nẵng</h1>
           <p class="st-sub">Lịch chiếu phim cho ngày: <span class="text-info font-bold"><fmt:parseDate value="${selectedDate}" pattern="yyyy-MM-dd" var="parsedDate"/><fmt:formatDate value="${parsedDate}" pattern="dd/MM/yyyy"/></span></p>
         </div>
-        <div class="st-filters">
-          <div class="st-search">
-            <i class="fas fa-search search-icon"></i>
-            <input id="movieSearch" type="text" class="form-control" placeholder="Tìm tên phim..." value="<c:out value='${param.q}'/>">
-          </div>
-          <div class="st-sort">
-            <select id="movieSort" class="form-select">
-              <option value="newest" ${selectedSort == 'newest' ? 'selected' : ''}>Mới nhất</option>
-              <option value="hot" ${selectedSort == 'hot' ? 'selected' : ''}>Hot nhất</option>
-              <option value="oldest" ${selectedSort == 'oldest' ? 'selected' : ''}>Cũ nhất</option>
-              <option value="alphabetical" ${selectedSort == 'alphabetical' ? 'selected' : ''}>Tên phim (A-Z)</option>
-            </select>
-          </div>
-        </div>
       </div>
     </section>
 
@@ -60,6 +46,23 @@
               <div class="d2"><fmt:formatDate value="${d}" pattern="dd/MM"/></div>
             </div>
           </c:forEach>
+        </div>
+      </div>
+
+      <!-- Search & Filter Toolbar (Below Dates) -->
+      <div class="st-toolbar">
+        <div class="st-search-box">
+          <i class="fas fa-search"></i>
+          <input id="movieSearch" type="text" placeholder="Tìm tên phim..." value="<c:out value='${param.q}'/>">
+        </div>
+        <div class="st-sort-box">
+          <label>Sắp xếp:</label>
+          <select id="movieSort">
+              <option value="newest" ${selectedSort == 'newest' ? 'selected' : ''}>Mới nhất</option>
+              <option value="hot" ${selectedSort == 'hot' ? 'selected' : ''}>Hot nhất</option>
+              <option value="oldest" ${selectedSort == 'oldest' ? 'selected' : ''}>Cũ nhất</option>
+              <option value="alphabetical" ${selectedSort == 'alphabetical' ? 'selected' : ''}>Tên phim (A-Z)</option>
+          </select>
         </div>
       </div>
 

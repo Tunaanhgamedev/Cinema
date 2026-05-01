@@ -131,60 +131,13 @@
                         cursor: not-allowed;
                     }
 
-                    .screen-container {
-                        perspective: 1000px;
-                        margin-bottom: 80px;
-                    }
-                    .screen-curved {
-                        width: 90%;
-                        height: 12px;
-                        margin: 0 auto;
-                        background: linear-gradient(to bottom, #6366f1, #312e81);
-                        border-radius: 50% / 100% 100% 0 0;
-                        box-shadow: 0 15px 50px 5px rgba(99, 102, 241, 0.7);
-                        position: relative;
-                        transform: rotateX(-30deg);
-                    }
-                    .screen-glow {
-                        position: absolute;
-                        top: 20px;
-                        left: 5%;
-                        width: 90%;
-                        height: 150px;
-                        background: radial-gradient(ellipse at top, rgba(99, 102, 241, 0.15), transparent 70%);
-                        pointer-events: none;
-                    }
-                    .row-label {
-                        width: 30px;
-                        height: 34px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 12px;
-                        font-weight: 900;
-                        color: #475569;
-                        user-select: none;
-                    }
-                    .seat-btn.vip {
-                        background: #fbbf241a;
-                        border-color: #fbbf2440;
-                        color: #fbbf24;
-                    }
-                    .seat-btn.vip:hover:not(.booked) {
-                        background: #fbbf24;
-                        color: #000;
-                        box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
-                    }
-                    .seat-btn.couple {
-                        background: #ec48991a;
-                        border-color: #ec489940;
-                        color: #ec4899;
-                        width: 80px;
-                    }
-                    .seat-btn.couple:hover:not(.booked) {
-                        background: #ec4899;
-                        color: #fff;
-                        box-shadow: 0 0 20px rgba(236, 72, 153, 0.5);
+                    .screen-line {
+                        width: 100%;
+                        height: 4px;
+                        background: linear-gradient(to right, transparent, #6366f1, transparent);
+                        box-shadow: 0 0 40px 5px rgba(99, 102, 241, 0.4);
+                        border-radius: 100%;
+                        margin-bottom: 60px;
                     }
                 </style>
             </head>
@@ -311,10 +264,11 @@
                                 </div>
 
                                 <div class="flex flex-col items-center overflow-x-auto pb-6">
-                                    <div class="w-full max-w-2xl screen-container">
-                                        <div class="screen-curved"></div>
-                                        <div class="screen-glow"></div>
-                                        <span class="text-[9px] font-black text-slate-500 tracking-[1.5em] uppercase block mt-10">MÀN HÌNH CHÍNH TÂM</span>
+                                    <div class="w-full max-w-xl mb-16">
+                                        <div class="screen-line"></div>
+                                        <span
+                                            class="text-[9px] font-black text-slate-600 tracking-[1.5em] uppercase">Màn
+                                            hình trung tâm</span>
                                     </div>
 
                                     <div class="flex flex-col items-center gap-5 min-w-[500px]" id="seatGrid">
@@ -833,74 +787,62 @@
                                 syncSummary();
                             }
 
-                                function renderSeats(data) {
-                                    let html = `
-                                        <div class="w-full max-w-2xl screen-container">
-                                            <div class="screen-curved"></div>
-                                            <div class="screen-glow"></div>
-                                            <span class="text-[9px] font-black text-slate-500 tracking-[1.5em] uppercase block mt-10">MÀN HÌNH CHÍNH TÂM</span>
-                                        </div>
-                                    `;
-                                    
-                                    if (!data.seats || data.seats.length === 0) {
-                                        html += '<div class="py-20 opacity-20"><i class="fas fa-couch text-7xl mb-4 block mx-auto"></i><p class="font-black text-xs tracking-widest uppercase">Chưa có sơ đồ ghế</p></div>';
-                                        seatGrid.innerHTML = html;
-                                        return;
-                                    }
-
-                                    const rowMap = {};
-                                    data.seats.forEach(s => {
-                                        const r = s.code.charAt(0);
-                                        if (!rowMap[r]) rowMap[r] = [];
-                                        rowMap[r].push(s);
-                                    });
-
-                                    html += '<div class="flex flex-col gap-4 items-center min-w-fit px-10">';
-                                    
-                                    Object.keys(rowMap).sort().forEach(r => {
-                                        html += `<div class="flex gap-4 items-center">
-                                                    <div class="row-label">${r}</div>
-                                                    <div class="flex gap-3">`;
-                                        
-                                        const seatsInRow = rowMap[r];
-                                        seatsInRow.sort((a,b) => parseInt(a.code.substring(1)) - parseInt(b.code.substring(1)));
-
-                                        seatsInRow.forEach((s, index) => {
-                                            const isBooked = data.booked.includes(s.code);
-                                            const sid = 's_' + s.code;
-                                            
-                                            let typeClass = '';
-                                            let icon = '';
-                                            if(s.type === 'VIP') { typeClass = 'vip'; icon = '<i class="fas fa-crown text-[8px] absolute top-1 right-1 opacity-40"></i>'; }
-                                            if(s.type === 'COUPLE') { typeClass = 'couple'; icon = '<i class="fas fa-heart text-[8px] absolute top-1 right-1 opacity-40"></i>'; }
-
-                                            html += `<div class="relative group">`;
-                                            if (isBooked) {
-                                                html += `<div class="seat-btn booked ${typeClass}">${s.code.substring(1)}</div>`;
-                                            } else {
-                                                html += `
-                                                    <input type="checkbox" id="${sid}" name="seats" value="${s.code}" 
-                                                           class="hidden seat-check seat" data-booked="false" data-type="${s.type}">
-                                                    <label for="${sid}" class="seat-btn ${typeClass} relative">
-                                                        ${s.code.substring(1)}
-                                                        ${icon}
-                                                    </label>`;
-                                            }
-                                            html += `</div>`;
-                                            
-                                            // Aisle logic
-                                            if (seatsInRow.length > 8 && (index === 1 || index === seatsInRow.length - 3)) {
-                                                html += `<div class="w-8"></div>`;
-                                            }
-                                        });
-                                        
-                                        html += `   </div>
-                                                    <div class="row-label text-right">${r}</div>
-                                                </div>`;
-                                    });
-
-                                    html += '</div>';
+                            function renderSeats(data) {
+                                let html = '<div class="w-full max-w-xl mb-16"><div class="screen-line"></div><span class="text-[9px] font-black text-slate-600 tracking-[1.5em] uppercase">Màn hình trung tâm</span></div>';
+                                html += '<div class="flex flex-col items-center gap-5 min-w-[500px]">';
+                                
+                                if (!data.seats || data.seats.length === 0) {
+                                    html += '<p class="text-white/40 italic text-sm">Chưa có sơ đồ ghế cho phòng này.</p></div>';
                                     seatGrid.innerHTML = html;
+                                    return;
+                                }
+
+                                // Gom nhóm ghế theo Row (A, B, C...)
+                                const rowMap = {};
+                                data.seats.forEach(s => {
+                                    const rowChar = s.code.charAt(0);
+                                    if (!rowMap[rowChar]) rowMap[rowChar] = [];
+                                    rowMap[rowChar].push(s);
+                                });
+
+                                // Render từng hàng
+                                Object.keys(rowMap).sort().forEach(r => {
+                                    html += `<div class="flex gap-4 items-center"><div class="w-6 text-[10px] font-black text-slate-700">${r}</div><div class="flex gap-3">`;
+                                    
+                                    const seatsInRow = rowMap[r];
+                                    // Sắp xếp ghế theo số
+                                    seatsInRow.sort((a,b) => parseInt(a.code.substring(1)) - parseInt(b.code.substring(1)));
+
+                                    seatsInRow.forEach((s, index) => {
+                                        const isBooked = data.booked.includes(s.code);
+                                        const sid = 's_' + s.code;
+                                        
+                                        // CSS tùy chỉnh theo loại ghế
+                                        let extraClass = '';
+                                        if (s.type === 'VIP') {
+                                            extraClass = 'border-amber-500/50 text-amber-500 hover:bg-amber-500 hover:text-black';
+                                        } else if (s.type === 'COUPLE') {
+                                            extraClass = 'border-pink-500/50 text-pink-500 hover:bg-pink-500 hover:text-white w-20'; // Couple thì to hơn
+                                        }
+
+                                        html += `<div class="relative">`;
+                                        if (isBooked) {
+                                            html += `<div class="seat-btn booked" data-type="${s.type}">${s.code.substring(1)}</div>`;
+                                        } else {
+                                            html += `<input type="checkbox" id="${sid}" name="seats" value="${s.code}" class="hidden seat-check seat" data-booked="false" data-type="${s.type}">
+                                                     <label for="${sid}" class="seat-btn ${extraClass}">${s.code.substring(1)}</label>`;
+                                        }
+                                        html += `</div>`;
+                                        
+                                        // Khoảng trống (Aisle) mặc định giữa 2 bên nếu mảng > 4 ghế (tạm thời chia 2-6-2 nếu tổng là 10)
+                                        if (seatsInRow.length === 10 && (index === 1 || index === 7)) {
+                                            html += `<div class="w-4"></div>`;
+                                        }
+                                    });
+                                    html += `</div><div class="w-6 text-[10px] font-black text-slate-700 text-right">${r}</div></div>`;
+                                });
+                                html += '</div>';
+                                seatGrid.innerHTML = html;
 
                                 document.querySelectorAll('input.seat').forEach(s => {
                                     s.addEventListener('change', () => {

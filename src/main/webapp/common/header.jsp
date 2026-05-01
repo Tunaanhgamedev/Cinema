@@ -19,12 +19,6 @@
 					<a href="${pageContext.request.contextPath}/contact">LIÊN HỆ</a>
 					<a href="${pageContext.request.contextPath}/pages/clients/about.jsp">THÀNH VIÊN</a>
 					
-					<div class="header-search-mini">
-						<form action="${pageContext.request.contextPath}/movie" method="GET">
-							<input type="text" name="q" placeholder="Tìm phim...">
-							<button type="submit"><i class="fas fa-search"></i></button>
-						</form>
-					</div>
 				</nav>
 
 				<div class="user-menu">

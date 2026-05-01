@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -251,5 +252,51 @@ public class ShowtimeDAO {
 			e.printStackTrace();
 		}
 		return false;
+	}
+	public List<com.cinema.model.Movie> getMoviesWithShowtimes(String date, String keyword, String sort) {
+		StringBuilder sql = new StringBuilder("""
+				    SELECT DISTINCT m.*
+				    FROM movies m
+				    JOIN showtimes s ON m.movie_id = s.movie_id
+				    WHERE s.show_date = ?
+				""");
+
+		if (keyword != null && !keyword.trim().isEmpty()) {
+			sql.append(" AND m.title LIKE ? ");
+		}
+
+		if ("newest".equals(sort)) {
+			sql.append(" ORDER BY m.release_date DESC ");
+		} else if ("oldest".equals(sort)) {
+			sql.append(" ORDER BY m.release_date ASC ");
+		} else if ("alphabetical".equals(sort)) {
+			sql.append(" ORDER BY m.title ASC ");
+		} else {
+			sql.append(" ORDER BY m.release_date DESC "); // Mặc định mới nhất
+		}
+
+		List<com.cinema.model.Movie> list = new ArrayList<>();
+		try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql.toString())) {
+			ps.setString(1, date);
+			if (keyword != null && !keyword.trim().isEmpty()) {
+				ps.setString(2, "%" + keyword + "%");
+			}
+
+			try (ResultSet rs = ps.executeQuery()) {
+				while (rs.next()) {
+					com.cinema.model.Movie m = new com.cinema.model.Movie();
+					m.setMovieId(rs.getInt("movie_id"));
+					m.setTitle(rs.getString("title"));
+					m.setPoster(rs.getString("poster"));
+					m.setDuration(rs.getInt("duration"));
+					m.setGenre(rs.getString("genre"));
+					m.setReleaseDate(rs.getDate("release_date"));
+					list.add(m);
+				}
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException("ShowtimeDAO.getMoviesWithShowtimes error", e);
+		}
+		return list;
 	}
 }

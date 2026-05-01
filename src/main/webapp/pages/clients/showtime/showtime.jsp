@@ -21,9 +21,18 @@
           <h1 class="st-title">BOBIXI Cinema • Đà Nẵng</h1>
           <p class="st-sub">Lịch chiếu phim cho ngày: <span class="text-info font-bold"><fmt:parseDate value="${selectedDate}" pattern="yyyy-MM-dd" var="parsedDate"/><fmt:formatDate value="${parsedDate}" pattern="dd/MM/yyyy"/></span></p>
         </div>
-        <div class="st-search">
-          <input id="q" type="text" class="form-control" placeholder="Tìm phim nhanh...">
-          <button class="btn btn-light" id="btnClear">Xóa</button>
+        <div class="st-filters">
+          <div class="st-search">
+            <i class="fas fa-search search-icon"></i>
+            <input id="q" type="text" class="form-control" placeholder="Tìm tên phim...">
+          </div>
+          <div class="st-sort">
+            <select id="sort" class="form-select">
+              <option value="newest">Mới nhất</option>
+              <option value="oldest">Cũ nhất</option>
+              <option value="alphabetical">Tên phim (A-Z)</option>
+            </select>
+          </div>
         </div>
       </div>
     </section>

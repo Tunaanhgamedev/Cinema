@@ -23,14 +23,17 @@ public class ShowtimeServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String dateStr = req.getParameter("date");
+        String keyword = req.getParameter("q");
+        String sort = req.getParameter("sort");
+        boolean isAjax = "true".equals(req.getParameter("ajax"));
+
         if (dateStr == null || dateStr.isEmpty()) {
-            dateStr = LocalDate.now().toString(); // YYYY-MM-DD
+            dateStr = LocalDate.now().toString();
         }
 
-        // Lấy danh sách phim có suất chiếu trong ngày
-        List<Movie> movies = showtimeDAO.getDistinctMoviesByDate(dateStr);
+        // Lấy danh sách phim theo filter
+        List<Movie> movies = showtimeDAO.getMoviesWithShowtimes(dateStr, keyword, sort);
         
-        // Tạo map: Movie -> List<ShowtimeView>
         Map<Movie, List<ShowtimeDAO.ShowtimeView>> movieShowtimes = new LinkedHashMap<>();
         for (Movie m : movies) {
             movieShowtimes.put(m, showtimeDAO.findByMovieAndDate(m.getMovieId(), dateStr));
@@ -38,7 +41,12 @@ public class ShowtimeServlet extends HttpServlet {
 
         req.setAttribute("selectedDate", dateStr);
         req.setAttribute("movieShowtimes", movieShowtimes);
-        req.getRequestDispatcher("/pages/clients/showtime/showtime.jsp").forward(req, resp);
+
+        if (isAjax) {
+            req.getRequestDispatcher("/pages/clients/showtime/showtime-list-fragment.jsp").forward(req, resp);
+        } else {
+            req.getRequestDispatcher("/pages/clients/showtime/showtime.jsp").forward(req, resp);
+        }
     }
 
     @Override

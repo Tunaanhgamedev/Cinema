@@ -24,6 +24,10 @@ public class ShowtimeServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String dateStr = req.getParameter("date");
         String keyword = req.getParameter("q");
+        String sort = req.getParameter("sort");
+        if (sort == null || sort.isEmpty()) sort = "newest";
+        boolean isAjax = "true".equals(req.getParameter("ajax"));
+
         // Lấy danh sách ngày có suất chiếu từ DB
         List<java.sql.Date> availableDates = showtimeDAO.getAvailableDates();
         if (dateStr == null || dateStr.isEmpty()) {
@@ -45,6 +49,7 @@ public class ShowtimeServlet extends HttpServlet {
         req.setAttribute("availableDates", availableDates);
         req.setAttribute("selectedDate", dateStr);
         req.setAttribute("movieShowtimes", movieShowtimes);
+        req.setAttribute("selectedSort", sort);
 
         if (isAjax) {
             req.getRequestDispatcher("/pages/clients/showtime/showtime-list-fragment.jsp").forward(req, resp);

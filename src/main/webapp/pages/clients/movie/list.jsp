@@ -34,6 +34,7 @@
                 <div class="col-lg-2">
                     <select id="movieSort" class="form-select shadow-none bg-dark text-white border-secondary rounded-3" style="padding: 11px;">
                         <option value="newest" ${selectedSort == 'newest' ? 'selected' : ''}>Mới nhất</option>
+                        <option value="hot" ${selectedSort == 'hot' ? 'selected' : ''}>Hot nhất</option>
                         <option value="oldest" ${selectedSort == 'oldest' ? 'selected' : ''}>Cũ nhất</option>
                         <option value="alphabetical" ${selectedSort == 'alphabetical' ? 'selected' : ''}>A - Z</option>
                     </select>

@@ -49,13 +49,16 @@ public class MovieServlet extends HttpServlet {
 			if (dateStr == null || dateStr.isEmpty()) {
 				dateStr = java.time.LocalDate.now().toString();
 			}
+			String sort = req.getParameter("sort");
+			if (sort == null || sort.isEmpty()) sort = "newest";
 			
-			List<Movie> movies = showtimeDAO.getMoviesWithShowtimes(dateStr, keyword, "newest");
+			List<Movie> movies = showtimeDAO.getMoviesWithShowtimes(dateStr, keyword, sort);
 			List<java.sql.Date> availableDates = showtimeDAO.getAvailableDates();
 
 			req.setAttribute("movies", movies);
 			req.setAttribute("availableDates", availableDates);
 			req.setAttribute("selectedDate", dateStr);
+			req.setAttribute("selectedSort", sort);
 
 			if (isAjax) {
 				req.getRequestDispatcher("/pages/clients/movie/movie-grid-fragment.jsp").forward(req, resp);

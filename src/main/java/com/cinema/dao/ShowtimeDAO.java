@@ -311,6 +311,7 @@ public class ShowtimeDAO {
 					m.setPoster(rs.getString("poster"));
 					m.setDuration(rs.getInt("duration"));
 					m.setGenre(rs.getString("genre"));
+					m.setRating(rs.getString("rating"));
 					m.setReleaseDate(rs.getDate("release_date"));
 					list.add(m);
 				}

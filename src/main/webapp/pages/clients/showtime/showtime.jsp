@@ -24,7 +24,7 @@
         <div class="st-filters">
           <div class="st-search">
             <i class="fas fa-search search-icon"></i>
-            <input id="movieSearch" type="text" class="form-control" placeholder="Tìm tên phim...">
+            <input id="movieSearch" type="text" class="form-control" placeholder="Tìm tên phim..." value="<c:out value='${param.q}'/>">
           </div>
           <div class="st-sort">
             <select id="movieSort" class="form-select">

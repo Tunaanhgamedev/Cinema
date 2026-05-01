@@ -20,6 +20,7 @@
                         <span class="genre-badge">${m.genre}</span>
                         <span class="duration-badge"><i class="far fa-clock"></i> ${m.duration} phút</span>
                         <span class="date-badge-inline"><i class="far fa-calendar-alt"></i> ${selectedDate}</span>
+                        <span class="text-warning ms-2" style="font-size: 12px;"><i class="fas fa-star"></i> ${m.rating}</span>
                     </div>
                   </div>
 

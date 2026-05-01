@@ -103,6 +103,11 @@
     padding:16px;
     color:#333;
   }
+  .movie-header { position: relative; z-index: 10; }
+  .header-actions { flex: 1; }
+  .input-group-text { border-color: #e2e8f0; }
+  .form-control:focus { box-shadow: none; border-color: #ef4444; }
+  .form-select:focus { box-shadow: none; border-color: #ef4444; }
 </style>
 </head>
 
@@ -112,12 +117,12 @@
   <div class="movie-page">
     <div class="movie-container">
 
-      <div class="movie-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+      <div class="movie-header d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom gap-3">
         <h1 class="movie-title mb-0">🎬 PHIM ĐANG CHIẾU</h1>
         
-        <div class="header-actions d-flex gap-3 align-items-center">
-            <form action="${pageContext.request.contextPath}/movie" method="GET" class="d-flex gap-2">
-              <div class="input-group" style="width: 280px;">
+        <div class="header-actions d-flex flex-wrap gap-3 justify-content-md-end align-items-center">
+            <form action="${pageContext.request.contextPath}/movie" method="GET" class="d-flex flex-wrap gap-2 mb-0 align-items-center">
+              <div class="input-group" style="min-width: 200px; max-width: 280px;">
                 <span class="input-group-text bg-white border-end-0 rounded-start-pill">
                     <i class="fas fa-search text-muted"></i>
                 </span>
@@ -125,14 +130,14 @@
                        placeholder="Tìm tên phim..." value="${param.q}">
               </div>
               
-              <select name="sort" class="form-select rounded-pill" style="width: 130px;" onchange="this.form.submit()">
+              <select name="sort" class="form-select rounded-pill" style="width: 125px;" onchange="this.form.submit()">
                 <option value="newest" ${selectedSort == 'newest' ? 'selected' : ''}>Mới nhất</option>
                 <option value="hot" ${selectedSort == 'hot' ? 'selected' : ''}>Hot nhất</option>
                 <option value="alphabetical" ${selectedSort == 'alphabetical' ? 'selected' : ''}>A - Z</option>
               </select>
               <input type="hidden" name="date" value="${selectedDate}">
             </form>
-            <a href="${pageContext.request.contextPath}/showtime" class="btn btn-warning rounded-pill px-4 fw-bold shadow-sm">
+            <a href="${pageContext.request.contextPath}/showtime" class="btn btn-warning rounded-pill px-4 fw-bold shadow-sm text-nowrap">
                 XEM LỊCH CHIẾU
             </a>
         </div>

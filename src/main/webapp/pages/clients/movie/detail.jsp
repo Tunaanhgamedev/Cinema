@@ -15,98 +15,122 @@
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-  body { font-family: 'Roboto', sans-serif; background-color: #0b0f19; color: #e2e8f0; margin: 0; }
-  .mv-detail { padding-top: 40px; padding-bottom: 80px; }
-  .mv-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-  .mv-link { color: #818cf8; text-decoration: none; font-weight: bold; margin-bottom: 20px; display: inline-block; }
-  .mv-link:hover { text-decoration: underline; }
+  body { 
+    font-family: 'Roboto', sans-serif; 
+    background: radial-gradient(circle at top right, #1e293b, #0f172a); 
+    color: #cbd5e1; 
+    margin: 0; 
+    min-height: 100vh;
+  }
+  .mv-detail { padding-top: 50px; padding-bottom: 80px; }
+  .mv-container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+  .mv-link { color: #94a3b8; text-decoration: none; font-size: 0.9rem; margin-bottom: 25px; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
+  .mv-link:hover { color: #fff; transform: translateX(-5px); }
   
   .mv-card { 
-    background: #161d2f; 
-    border-radius: 12px; 
+    background: rgba(30, 41, 59, 0.7); 
+    border-radius: 20px; 
     overflow: hidden; 
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); 
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
   }
-  .mv-main { display: flex; gap: 40px; padding: 30px; }
-  @media(max-width: 768px) { .mv-main { flex-direction: column; } }
+  .mv-main { display: flex; gap: 40px; padding: 40px; }
+  @media(max-width: 768px) { .mv-main { flex-direction: column; padding: 20px; } }
   
-  .mv-poster { flex-shrink: 0; width: 320px; border-radius: 8px; overflow: hidden; }
+  .mv-poster { flex-shrink: 0; width: 300px; border-radius: 15px; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); }
   .mv-poster img { width: 100%; height: auto; display: block; }
   
   .mv-content { flex: 1; }
-  .mv-title { font-size: 2.5rem; font-weight: 700; margin-bottom: 15px; color: #fff; }
+  .mv-title { font-size: 2.8rem; font-weight: 800; margin-bottom: 10px; color: #fff; line-height: 1.2; }
   
   .tag { 
     display: inline-block; 
-    padding: 4px 12px; 
-    background: #1e293b; 
-    border: 1px solid #334155; 
-    border-radius: 6px; 
-    font-size: 0.85rem; 
-    margin-right: 10px; 
+    padding: 5px 14px; 
+    background: rgba(255, 255, 255, 0.05); 
+    border: 1px solid rgba(255, 255, 255, 0.1); 
+    border-radius: 8px; 
+    font-size: 0.8rem; 
+    margin-right: 8px; 
     color: #94a3b8; 
-  }
-  
-  .mv-table { width: 100%; margin-top: 20px; }
-  .mv-table td { padding: 8px 0; vertical-align: top; }
-  .mv-table td.label { width: 120px; color: #64748b; font-weight: 600; }
-  .mv-table td.value { color: #cbd5e1; }
-  
-  .btn-booking { 
-    display: inline-block; 
-    margin-top: 30px; 
-    padding: 12px 30px; 
-    background: #ef4444; 
-    color: #fff; 
-    text-decoration: none; 
-    border-radius: 6px; 
-    font-weight: 700; 
-    transition: 0.2s; 
-  }
-  .btn-booking:hover { background: #dc2626; transform: scale(1.02); }
-  
-  .btn-trailer {
-    display: inline-block;
-    margin-top: 30px;
-    margin-left: 15px;
-    padding: 11px 29px;
-    background: transparent;
-    border: 1px solid #475569;
-    color: #fff;
-    border-radius: 6px;
     font-weight: 600;
   }
-  .btn-trailer:hover { background: #1e293b; }
+  
+  .mv-table { width: 100%; margin-top: 25px; }
+  .mv-table td { padding: 10px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+  .mv-table tr:last-child td { border-bottom: none; }
+  .mv-table td.label { width: 130px; color: #64748b; font-size: 0.9rem; }
+  .mv-table td.value { color: #e2e8f0; font-weight: 500; }
+  
+  .btn-booking { 
+    display: inline-flex; 
+    align-items: center;
+    gap: 10px;
+    margin-top: 35px; 
+    padding: 14px 35px; 
+    background: linear-gradient(135deg, #ef4444, #b91c1c); 
+    color: #fff; 
+    text-decoration: none; 
+    border-radius: 12px; 
+    font-weight: 700; 
+    box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+  }
+  .btn-booking:hover { transform: translateY(-3px); box-shadow: 0 20px 25px -5px rgba(239, 68, 68, 0.4); }
+  
+  .btn-trailer {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 35px;
+    margin-left: 15px;
+    padding: 13px 34px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: 0.3s;
+  }
+  .btn-trailer:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); }
 
   /* Tabs */
-  .tabs-nav { display: flex; border-bottom: 1px solid #1e293b; margin-top: 40px; padding: 0 30px; }
-  .tab-item { padding: 15px 25px; cursor: pointer; font-weight: 600; color: #64748b; border-bottom: 3px solid transparent; }
-  .tab-item.active { color: #ef4444; border-bottom-color: #ef4444; }
+  .tabs-nav { display: flex; background: rgba(0, 0, 0, 0.2); padding: 0 40px; }
+  .tab-item { padding: 20px 30px; cursor: pointer; font-weight: 700; color: #64748b; position: relative; transition: 0.3s; }
+  .tab-item.active { color: #fff; }
+  .tab-item.active::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: #ef4444; border-radius: 3px 3px 0 0; }
   
-  .tab-content { padding: 30px; }
+  .tab-content { padding: 40px; background: rgba(0, 0, 0, 0.1); }
   .tab-pane { display: none; }
-  .tab-pane.active { display: block; }
+  .tab-pane.active { display: block; animation: fadeIn 0.4s ease; }
   
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
   .st-chip { 
-    display: inline-block; 
-    padding: 10px 18px; 
+    display: inline-flex; 
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 20px; 
     background: #1e293b; 
-    border-radius: 6px; 
-    margin: 5px; 
+    border-radius: 12px; 
+    margin: 6px; 
     text-decoration: none; 
     color: #fff; 
-    border: 1px solid #334155; 
+    border: 1px solid rgba(255, 255, 255, 0.1); 
+    transition: all 0.2s;
   }
-  .st-chip:hover { background: #3b82f6; border-color: #3b82f6; }
+  .st-chip:hover { background: #334155; transform: scale(1.05); border-color: #ef4444; }
   
   /* Modal */
   .modal-overlay { 
-    position: fixed; inset: 0; background: rgba(0,0,0,0.85); 
+    position: fixed; inset: 0; background: rgba(0,0,0,0.9); 
     display: none; align-items: center; justify-content: center; z-index: 1000; 
+    backdrop-filter: blur(5px);
   }
   .modal-overlay.show { display: flex; }
-  .modal-body { width: 90%; max-width: 900px; position: relative; }
-  .btn-close-modal { position: absolute; top: -40px; right: 0; color: #fff; font-size: 1.5rem; cursor: pointer; }
+  .modal-body { width: 90%; max-width: 960px; position: relative; }
+  .btn-close-modal { position: absolute; top: -50px; right: 0; color: #fff; font-size: 2rem; cursor: pointer; opacity: 0.7; transition: 0.2s; }
+  .btn-close-modal:hover { opacity: 1; }
 </style>
 </head>
 

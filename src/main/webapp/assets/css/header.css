@@ -91,5 +91,49 @@ body {
     display: block;
 }
 
+.main-menu {
+	display: flex;
+	align-items: center;
+}
+
+.header-search-mini form {
+	display: flex;
+	align-items: center;
+	background: rgba(255, 255, 255, 0.1);
+	border-radius: 20px;
+	padding: 4px 12px;
+	margin-left: 15px;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	transition: all 0.3s ease;
+}
+
+.header-search-mini form:focus-within {
+	background: rgba(255, 255, 255, 0.15);
+	border-color: rgb(231, 26, 15);
+}
+
+.header-search-mini input {
+	background: none;
+	border: none;
+	outline: none;
+	color: #fff;
+	font-size: 13px;
+	width: 100px;
+	transition: width 0.3s ease;
+}
+
+.header-search-mini input:focus {
+	width: 160px;
+}
+
+.header-search-mini button {
+	background: none;
+	border: none;
+	color: #fff;
+	cursor: pointer;
+	padding: 0;
+	margin-left: 5px;
+}
+
 
 

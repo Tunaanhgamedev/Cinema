@@ -14,41 +14,44 @@
   <jsp:include page="/common/header.jsp" />
 
   <!-- Hero Section -->
-  <section class="bg-slate-900 py-20 relative overflow-hidden">
+  <section class="bg-slate-900 pt-32 pb-20 relative overflow-hidden">
     <div class="absolute inset-0 opacity-20">
         <div class="absolute inset-0 bg-gradient-to-br from-red-600 to-transparent"></div>
     </div>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center md:text-left">
-      <div class="inline-flex items-center gap-2 bg-red-600 text-white px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest mb-6 shadow-lg shadow-red-500/20">
-        <i class="fas fa-calendar-alt"></i> Suất chiếu tại rạp
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+      <div class="inline-flex items-center gap-2 bg-red-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest mb-6 shadow-lg shadow-red-500/20">
+        <i class="fas fa-calendar-alt"></i> Hệ thống lịch chiếu chuyên nghiệp
       </div>
-      <h1 class="text-4xl md:text-6xl font-black text-white mb-4 tracking-tighter">
-        BOBIXI Cinema • Đà Nẵng
+      <h1 class="text-4xl md:text-6xl font-black text-white mb-6 tracking-tighter uppercase italic">
+        Lịch chiếu phim
       </h1>
-      <p class="text-slate-400 text-lg max-w-2xl font-medium">
-        Khám phá lịch chiếu phim mới nhất. Chọn ngày và đặt vé ngay để tận hưởng những phút giây thư giãn tuyệt vời.
+      <p class="text-slate-400 text-lg max-w-2xl mx-auto font-medium">
+        Khám phá lịch chiếu phim mới nhất tại BOBIXI Cinema Đà Nẵng. 
+        <br class="hidden md:block">Chọn ngày và đặt vé ngay để tận hưởng những phút giây thư giãn.
       </p>
     </div>
   </section>
 
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 pb-20">
-    <!-- Main Toolbar Panel -->
-    <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/50 border border-slate-100 p-8 md:p-10 mb-12">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Main Toolbar Panel (No more negative margin to avoid overlap) -->
+    <div class="bg-white rounded-[3rem] shadow-xl shadow-slate-200/40 border border-slate-100 p-8 md:p-12 mb-12">
       
-      <!-- Date Selection Row (Full Width) -->
-      <div class="mb-10">
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Chọn ngày xem phim</h2>
-            <div class="h-px flex-1 bg-slate-100 ml-6"></div>
+      <!-- Date Selection Row -->
+      <div class="mb-12">
+        <div class="flex items-center gap-4 mb-8">
+            <h2 class="text-[11px] font-black text-red-500 uppercase tracking-[0.3em] whitespace-nowrap">Chọn ngày xem phim</h2>
+            <div class="h-px w-full bg-slate-100"></div>
         </div>
-        <div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
+        
+        <!-- Updated Flex Layout for 7 days -->
+        <div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
           <c:forEach var="d" items="${availableDates}">
             <fmt:formatDate value="${d}" pattern="yyyy-MM-dd" var="iso" />
             <fmt:formatDate value="${d}" pattern="E" var="dayOfWeek" />
             <fmt:formatDate value="${d}" pattern="dd/MM" var="label" />
             
             <a href="${pageContext.request.contextPath}/showtime?date=${iso}" 
-               class="flex-shrink-0 w-28 py-5 rounded-[2rem] flex flex-col items-center justify-center transition-all duration-500 snap-start
+               class="flex-shrink-0 w-24 md:w-28 py-6 rounded-[2rem] flex flex-col items-center justify-center transition-all duration-500
                ${iso == selectedDate ? 'bg-red-500 text-white shadow-2xl shadow-red-200 scale-105 ring-4 ring-red-500/10' : 'bg-slate-50 text-slate-500 hover:bg-white hover:shadow-xl hover:text-red-500 border border-transparent hover:border-red-100'}">
                <span class="text-[10px] font-black uppercase tracking-widest opacity-60 mb-2">${dayOfWeek}</span>
                <span class="text-2xl font-black">${label}</span>
@@ -58,24 +61,24 @@
       </div>
 
       <!-- Search & Status Row -->
-      <div class="flex flex-col md:flex-row justify-between items-center gap-6 pt-6 border-t border-slate-50">
-        <div class="flex items-center gap-4">
-            <span class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
-            <p class="text-slate-600 font-bold">
-                Đang hiển thị lịch chiếu ngày: 
-                <span class="text-red-600 ml-1">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-8 pt-8 border-t border-slate-50">
+        <div class="flex items-center gap-4 bg-slate-50 px-6 py-4 rounded-2xl">
+            <span class="w-2.5 h-2.5 bg-red-500 rounded-full animate-ping"></span>
+            <p class="text-slate-600 font-bold text-sm">
+                Lịch chiếu ngày: 
+                <span class="text-red-600 ml-1 font-black">
                     <fmt:parseDate value="${selectedDate}" pattern="yyyy-MM-dd" var="pd"/>
                     <fmt:formatDate value="${pd}" pattern="dd/MM/yyyy"/>
                 </span>
             </p>
         </div>
 
-        <div class="w-full md:w-96 relative group">
+        <div class="w-full md:w-[28rem] relative group">
           <form onsubmit="return false;">
             <input type="hidden" name="date" value="${selectedDate}">
             <i class="fas fa-search absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-red-500 transition-colors"></i>
             <input type="text" name="q" value="${param.q}" id="qInput"
-                   class="w-full pl-16 pr-8 py-5 bg-slate-50 border-2 border-transparent rounded-[2rem] focus:bg-white focus:border-red-500/20 focus:ring-4 focus:ring-red-500/5 transition-all outline-none text-slate-700 font-bold placeholder:font-medium placeholder:text-slate-400" 
+                   class="w-full pl-16 pr-8 py-5 bg-slate-50 border-2 border-transparent rounded-[2rem] focus:bg-white focus:border-red-500/20 focus:ring-4 focus:ring-red-500/5 transition-all outline-none text-slate-700 font-bold placeholder:font-medium placeholder:text-slate-400 shadow-sm" 
                    placeholder="Tìm tên phim trong ngày...">
           </form>
         </div>

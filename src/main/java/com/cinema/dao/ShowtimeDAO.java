@@ -257,10 +257,20 @@ public class ShowtimeDAO {
 	public List<java.sql.Date> getAvailableDates() {
 		List<java.sql.Date> list = new ArrayList<>();
 		java.util.Calendar cal = java.util.Calendar.getInstance();
+		// Reset time to midnight for consistency
+		cal.set(java.util.Calendar.HOUR_OF_DAY, 0);
+		cal.set(java.util.Calendar.MINUTE, 0);
+		cal.set(java.util.Calendar.SECOND, 0);
+		cal.set(java.util.Calendar.MILLISECOND, 0);
+
+		System.out.println("ShowtimeDAO: Generating 7-day window starting from " + cal.getTime());
+
 		for (int i = 0; i < 7; i++) {
 			list.add(new java.sql.Date(cal.getTimeInMillis()));
 			cal.add(java.util.Calendar.DAY_OF_MONTH, 1);
 		}
+		
+		System.out.println("ShowtimeDAO: Generated " + list.size() + " dates.");
 		return list;
 	}
 

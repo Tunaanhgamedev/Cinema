@@ -145,6 +145,23 @@ public class PaymentServlet extends HttpServlet {
 			}
 			BigDecimal grandTotal = ticketSubtotal.add(comboSubtotal);
 
+			// 2.1) Áp dụng Voucher (nếu có)
+			String voucherCode = request.getParameter("voucherCode");
+			if (voucherCode != null && !voucherCode.trim().isEmpty()) {
+				com.cinema.dao.VoucherDAO voucherDAO = new com.cinema.dao.VoucherDAO();
+				com.cinema.dao.VoucherDAO.VoucherResult vResult = voucherDAO.checkVoucher(voucherCode, grandTotal.doubleValue());
+				if (vResult.isValid) {
+					BigDecimal discountAmount = BigDecimal.ZERO;
+					if ("PERCENT".equals(vResult.type)) {
+						discountAmount = grandTotal.multiply(new BigDecimal(vResult.discountAmount / 100.0));
+					} else {
+						discountAmount = new BigDecimal(vResult.discountAmount);
+					}
+					grandTotal = grandTotal.subtract(discountAmount);
+					if (grandTotal.compareTo(BigDecimal.ZERO) < 0) grandTotal = BigDecimal.ZERO;
+				}
+			}
+
 			// 3) update bookings => PAID + total_price
 			updateBookingPaid(con, bookingId, grandTotal);
 

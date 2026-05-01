@@ -196,25 +196,25 @@
                                                     data-poster="${selectedMovie.poster}"
                                                     data-genre="${selectedMovie.genre}"
                                                     data-duration="${selectedMovie.duration}">
-                                                    ${selectedMovie.title} (Phim đang chọn)
+                                                    ${selectedMovie.title}
                                                 </option>
                                             </c:if>
                                             <c:forEach var="m" items="${movies}">
                                                 <%-- Tránh lặp lại phim nếu nó đã là selectedMovie --%>
-                                                <c:if test="${selectedMovie.movieId != m.movieId}">
-                                                    <option value="${m.movieId}" ${movieId == m.movieId ? 'selected' : ''}
-                                                        data-poster="${m.poster}"
-                                                        data-genre="${m.genre}"
-                                                        data-duration="${m.duration}">
-                                                        ${m.title}
-                                                    </option>
-                                                </c:if>
+                                                    <c:if test="${selectedMovie.movieId != m.movieId}">
+                                                        <option value="${m.movieId}" ${movieId==m.movieId ? 'selected'
+                                                            : '' } data-poster="${m.poster}" data-genre="${m.genre}"
+                                                            data-duration="${m.duration}">
+                                                            ${m.title}
+                                                        </option>
+                                                    </c:if>
                                             </c:forEach>
                                         </select>
                                     </div>
 
                                     <div class="space-y-4">
-                                        <label class="flex items-center gap-3 text-indigo-300/80 font-black text-[10px] uppercase tracking-[0.2em] ml-2">
+                                        <label
+                                            class="flex items-center gap-3 text-indigo-300/80 font-black text-[10px] uppercase tracking-[0.2em] ml-2">
                                             <i class="fas fa-calendar-alt"></i>
                                             Ngày chiếu
                                         </label>
@@ -223,7 +223,7 @@
                                             name="showDate" id="showDateInput" required>
                                             <option value="">-- Chọn ngày --</option>
                                             <c:forEach var="d" items="${availableDates}">
-                                                <option value="${d}" ${showDate == d ? 'selected' : ''}>${d}</option>
+                                                <option value="${d}" ${showDate==d ? 'selected' : '' }>${d}</option>
                                             </c:forEach>
                                         </select>
                                     </div>
@@ -237,10 +237,8 @@
                                             name="showtimeId" id="showtimeSelect" required>
                                             <option value="">-- Chọn suất --</option>
                                             <c:forEach var="st" items="${showtimes}">
-                                                <option value="${st.showtimeId}" ${showtimeId==st.showtimeId
-                                                    ? 'selected' : '' }>
-                                                    <fmt:formatDate value="${st.startTime}" pattern="HH:mm" />
-                                                    (P.${st.roomName})
+                                                <option value="${st.showtimeId}" ${showtimeId==st.showtimeId ? 'selected' : '' }>
+                                                    ${st.roomName} | <fmt:formatDate value="${st.startTime}" pattern="HH:mm" />
                                                 </option>
                                             </c:forEach>
                                         </select>
@@ -356,25 +354,34 @@
 
                                     <!-- Movie Info Section -->
                                     <div class="flex gap-6 items-start">
-                                        <div class="w-24 h-36 rounded-2xl overflow-hidden shadow-2xl border border-white/10 flex-shrink-0 bg-slate-900">
-                                            <img id="summary-poster" src="${not empty selectedMovie ? selectedMovie.poster : ''}" 
-                                                 class="w-full h-full object-cover ${empty selectedMovie.poster ? 'hidden' : ''}" 
-                                                 alt="Poster">
-                                            <div id="poster-placeholder" class="w-full h-full flex items-center justify-center ${not empty selectedMovie.poster ? 'hidden' : ''}">
+                                        <div
+                                            class="w-24 h-36 rounded-2xl overflow-hidden shadow-2xl border border-white/10 flex-shrink-0 bg-slate-900">
+                                            <img id="summary-poster"
+                                                src="${not empty selectedMovie ? selectedMovie.poster : ''}"
+                                                class="w-full h-full object-cover ${empty selectedMovie.poster ? 'hidden' : ''}"
+                                                alt="Poster">
+                                            <div id="poster-placeholder"
+                                                class="w-full h-full flex items-center justify-center ${not empty selectedMovie.poster ? 'hidden' : ''}">
                                                 <i class="fas fa-film text-white/10 text-2xl"></i>
                                             </div>
                                         </div>
                                         <div class="space-y-3 pt-2">
                                             <div class="flex flex-wrap gap-2">
-                                                <span id="summary-genre" class="px-2 py-0.5 bg-indigo-500/20 text-indigo-300 text-[8px] font-black uppercase tracking-tighter rounded border border-indigo-500/30">
+                                                <span id="summary-genre"
+                                                    class="px-2 py-0.5 bg-indigo-500/20 text-indigo-300 text-[8px] font-black uppercase tracking-tighter rounded border border-indigo-500/30">
                                                     ${not empty selectedMovie ? selectedMovie.genre : '---'}
                                                 </span>
-                                                <span id="summary-duration" class="px-2 py-0.5 bg-white/5 text-white/50 text-[8px] font-black uppercase tracking-tighter rounded border border-white/10">
-                                                    <i class="far fa-clock mr-1"></i> ${not empty selectedMovie ? selectedMovie.duration : '--'} Phút
+                                                <span id="summary-duration"
+                                                    class="px-2 py-0.5 bg-white/5 text-white/50 text-[8px] font-black uppercase tracking-tighter rounded border border-white/10">
+                                                    <i class="far fa-clock mr-1"></i> ${not empty selectedMovie ?
+                                                    selectedMovie.duration : '--'} Phút
                                                 </span>
                                             </div>
-                                            <label class="text-[10px] font-black text-indigo-200/40 uppercase tracking-widest block">Tên Phim</label>
-                                            <p id="summary-movie" class="text-xl font-black italic leading-tight uppercase tracking-tight">
+                                            <label
+                                                class="text-[10px] font-black text-indigo-200/40 uppercase tracking-widest block">Tên
+                                                Phim</label>
+                                            <p id="summary-movie"
+                                                class="text-xl font-black italic leading-tight uppercase tracking-tight">
                                                 ${not empty selectedMovie ? selectedMovie.title : '---'}
                                             </p>
                                         </div>
@@ -470,10 +477,10 @@
                                 const duration = opt?.dataset.duration;
 
                                 const timeText = showtimeSelect.options[showtimeSelect.selectedIndex]?.text || "---";
-                                
+
                                 // Update Movie Info
                                 document.getElementById('summary-movie').textContent = movie.replace(' (Phim đang chọn)', '');
-                                
+
                                 const img = document.getElementById('summary-poster');
                                 const placeholder = document.getElementById('poster-placeholder');
                                 if (poster) {
@@ -489,13 +496,13 @@
                                 document.getElementById('summary-duration').innerHTML = `<i class="far fa-clock mr-1"></i> ${duration || '--'} Phút`;
 
                                 // Update Time and Room
-                                if (timeText !== "---") {
-                                    const parts = timeText.split(' (P.');
-                                    document.getElementById('summary-time').textContent = parts[0];
-                                    document.getElementById('summary-room').textContent = 'PHÒNG ' + (parts[1]?.replace(/[)]/g, '') || "---");
+                                if (timeText && timeText.includes('|')) {
+                                    const parts = timeText.split('|');
+                                    document.getElementById('summary-room').textContent = parts[0].trim();
+                                    document.getElementById('summary-time').textContent = parts[1].trim();
                                 } else {
-                                    document.getElementById('summary-time').textContent = "---";
                                     document.getElementById('summary-room').textContent = "---";
+                                    document.getElementById('summary-time').textContent = "---";
                                 }
                             }
 
@@ -526,7 +533,7 @@
                                 await loadDates();
                                 syncSummary();
                             });
-                            
+
                             dateInput.addEventListener('change', async () => {
                                 await loadShowtimes();
                                 syncSummary();
@@ -554,7 +561,7 @@
                                 try {
                                     const res = await fetch(`${pageContext.request.contextPath}/booking-seat?ajax=dates&movieId=${mId}`);
                                     const data = await res.json();
-                                    
+
                                     dateInput.innerHTML = '<option value="">-- Chọn ngày --</option>';
                                     if (data && data.length > 0) {
                                         data.forEach(d => {
@@ -572,7 +579,7 @@
                                     console.error("Lỗi tải ngày:", err);
                                     dateInput.innerHTML = '<option value="">❌ Lỗi dữ liệu</option>';
                                 }
-                                
+
                                 // Reset showtimes
                                 showtimeSelect.innerHTML = '<option value="">-- Chọn suất --</option>';
                                 showtimeSelect.disabled = true;
@@ -589,11 +596,11 @@
                                 try {
                                     const res = await fetch(`${pageContext.request.contextPath}/booking-seat?ajax=showtimes&movieId=${mId}&showDate=${date}`);
                                     const data = await res.json();
-                                    
+
                                     showtimeSelect.innerHTML = '<option value="">-- Chọn suất --</option>';
                                     if (data && data.length > 0) {
                                         data.forEach(st => {
-                                            showtimeSelect.innerHTML += `<option value="${st.id}">${st.time} (P.${st.room})</option>`;
+                                            showtimeSelect.innerHTML += `<option value="${st.id}">${st.room} | ${st.time}</option>`;
                                         });
                                         showtimeSelect.disabled = false;
                                     } else {
@@ -604,7 +611,7 @@
                                     console.error("Lỗi tải suất chiếu:", err);
                                     showtimeSelect.innerHTML = '<option value="">❌ Lỗi tải dữ liệu</option>';
                                 }
-                                
+
                                 seatGrid.innerHTML = '<div class="py-20 opacity-20"><i class="fas fa-couch text-7xl mb-4 block mx-auto"></i><p class="font-black text-xs tracking-widest uppercase">Chọn suất để thấy sơ đồ</p></div>';
                                 syncSummary();
                             }
@@ -612,7 +619,7 @@
                             async function loadSeats() {
                                 const stId = showtimeSelect.value;
                                 if (!stId) return;
-                                
+
                                 seatGrid.innerHTML = '<div class="py-20"><i class="fas fa-spinner fa-spin text-4xl text-indigo-500 mb-4 block mx-auto"></i><p class="text-xs font-bold animate-pulse text-indigo-300">Đang tải sơ đồ ghế...</p></div>';
 
                                 try {

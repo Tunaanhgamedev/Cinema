@@ -126,7 +126,8 @@ public class ShowtimeDAO {
 				    JOIN movies m ON s.movie_id = m.movie_id
 				    JOIN rooms  r ON s.room_id  = r.room_id
 				    WHERE s.movie_id = ?
-				      AND DATE(s.start_time) = ?
+				      AND s.start_time >= ? 
+				      AND s.start_time < DATE_ADD(?, INTERVAL 1 DAY)
 				    ORDER BY s.start_time ASC
 				""";
 
@@ -135,10 +136,8 @@ public class ShowtimeDAO {
 		try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
 			ps.setInt(1, movieId);
-
-			// ✅ dùng java.sql.Date để MySQL match chắc chắn
-			java.sql.Date d = java.sql.Date.valueOf(showDate); // showDate phải yyyy-MM-dd
-			ps.setDate(2, d);
+			ps.setString(2, showDate + " 00:00:00");
+			ps.setString(3, showDate + " 00:00:00");
 
 			try (ResultSet rs = ps.executeQuery()) {
 				while (rs.next()) {
@@ -185,7 +184,7 @@ public class ShowtimeDAO {
 				""";
 		List<com.cinema.model.Movie> list = new ArrayList<>();
 		try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-			ps.setDate(1, java.sql.Date.valueOf(showDate));
+			ps.setString(1, showDate);
 			try (ResultSet rs = ps.executeQuery()) {
 				while (rs.next()) {
 					com.cinema.model.Movie m = new com.cinema.model.Movie();

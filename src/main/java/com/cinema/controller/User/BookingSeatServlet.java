@@ -346,14 +346,19 @@ public class BookingSeatServlet extends HttpServlet {
 		s = trim(s);
 		if (s.isEmpty())
 			return "";
+		// yyyy-MM-dd (chuẩn)
 		if (s.matches("\\d{4}-\\d{2}-\\d{2}"))
-			return s; // yyyy-MM-dd
-		if (s.matches("\\d{2}/\\d{2}/\\d{4}")) { // dd/MM/yyyy
+			return s; 
+		// dd/MM/yyyy hoặc d/m/yyyy
+		if (s.matches("\\d{1,2}/\\d{1,2}/\\d{4}")) { 
 			String[] p = s.split("/");
-			return p[2] + "-" + p[1] + "-" + p[0];
+			String d = p[0].length() == 1 ? "0" + p[0] : p[0];
+			String m = p[1].length() == 1 ? "0" + p[1] : p[1];
+			return p[2] + "-" + m + "-" + d;
 		}
-		if (s.matches("\\d{4}/\\d{2}/\\d{2}"))
-			return s.replace('/', '-'); // yyyy/MM/dd
+		// yyyy/MM/dd
+		if (s.matches("\\d{4}/\\d{1,2}/\\d{1,2}"))
+			return s.replace('/', '-'); 
 		return s;
 	}
 	private void handleAjaxDates(HttpServletRequest req, HttpServletResponse resp) throws IOException {

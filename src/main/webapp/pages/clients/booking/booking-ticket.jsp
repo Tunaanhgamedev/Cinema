@@ -731,6 +731,13 @@
                                 showtimeSelect.disabled = true;
                             }
 
+                            // Tự động nạp dữ liệu khi trang tải xong (nếu đã có phim chọn sẵn)
+                            window.addEventListener('DOMContentLoaded', () => {
+                                if (movieSelect.value) {
+                                    loadDates();
+                                }
+                            });
+
                             async function loadShowtimes() {
                                 const mId = movieSelect.value;
                                 const date = dateInput.value;

@@ -43,10 +43,22 @@ public class AdminShowtimeServlet extends HttpServlet {
 		try {
 			if ("add".equals(action)) {
 				Showtime st = buildShowtimeFromRequest(req, false);
+				
+				// Kiểm tra trùng lịch
+				if (showtimeDAO.isOverlap(st.getRoomId(), st.getStartTime(), st.getEndTime(), null)) {
+					throw new Exception("Trùng lịch! Phòng này đã có suất chiếu khác trong khoảng thời gian đã chọn.");
+				}
+				
 				showtimeDAO.insert(st);
 
 			} else if ("update".equals(action)) {
 				Showtime st = buildShowtimeFromRequest(req, true);
+				
+				// Kiểm tra trùng lịch (loại trừ chính nó)
+				if (showtimeDAO.isOverlap(st.getRoomId(), st.getStartTime(), st.getEndTime(), st.getShowtimeId())) {
+					throw new Exception("Trùng lịch! Phòng này đã có suất chiếu khác trong khoảng thời gian đã chọn.");
+				}
+				
 				showtimeDAO.update(st);
 
 			} else if ("delete".equals(action)) {

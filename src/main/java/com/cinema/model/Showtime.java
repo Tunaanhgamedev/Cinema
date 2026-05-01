@@ -7,6 +7,7 @@ public class Showtime {
 	private int showtimeId;
 	private int movieId;
 	private int roomId;
+	private java.sql.Date showDate;
 	private Timestamp startTime;
 	private Timestamp endTime;
 	private BigDecimal price;
@@ -14,10 +15,11 @@ public class Showtime {
 	public Showtime() {
 	}
 
-	public Showtime(int showtimeId, int movieId, int roomId, Timestamp startTime, Timestamp endTime, BigDecimal price) {
+	public Showtime(int showtimeId, int movieId, int roomId, java.sql.Date showDate, Timestamp startTime, Timestamp endTime, BigDecimal price) {
 		this.showtimeId = showtimeId;
 		this.movieId = movieId;
 		this.roomId = roomId;
+		this.showDate = showDate;
 		this.startTime = startTime;
 		this.endTime = endTime;
 		this.price = price;
@@ -61,6 +63,14 @@ public class Showtime {
 
 	public void setEndTime(Timestamp endTime) {
 		this.endTime = endTime;
+	}
+
+	public java.sql.Date getShowDate() {
+		return showDate;
+	}
+
+	public void setShowDate(java.sql.Date showDate) {
+		this.showDate = showDate;
 	}
 
 	public BigDecimal getPrice() {

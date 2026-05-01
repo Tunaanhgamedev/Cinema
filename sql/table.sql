@@ -161,3 +161,25 @@ CREATE TABLE vouchers (
 ALTER TABLE payments 
 ADD COLUMN transaction_id VARCHAR(100), -- Mã giao dịch từ VNPay/Momo trả về
 ADD COLUMN payment_url TEXT;            -- Lưu lại URL thanh toán nếu khách chưa quét ngay
+
+-- 1. Thêm cột màu sắc nếu chưa có
+ALTER TABLE seat_prices ADD COLUMN color_hex VARCHAR(20) DEFAULT '#FFFFFF';
+
+-- 2. Đổ dữ liệu mẫu (Surcharge: Phụ phí cộng thêm vào giá gốc)
+INSERT INTO seat_prices (seat_type, surcharge, color_hex) VALUES 
+('NORMAL', 0, '#94a3b8'),
+('VIP', 20000, '#f59e0b'),
+('COUPLE', 50000, '#f43f5e')
+ON DUPLICATE KEY UPDATE surcharge = VALUES(surcharge), color_hex = VALUES(color_hex);
+
+-- Thêm cột ngày chiếu riêng biệt
+ALTER TABLE showtimes ADD COLUMN show_date DATE AFTER room_id;
+
+-- Cập nhật dữ liệu từ start_time sang show_date
+UPDATE showtimes SET show_date = DATE(start_time);
+
+-- 3. Đặt NOT NULL cho cột này sau khi đã cập nhật dữ liệu
+ALTER TABLE showtimes MODIFY COLUMN show_date DATE NOT NULL;
+
+-- Đảm bảo index để truy vấn nhanh
+CREATE INDEX idx_showtime_date ON showtimes(movie_id, show_date);

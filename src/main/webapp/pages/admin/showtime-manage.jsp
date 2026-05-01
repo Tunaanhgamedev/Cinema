@@ -73,15 +73,22 @@
                                     </span>
                                 </td>
                                 <td class="px-8 py-5">
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <i class="far fa-calendar-alt text-indigo-400 text-xs"></i>
-                                        <span class="font-bold text-white text-sm"><fmt:formatDate value="${s.startTime}" pattern="dd/MM/yyyy" /></span>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <i class="far fa-clock text-slate-500 text-xs"></i>
-                                        <span class="text-slate-400 text-xs font-medium">
-                                            <fmt:formatDate value="${s.startTime}" pattern="HH:mm" /> - <fmt:formatDate value="${s.endTime}" pattern="HH:mm" />
-                                        </span>
+                                    <div class="flex flex-col gap-1">
+                                        <div class="flex items-center gap-2">
+                                            <span class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 text-[10px] font-black uppercase">
+                                                <i class="far fa-calendar-check mr-1"></i>
+                                                <fmt:formatDate value="${s.startTime}" pattern="dd/MM/yyyy" />
+                                            </span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-white font-bold text-sm">
+                                                <fmt:formatDate value="${s.startTime}" pattern="HH:mm" />
+                                            </span>
+                                            <span class="text-slate-600 text-xs">→</span>
+                                            <span class="text-slate-400 text-xs font-medium">
+                                                <fmt:formatDate value="${s.endTime}" pattern="HH:mm" />
+                                            </span>
+                                        </div>
                                     </div>
                                 </td>
                                 <td class="px-8 py-5">
@@ -138,7 +145,7 @@
                         <select name="movieId" id="inputMovieId" class="form-select" required>
                             <option value="">-- Chọn phim --</option>
                             <c:forEach var="m" items="${movieList}">
-                                <option value="${m.movieId}">${m.title} (ID: ${m.movieId})</option>
+                                <option value="${m.movieId}" data-duration="${m.duration}">${m.title} (${m.duration} phút)</option>
                             </c:forEach>
                         </select>
                     </div>
@@ -210,6 +217,35 @@
         var myModal = new bootstrap.Modal(document.getElementById('showtimeModal'));
         myModal.show();
     }
+
+    // Tự động tính thời gian kết thúc
+    const inputMovie = document.getElementById('inputMovieId');
+    const inputStart = document.getElementById('inputStartTime');
+    const inputEnd = document.getElementById('inputEndTime');
+
+    function calculateEndTime() {
+        const selectedOption = inputMovie.options[inputMovie.selectedIndex];
+        const duration = parseInt(selectedOption.getAttribute('data-duration'));
+        const startTimeStr = inputStart.value;
+
+        if (startTimeStr && !isNaN(duration)) {
+            const startDate = new Date(startTimeStr);
+            // Cộng thời lượng phim + 15 phút dọn phòng (buffer)
+            const endDate = new Date(startDate.getTime() + (duration + 15) * 60000);
+            
+            // Format sang định dạng yyyy-MM-ddTHH:mm cho datetime-local
+            const year = endDate.getFullYear();
+            const month = String(endDate.getMonth() + 1).padStart(2, '0');
+            const day = String(endDate.getDate()).padStart(2, '0');
+            const hours = String(endDate.getHours()).padStart(2, '0');
+            const minutes = String(endDate.getMinutes()).padStart(2, '0');
+            
+            inputEnd.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+    }
+
+    inputMovie.addEventListener('change', calculateEndTime);
+    inputStart.addEventListener('change', calculateEndTime);
 </script>
 </body>
 </html>

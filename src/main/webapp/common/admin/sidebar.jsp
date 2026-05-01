@@ -55,6 +55,11 @@
                    class="nav-link <%= currentUri.contains("/combos") || currentUri.contains("/combo-manage.jsp") ? "active" : "" %>">
                     <i class="fas fa-ice-cream"></i> <span>Quản lý Combo</span>
                 </a>
+
+                <a href="${pageContext.request.contextPath}/admin/vouchers" 
+                   class="nav-link <%= currentUri.contains("/vouchers") || currentUri.contains("/voucher-manage.jsp") ? "active" : "" %>">
+                    <i class="fas fa-tags"></i> <span>Quản lý Voucher</span>
+                </a>
                 
                 <a href="${pageContext.request.contextPath}/admin/contacts" 
                    class="nav-link <%= currentUri.contains("/contacts") || currentUri.contains("/contact-manage.jsp") ? "active" : "" %>">

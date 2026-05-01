@@ -4,6 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import com.cinema.model.Voucher;
 import com.cinema.utils.DBConnection;
 
 public class VoucherDAO {
@@ -18,6 +21,95 @@ public class VoucherDAO {
             this.isValid = isValid;
             this.message = message;
         }
+    }
+
+    public List<Voucher> findAll() {
+        List<Voucher> list = new ArrayList<>();
+        String sql = "SELECT * FROM vouchers ORDER BY valid_to DESC";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Voucher v = mapRow(rs);
+                list.add(v);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public Voucher findById(int id) {
+        String sql = "SELECT * FROM vouchers WHERE voucher_id = ?";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return mapRow(rs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void insert(Voucher v) {
+        String sql = "INSERT INTO vouchers (code, discount_value, discount_type, min_order_value, valid_from, valid_to, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, v.getCode());
+            ps.setBigDecimal(2, v.getDiscountValue());
+            ps.setString(3, v.getDiscountType());
+            ps.setBigDecimal(4, v.getMinOrderValue());
+            ps.setTimestamp(5, v.getValidFrom());
+            ps.setTimestamp(6, v.getValidTo());
+            ps.setBoolean(7, v.isActive());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void update(Voucher v) {
+        String sql = "UPDATE vouchers SET code=?, discount_value=?, discount_type=?, min_order_value=?, valid_from=?, valid_to=?, is_active=? WHERE voucher_id=?";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, v.getCode());
+            ps.setBigDecimal(2, v.getDiscountValue());
+            ps.setString(3, v.getDiscountType());
+            ps.setBigDecimal(4, v.getMinOrderValue());
+            ps.setTimestamp(5, v.getValidFrom());
+            ps.setTimestamp(6, v.getValidTo());
+            ps.setBoolean(7, v.isActive());
+            ps.setInt(8, v.getVoucherId());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void delete(int id) {
+        String sql = "DELETE FROM vouchers WHERE voucher_id = ?";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Voucher mapRow(ResultSet rs) throws SQLException {
+        Voucher v = new Voucher();
+        v.setVoucherId(rs.getInt("voucher_id"));
+        v.setCode(rs.getString("code"));
+        v.setDiscountValue(rs.getBigDecimal("discount_value"));
+        v.setDiscountType(rs.getString("discount_type"));
+        v.setMinOrderValue(rs.getBigDecimal("min_order_value"));
+        v.setValidFrom(rs.getTimestamp("valid_from"));
+        v.setValidTo(rs.getTimestamp("valid_to"));
+        v.setActive(rs.getBoolean("is_active"));
+        return v;
     }
 
     public VoucherResult checkVoucher(String code, double orderTotal) {

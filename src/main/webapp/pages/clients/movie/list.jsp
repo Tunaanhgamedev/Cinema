@@ -85,7 +85,7 @@
                           <div class="flex items-center gap-3 mb-6">
                             <span
                               class="flex items-center gap-1 text-yellow-500 font-bold bg-yellow-50 px-2 py-1 rounded-lg text-sm">
-                              <i class="fas fa-star text-xs"></i> ${movie.rating}
+                              <i class="fas fa-star text-xs"></i> ${m.rating}
                             </span>
                             <span class="text-slate-400 text-sm font-medium">| ${m.genre}</span>
                           </div>

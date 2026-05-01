@@ -256,15 +256,10 @@ public class ShowtimeDAO {
 	// Lấy danh sách các ngày duy nhất có suất chiếu (để hiển thị thanh chọn ngày)
 	public List<java.sql.Date> getAvailableDates() {
 		List<java.sql.Date> list = new ArrayList<>();
-		String sql = "SELECT DISTINCT CAST(show_date AS DATE) as sdate FROM showtimes WHERE show_date >= CURDATE() ORDER BY sdate ASC LIMIT 10";
-		try (Connection con = DBConnection.getConnection();
-				PreparedStatement ps = con.prepareStatement(sql);
-				ResultSet rs = ps.executeQuery()) {
-			while (rs.next()) {
-				list.add(rs.getDate("sdate"));
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
+		java.util.Calendar cal = java.util.Calendar.getInstance();
+		for (int i = 0; i < 7; i++) {
+			list.add(new java.sql.Date(cal.getTimeInMillis()));
+			cal.add(java.util.Calendar.DAY_OF_MONTH, 1);
 		}
 		return list;
 	}

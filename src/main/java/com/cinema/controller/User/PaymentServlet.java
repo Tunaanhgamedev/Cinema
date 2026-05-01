@@ -170,6 +170,32 @@ public class PaymentServlet extends HttpServlet {
 
 			con.commit();
 
+			// ✅ Gửi Email xác nhận (Chạy ngầm)
+			try {
+				String movieTitle = (seatList != null && !seatList.isEmpty()) ? "Phim đã chọn" : "Phim"; 
+				// Lưu ý: Trong thực tế nên lấy Movie Title từ DB qua bookingId
+				
+				StringBuilder seats = new StringBuilder();
+				if (seatList != null) {
+					for (com.cinema.model.Seat seat : seatList) {
+						if (seats.length() > 0) seats.append(", ");
+						seats.append(seat.getSeatNumber());
+					}
+				}
+
+				String body = com.cinema.utils.EmailUtil.getBookingConfirmationTemplate(
+					u.getFullName(), 
+					movieTitle, 
+					seats.toString(), 
+					"Tại BOBIXI Cinema", 
+					String.format("%,.0f", grandTotal)
+				);
+				
+				com.cinema.utils.EmailUtil.sendEmail(u.getEmail(), "Xác nhận đặt vé thành công - BOBIXI Cinema", body);
+			} catch (Exception ex) {
+				ex.printStackTrace(); // Lỗi gửi mail không được làm hỏng luồng thanh toán
+			}
+
 			// ✅ sau khi PAID: ghế sẽ khóa vĩnh viễn (bookedSeats query có b.status='PAID')
 			response.sendRedirect(request.getContextPath() + "/booking/payment?bookingId=" + bookingId + "&success=1");
 

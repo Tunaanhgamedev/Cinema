@@ -45,19 +45,13 @@ public class MovieServlet extends HttpServlet {
 			req.getRequestDispatcher("/pages/clients/movie/detail.jsp").forward(req, resp);
 
 		} else {
-			// Danh sách phim có bộ lọc
-			if (dateStr == null || dateStr.isEmpty()) {
-				dateStr = java.time.LocalDate.now().toString();
-			}
+			// Lấy tất cả phim (không phân theo ngày)
 			String sort = req.getParameter("sort");
 			if (sort == null || sort.isEmpty()) sort = "newest";
 			
-			List<Movie> movies = showtimeDAO.getMoviesWithShowtimes(dateStr, keyword, sort);
-			List<java.sql.Date> availableDates = showtimeDAO.getAvailableDates();
+			List<Movie> movies = movieDAO.findAllWithFilters(keyword, sort);
 
 			req.setAttribute("movies", movies);
-			req.setAttribute("availableDates", availableDates);
-			req.setAttribute("selectedDate", dateStr);
 			req.setAttribute("selectedSort", sort);
 
 			if (isAjax) {

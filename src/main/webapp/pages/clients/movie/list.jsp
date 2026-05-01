@@ -20,8 +20,8 @@
       <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 mb-8">
         <div class="flex flex-col lg:flex-row justify-between items-center gap-6">
           <h1 class="text-3xl font-extrabold text-slate-800 flex items-center gap-3">
-            <span class="bg-yellow-400 p-2 rounded-xl text-white shadow-sm">🎬</span>
-            PHIM ĐANG CHIẾU
+            <span class="bg-red-500 p-2 rounded-xl text-white shadow-sm">🎬</span>
+            DANH SÁCH PHIM
           </h1>
 
           <div class="flex flex-col md:flex-row items-center gap-4 w-full lg:w-auto">
@@ -38,10 +38,9 @@
               <select name="sort" onchange="this.form.submit()" 
                       class="px-4 py-3 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-red-500 outline-none text-slate-600 font-semibold cursor-pointer">
                 <option value="newest" ${selectedSort == 'newest' ? 'selected' : ''}>Mới nhất</option>
-                <option value="hot" ${selectedSort == 'hot' ? 'selected' : ''}>Hot nhất</option>
+                <option value="oldest" ${selectedSort == 'oldest' ? 'selected' : ''}>Cũ nhất</option>
                 <option value="alphabetical" ${selectedSort == 'alphabetical' ? 'selected' : ''}>A - Z</option>
               </select>
-              <input type="hidden" name="date" value="${selectedDate}">
             </form>
 
             <a href="${pageContext.request.contextPath}/showtime" 
@@ -49,19 +48,6 @@
                XEM LỊCH CHIẾU
             </a>
           </div>
-        </div>
-
-        <!-- Date Tabs -->
-        <div class="mt-8 flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-          <c:forEach var="d" items="${availableDates}">
-            <fmt:formatDate value="${d}" pattern="yyyy-MM-dd" var="iso" />
-            <fmt:formatDate value="${d}" pattern="dd/MM" var="label" />
-            <a href="${pageContext.request.contextPath}/movie?date=${iso}&q=${param.q}&sort=${selectedSort}" 
-               class="flex-shrink-0 px-6 py-3 rounded-2xl font-bold transition-all text-sm
-               ${iso == selectedDate ? 'bg-red-500 text-white shadow-lg shadow-red-200 scale-105' : 'bg-white border border-slate-200 text-slate-500 hover:border-red-300 hover:text-red-500'}">
-               ${label}
-            </a>
-          </c:forEach>
         </div>
       </div>
 
@@ -137,9 +123,8 @@
     function updateGrid() {
         const q = searchInput.value;
         const sort = sortSelect.value;
-        const date = "${selectedDate}";
         
-        fetch(`${pageContext.request.contextPath}/movie?ajax=true&q=${q}&sort=${sort}&date=${date}`)
+        fetch(`${pageContext.request.contextPath}/movie?ajax=true&q=${q}&sort=${sort}`)
             .then(res => res.text())
             .then(html => {
                 movieGrid.innerHTML = html;

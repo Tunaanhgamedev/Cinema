@@ -190,6 +190,38 @@ public class MovieDAO {
 		}
 	}
 
+	public List<Movie> findAllWithFilters(String keyword, String sort) {
+		StringBuilder sql = new StringBuilder("SELECT * FROM movies WHERE 1=1 ");
+		if (keyword != null && !keyword.trim().isEmpty()) {
+			sql.append(" AND title LIKE ? ");
+		}
+
+		if ("newest".equals(sort)) {
+			sql.append(" ORDER BY release_date DESC ");
+		} else if ("oldest".equals(sort)) {
+			sql.append(" ORDER BY release_date ASC ");
+		} else if ("alphabetical".equals(sort)) {
+			sql.append(" ORDER BY title ASC ");
+		} else {
+			sql.append(" ORDER BY release_date DESC ");
+		}
+
+		List<Movie> list = new ArrayList<>();
+		try (Connection cn = DBConnection.getConnection(); PreparedStatement ps = cn.prepareStatement(sql.toString())) {
+			if (keyword != null && !keyword.trim().isEmpty()) {
+				ps.setString(1, "%" + keyword + "%");
+			}
+			try (ResultSet rs = ps.executeQuery()) {
+				while (rs.next()) {
+					list.add(mapResultSetToMovie(rs));
+				}
+			}
+			return list;
+		} catch (Exception e) {
+			throw new RuntimeException("MovieDAO.findAllWithFilters failed: " + e.getMessage(), e);
+		}
+	}
+
 	public boolean delete(int movieId) {
 		String sql = "DELETE FROM movies WHERE movie_id = ?";
 		try (Connection cn = DBConnection.getConnection(); PreparedStatement ps = cn.prepareStatement(sql)) {

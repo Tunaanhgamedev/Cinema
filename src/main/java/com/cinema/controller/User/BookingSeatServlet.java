@@ -61,6 +61,10 @@ public class BookingSeatServlet extends HttpServlet {
 			handleAjaxShowtimes(req, resp);
 			return;
 		}
+		if ("dates".equals(ajax)) {
+			handleAjaxDates(req, resp);
+			return;
+		}
 		if ("seats".equals(ajax)) {
 			handleAjaxSeats(req, resp);
 			return;
@@ -74,11 +78,6 @@ public class BookingSeatServlet extends HttpServlet {
 
 		String showDate = normalizeToSqlDate(showDateRaw);
 		
-		// Nếu chưa có ngày, mặc định lấy ngày hôm nay
-		if (showDate.isEmpty()) {
-			showDate = java.time.LocalDate.now().toString();
-		}
-
 		req.setAttribute("movieId", movieId);
 		req.setAttribute("showDate", showDate);
 		req.setAttribute("showtimeId", showtimeId);
@@ -105,6 +104,9 @@ public class BookingSeatServlet extends HttpServlet {
 				Movie currentMovie = movieDAO.findById(movieIdInt);
 				if(currentMovie != null) req.setAttribute("selectedMovie", currentMovie);
 			}
+			
+			// ✅ Chuẩn bị danh sách ngày từ DB cho phim này
+			req.setAttribute("availableDates", showtimeDAO.getDistinctDatesByMovie(movieIdInt));
 		}
 
 		// cleanup holds hết hạn
@@ -338,6 +340,27 @@ public class BookingSeatServlet extends HttpServlet {
 			return s.replace('/', '-'); // yyyy/MM/dd
 		return s;
 	}
+	private void handleAjaxDates(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		resp.setContentType("application/json");
+		resp.setCharacterEncoding("UTF-8");
+
+		Integer movieId = parseIntOrNull(req.getParameter("movieId"));
+		if (movieId == null) {
+			resp.getWriter().write("[]");
+			return;
+		}
+
+		List<String> dates = showtimeDAO.getDistinctDatesByMovie(movieId);
+		StringBuilder json = new StringBuilder("[");
+		for (int i = 0; i < dates.size(); i++) {
+			json.append("\"").append(dates.get(i)).append("\"");
+			if (i < dates.size() - 1)
+				json.append(",");
+		}
+		json.append("]");
+		resp.getWriter().write(json.toString());
+	}
+
 	private void handleAjaxShowtimes(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		resp.setContentType("application/json");
 		resp.setCharacterEncoding("UTF-8");

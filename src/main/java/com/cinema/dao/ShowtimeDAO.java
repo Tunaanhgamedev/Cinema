@@ -202,4 +202,25 @@ public class ShowtimeDAO {
 		}
 		return list;
 	}
+
+	public List<String> getDistinctDatesByMovie(int movieId) {
+		String sql = """
+				    SELECT DISTINCT DATE(start_time) as show_date
+				    FROM showtimes
+				    WHERE movie_id = ?
+				    ORDER BY show_date ASC
+				""";
+		List<String> list = new ArrayList<>();
+		try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+			ps.setInt(1, movieId);
+			try (ResultSet rs = ps.executeQuery()) {
+				while (rs.next()) {
+					list.add(rs.getString("show_date"));
+				}
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException("ShowtimeDAO.getDistinctDatesByMovie error", e);
+		}
+		return list;
+	}
 }

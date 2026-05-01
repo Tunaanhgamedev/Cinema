@@ -203,13 +203,18 @@
                                     </div>
 
                                     <div class="space-y-4">
-                                        <label
-                                            class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Ngày
-                                            chiếu</label>
-                                        <input
-                                            class="w-full bg-slate-950/50 border border-white/5 rounded-2xl px-6 py-4 outline-none focus:border-indigo-500 transition-all font-bold text-sm"
-                                            type="date" name="showDate" id="showDateInput" value="${showDate}"
-                                            required />
+                                        <label class="flex items-center gap-3 text-indigo-300/80 font-black text-[10px] uppercase tracking-[0.2em] ml-2">
+                                            <i class="fas fa-calendar-alt"></i>
+                                            Ngày chiếu
+                                        </label>
+                                        <select
+                                            class="w-full bg-slate-950/50 border border-white/5 rounded-2xl px-6 py-4 outline-none focus:border-indigo-500 transition-all font-bold text-sm appearance-none cursor-pointer"
+                                            name="showDate" id="showDateInput" required>
+                                            <option value="">-- Chọn ngày --</option>
+                                            <c:forEach var="d" items="${availableDates}">
+                                                <option value="${d}" ${showDate == d ? 'selected' : ''}>${d}</option>
+                                            </c:forEach>
+                                        </select>
                                     </div>
 
                                     <div class="space-y-4">
@@ -456,10 +461,63 @@
                                     const isBooked = s.dataset.booked === 'true';
 
                                     s.disabled = checked.length >= max || isBooked || isOtherSelected;
-                                    else label.style.opacity = '1';
                                 });
 
                                 submitBtn.disabled = checked.length === 0;
+                            }
+
+                            // Event Listeners
+                            movieSelect.addEventListener('change', async () => {
+                                await loadDates();
+                                syncSummary();
+                            });
+                            
+                            dateInput.addEventListener('change', async () => {
+                                await loadShowtimes();
+                                syncSummary();
+                            });
+
+                            showtimeSelect.addEventListener('change', async () => {
+                                await loadSeats();
+                                syncSummary();
+                            });
+
+                            qtyEl.addEventListener('input', updateSeatUI);
+
+                            // Functions
+                            async function loadDates() {
+                                const mId = movieSelect.value;
+                                if (!mId) {
+                                    dateInput.innerHTML = '<option value="">-- Chọn ngày --</option>';
+                                    showtimeSelect.innerHTML = '<option value="">-- Chọn suất --</option>';
+                                    return;
+                                }
+
+                                dateInput.innerHTML = '<option value="">⏳ Đang tải ngày...</option>';
+                                dateInput.disabled = true;
+
+                                try {
+                                    const res = await fetch(`${pageContext.request.contextPath}/booking-seat?ajax=dates&movieId=${mId}`);
+                                    const data = await res.json();
+                                    
+                                    dateInput.innerHTML = '<option value="">-- Chọn ngày --</option>';
+                                    if (data && data.length > 0) {
+                                        data.forEach(d => {
+                                            dateInput.innerHTML += `<option value="${d}">${d}</option>`;
+                                        });
+                                        dateInput.disabled = false;
+                                    } else {
+                                        dateInput.innerHTML = '<option value="">🚫 Hết lịch chiếu</option>';
+                                        dateInput.disabled = true;
+                                    }
+                                } catch (err) {
+                                    console.error("Lỗi tải ngày:", err);
+                                    dateInput.innerHTML = '<option value="">❌ Lỗi dữ liệu</option>';
+                                }
+                                
+                                // Reset showtimes
+                                showtimeSelect.innerHTML = '<option value="">-- Chọn suất --</option>';
+                                showtimeSelect.disabled = true;
                             }
 
                             async function loadShowtimes() {
@@ -467,7 +525,6 @@
                                 const date = dateInput.value;
                                 if (!mId || !date) return;
 
-                                // Trạng thái đang tải
                                 showtimeSelect.innerHTML = '<option value="">⏳ Đang tải suất chiếu...</option>';
                                 showtimeSelect.disabled = true;
 
@@ -497,10 +554,18 @@
                             async function loadSeats() {
                                 const stId = showtimeSelect.value;
                                 if (!stId) return;
-                                const res = await fetch(`${pageContext.request.contextPath}/booking-seat?ajax=seats&showtimeId=${stId}`);
-                                const data = await res.json();
-                                renderSeats(data);
-                                initWebSocket(stId);
+                                
+                                seatGrid.innerHTML = '<div class="py-20"><i class="fas fa-spinner fa-spin text-4xl text-indigo-500 mb-4 block mx-auto"></i><p class="text-xs font-bold animate-pulse text-indigo-300">Đang tải sơ đồ ghế...</p></div>';
+
+                                try {
+                                    const res = await fetch(`${pageContext.request.contextPath}/booking-seat?ajax=seats&showtimeId=${stId}`);
+                                    const data = await res.json();
+                                    renderSeats(data);
+                                    initWebSocket(stId);
+                                } catch (err) {
+                                    console.error("Lỗi tải ghế:", err);
+                                    seatGrid.innerHTML = '<p class="text-red-500 font-bold">Lỗi khi nạp sơ đồ ghế.</p>';
+                                }
                                 syncSummary();
                             }
 
@@ -523,6 +588,7 @@
                                 });
                                 html += '</div>';
                                 seatGrid.innerHTML = html;
+
                                 document.querySelectorAll('input.seat').forEach(s => {
                                     s.addEventListener('change', () => {
                                         const label = document.querySelector(`label[for="${s.id}"]`);
@@ -552,18 +618,14 @@
                                 };
                             }
 
-                            movieSelect.addEventListener('change', loadShowtimes);
-                            dateInput.addEventListener('change', loadShowtimes);
-                            showtimeSelect.addEventListener('change', loadSeats);
-                            qtyEl.addEventListener('input', updateSeatUI);
-
-                            // Auto-load logic
+                            // Initial Sync & Load
+                            syncSummary();
                             if (showtimeSelect.value) {
                                 loadSeats();
-                            } else if (movieSelect.value && dateInput.value) {
+                            } else if (dateInput.value) {
                                 loadShowtimes();
-                            } else {
-                                syncSummary(); // Ensure sidebar shows default or pre-selected movie name
+                            } else if (movieSelect.value) {
+                                loadDates();
                             }
                         })();
                 </script>

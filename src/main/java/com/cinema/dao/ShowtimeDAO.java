@@ -153,13 +153,15 @@ public class ShowtimeDAO {
 	// USER: lấy suất chiếu theo movie + ngày (yyyy-MM-dd)
 	public List<ShowtimeView> findByMovieAndDate(int movieId, String showDate) {
 		String sql = """
-				    SELECT s.showtime_id, s.movie_id, s.room_id, s.show_date, s.start_time, s.end_time, s.price,
+				    SELECT s.showtime_id, s.movie_id, s.room_id,
+				           COALESCE(s.show_date, DATE(s.start_time)) AS show_date,
+				           s.start_time, s.end_time, s.price,
 				           m.title AS movie_name, r.room_name AS room_name
 				    FROM showtimes s
 				    JOIN movies m ON s.movie_id = m.movie_id
 				    JOIN rooms  r ON s.room_id  = r.room_id
 				    WHERE s.movie_id = ?
-				      AND s.show_date = ?
+				      AND COALESCE(s.show_date, DATE(s.start_time)) = ?
 				    ORDER BY s.start_time ASC
 				""";
 
@@ -211,7 +213,7 @@ public class ShowtimeDAO {
 				    SELECT DISTINCT m.*
 				    FROM movies m
 				    JOIN showtimes s ON m.movie_id = s.movie_id
-				    WHERE s.show_date = ?
+				    WHERE COALESCE(s.show_date, DATE(s.start_time)) = ?
 				    ORDER BY m.title ASC
 				""";
 		List<com.cinema.model.Movie> list = new ArrayList<>();
@@ -236,7 +238,7 @@ public class ShowtimeDAO {
 
 	public List<String> getDistinctDatesByMovie(int movieId) {
 		String sql = """
-				    SELECT DISTINCT show_date
+				    SELECT DISTINCT COALESCE(show_date, DATE(start_time)) AS show_date
 				    FROM showtimes
 				    WHERE movie_id = ?
 				    ORDER BY show_date ASC
@@ -305,7 +307,7 @@ public class ShowtimeDAO {
 				    FROM movies m
 				    JOIN showtimes s ON m.movie_id = s.movie_id
 				    LEFT JOIN bookings b ON s.showtime_id = b.showtime_id
-				    WHERE s.show_date = ?
+				    WHERE COALESCE(s.show_date, DATE(s.start_time)) = ?
 				""");
 
 		if (keyword != null && !keyword.trim().isEmpty()) {

@@ -13,6 +13,12 @@
                     </div>
                 </div>
                 <div class="movie-info">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1" style="font-size: 10px;">
+                            <i class="far fa-calendar-alt me-1"></i> ${selectedDate}
+                        </span>
+                        <span class="text-warning" style="font-size: 12px;"><i class="fas fa-star"></i> ${m.rating}</span>
+                    </div>
                     <h3 class="movie-title">${m.title}</h3>
                     <p class="movie-meta">${m.genre} • ${m.duration} phút</p>
                 </div>

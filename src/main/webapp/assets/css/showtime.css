@@ -199,6 +199,17 @@
   font-size: 0.85rem;
 }
 
+.date-badge-inline {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.date-badge-inline i {
+  color: var(--accent-light);
+  margin-right: 4px;
+}
+
 .st-cinema-line {
   display: flex;
   gap: 10px;

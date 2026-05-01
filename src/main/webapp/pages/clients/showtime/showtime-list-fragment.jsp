@@ -19,6 +19,7 @@
                     <div class="st-meta">
                         <span class="genre-badge">${m.genre}</span>
                         <span class="duration-badge"><i class="far fa-clock"></i> ${m.duration} phút</span>
+                        <span class="date-badge-inline"><i class="far fa-calendar-alt"></i> ${selectedDate}</span>
                     </div>
                   </div>
 

@@ -141,6 +141,14 @@
                         <span class="font-black text-slate-900 uppercase tracking-tighter">Tổng cộng</span>
                         <span class="text-2xl font-black text-indigo-600"><fmt:formatNumber value="${booking.totalPrice}" pattern="#,###"/>đ</span>
                     </div>
+                    <!-- Points Earned -->
+                    <div class="mt-4 p-3 bg-indigo-50 rounded-xl flex items-center justify-between border border-indigo-100">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-gift text-indigo-600"></i>
+                            <span class="text-xs font-bold text-indigo-800 uppercase">Điểm thưởng vừa nhận</span>
+                        </div>
+                        <span class="font-black text-indigo-600">+<fmt:formatNumber value="${booking.totalPrice / 1000}" pattern="#,###"/> PTS</span>
+                    </div>
                 </div>
             </div>
         </div>

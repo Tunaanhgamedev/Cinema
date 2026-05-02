@@ -79,6 +79,27 @@ if (session.getAttribute("authUser") == null) {
 				<!-- OVERVIEW -->
 				<div id="overview-section" class="content-section active">
 					<h2 style="margin-top: 0;">Tổng quan</h2>
+					
+					<!-- LOYALTY CARD -->
+					<div class="loyalty-card ${sessionScope.authUser.membershipLevel}" style="margin-bottom: 24px;">
+                        <div class="card-inner">
+                            <div class="card-header">
+                                <span class="brand-name">BOBIXI LOYALTY</span>
+                                <span class="membership-badge">${sessionScope.authUser.membershipLevel != null ? sessionScope.authUser.membershipLevel : 'BRONZE'}</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="points-label">ĐIỂM TÍCH LŨY</div>
+                                <div class="points-value">
+                                    <fmt:formatNumber value="${sessionScope.authUser.loyaltyPoints}" pattern="#,###" />
+                                    <span class="pts">PTS</span>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="user-name-card">${sessionScope.authUser.fullName}</div>
+                                <div class="card-chip"></div>
+                            </div>
+                        </div>
+                    </div>
 
 					<div class="grid-2" style="margin-top: 14px;">
 						<div class="info-card">

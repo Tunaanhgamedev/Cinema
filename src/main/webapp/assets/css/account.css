@@ -50,3 +50,39 @@
     @media (max-width: 980px){
         .account-container{ grid-template-columns: 1fr; }
     }
+
+    /* LOYALTY CARD STYLES */
+    .loyalty-card {
+        background: linear-gradient(135deg, #444, #111);
+        border-radius: 20px;
+        color: white;
+        padding: 24px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        transition: transform 0.3s ease;
+    }
+    .loyalty-card:hover { transform: translateY(-5px); }
+    
+    .loyalty-card.BRONZE { background: linear-gradient(135deg, #a87932, #5a3c11); }
+    .loyalty-card.SILVER { background: linear-gradient(135deg, #bdc3c7, #2c3e50); }
+    .loyalty-card.GOLD { background: linear-gradient(135deg, #f1c40f, #e67e22); }
+    .loyalty-card.PLATINUM { background: linear-gradient(135deg, #1e3c72, #2a5298); }
+
+    .card-inner { position: relative; z-index: 1; }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .brand-name { font-weight: 900; letter-spacing: 2px; font-size: 14px; opacity: 0.8; }
+    .membership-badge { background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 999px; font-size: 10px; font-weight: 800; border: 1px solid rgba(255,255,255,0.3); }
+    
+    .points-label { font-size: 11px; font-weight: 600; opacity: 0.7; margin-bottom: 5px; }
+    .points-value { font-size: 36px; font-weight: 900; display: flex; align-items: baseline; gap: 8px; }
+    .points-value .pts { font-size: 14px; opacity: 0.8; }
+    
+    .card-footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 20px; }
+    .user-name-card { font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+    .card-chip { width: 40px; height: 30px; background: linear-gradient(135deg, #ffd700, #b8860b); border-radius: 6px; opacity: 0.6; }
+
+    .loyalty-card::after {
+        content: ""; position: absolute; top: -50%; right: -20%; width: 300px; height: 300px;
+        background: rgba(255,255,255,0.05); border-radius: 50%; z-index: 0;
+    }

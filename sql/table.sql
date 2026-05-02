@@ -185,3 +185,6 @@ ALTER TABLE showtimes MODIFY COLUMN show_date DATE NOT NULL;
 -- Thêm cột discount_amount vào bookings
 ALTER TABLE bookings ADD COLUMN discount_amount DECIMAL(10,2) DEFAULT 0 AFTER total_price;
 ALTER TABLE bookings CHANGE COLUMN booking_time booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+ALTER TABLE users ADD COLUMN points INT DEFAULT 0;
+ALTER TABLE users ADD COLUMN membership_level VARCHAR(20) DEFAULT 'BRONZE';

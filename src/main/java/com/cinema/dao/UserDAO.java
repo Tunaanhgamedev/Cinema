@@ -109,12 +109,38 @@ public class UserDAO {
 				u.setAddress(rs.getString("address"));
 				u.setSubscribeNewsletter(rs.getInt("subscribe_newsletter") == 1);
 				u.setSubscribeSMS(rs.getInt("subscribe_sms") == 1);
+				u.setLoyaltyPoints(rs.getInt("points"));
+				u.setMembershipLevel(rs.getString("membership_level"));
 
 				return u;
 			}
 
 		} catch (Exception e) {
 			throw new RuntimeException("findByEmail failed", e);
+		}
+	}
+
+	public void addPoints(int userId, int pointsToAdd) {
+		String sql = """
+				    UPDATE users 
+				    SET points = points + ?,
+				        membership_level = CASE 
+				            WHEN points + ? >= 5000 THEN 'PLATINUM'
+				            WHEN points + ? >= 2000 THEN 'GOLD'
+				            WHEN points + ? >= 500 THEN 'SILVER'
+				            ELSE 'BRONZE'
+				        END
+				    WHERE user_id = ?
+				""";
+		try (Connection cn = DBConnection.getConnection(); PreparedStatement ps = cn.prepareStatement(sql)) {
+			ps.setInt(1, pointsToAdd);
+			ps.setInt(2, pointsToAdd);
+			ps.setInt(3, pointsToAdd);
+			ps.setInt(4, pointsToAdd);
+			ps.setInt(5, userId);
+			ps.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 

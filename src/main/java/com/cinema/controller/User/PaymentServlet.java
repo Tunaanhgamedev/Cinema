@@ -208,6 +208,19 @@ public class PaymentServlet extends HttpServlet {
 			insertPayment(con, bookingId, method);
 
 			con.commit();
+			
+			// ✅ Cộng điểm tích lũy (1000 VNĐ = 1 điểm)
+			int pointsToAdd = grandTotal.divide(new BigDecimal("1000")).intValue();
+			if (pointsToAdd > 0) {
+				com.cinema.dao.UserDAO userDAO = new com.cinema.dao.UserDAO();
+				userDAO.addPoints(u.getUserId(), pointsToAdd);
+				
+				// Cập nhật lại session user để hiển thị điểm mới
+				User updatedUser = userDAO.findByEmail(u.getEmail());
+				if (updatedUser != null) {
+					session.setAttribute("authUser", updatedUser);
+				}
+			}
 
 			// ✅ Gửi Email xác nhận (Chạy ngầm)
 			try {

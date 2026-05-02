@@ -194,3 +194,14 @@ ALTER TABLE users ADD COLUMN membership_level VARCHAR(20) DEFAULT 'BRONZE';
 
 ALTER TABLE vouchers ADD COLUMN user_id INT NULL, ADD COLUMN is_used BOOLEAN DEFAULT FALSE;
 ALTER TABLE vouchers ADD CONSTRAINT fk_voucher_user FOREIGN KEY (user_id) REFERENCES users(user_id);
+
+CREATE TABLE reviews (
+    review_id INT AUTO_INCREMENT PRIMARY KEY,
+    movie_id INT NOT NULL,
+    user_id INT NOT NULL,
+    rating INT CHECK (rating >= 1 AND rating <= 5),
+    content TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (movie_id) REFERENCES movies(movie_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);

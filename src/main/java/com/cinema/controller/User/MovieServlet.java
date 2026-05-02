@@ -41,6 +41,10 @@ public class MovieServlet extends HttpServlet {
 			String today = java.time.LocalDate.now().toString();
 			req.setAttribute("todayShowtimes", showtimeDAO.findByMovieAndDate(movieId, today));
 			
+			// Nạp danh sách review
+			com.cinema.dao.ReviewDAO reviewDAO = new com.cinema.dao.ReviewDAO();
+			req.setAttribute("reviews", reviewDAO.findByMovieId(movieId));
+			
 			req.getRequestDispatcher("/pages/clients/movie/detail.jsp").forward(req, resp);
 
 		} else {

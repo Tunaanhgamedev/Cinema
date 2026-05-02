@@ -1,0 +1,38 @@
+package com.cinema.model;
+
+import java.sql.Timestamp;
+
+public class Review {
+    private int reviewId;
+    private int movieId;
+    private int userId;
+    private int rating;
+    private String content;
+    private Timestamp createdAt;
+    
+    // Extra fields for UI
+    private String userName;
+
+    public Review() {}
+
+    public int getReviewId() { return reviewId; }
+    public void setReviewId(int reviewId) { this.reviewId = reviewId; }
+
+    public int getMovieId() { return movieId; }
+    public void setMovieId(int movieId) { this.movieId = movieId; }
+
+    public int getUserId() { return userId; }
+    public void setUserId(int userId) { this.userId = userId; }
+
+    public int getRating() { return rating; }
+    public void setRating(int rating) { this.rating = rating; }
+
+    public String getContent() { return content; }
+    public void setContent(String content) { this.content = content; }
+
+    public Timestamp getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
+
+    public String getUserName() { return userName; }
+    public void setUserName(String userName) { this.userName = userName; }
+}

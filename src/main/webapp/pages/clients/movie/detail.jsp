@@ -106,6 +106,9 @@
           <button class="tab-item px-10 py-6 font-bold text-slate-400 hover:text-white transition-all relative" data-tab="schedule">
             LỊCH CHIẾU HÔM NAY
           </button>
+          <button class="tab-item px-10 py-6 font-bold text-slate-400 hover:text-white transition-all relative" data-tab="reviews">
+            ĐÁNH GIÁ & BÌNH LUẬN (${reviews.size()})
+          </button>
         </div>
 
         <div class="p-10">
@@ -145,6 +148,94 @@
               </c:otherwise>
             </c:choose>
           </div>
+
+          <!-- Reviews Tab -->
+          <div id="tab-reviews" class="tab-pane hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+              <!-- Post Review Form -->
+              <div class="lg:col-span-1">
+                <div class="bg-white/5 border border-white/10 rounded-3xl p-8 sticky top-8">
+                  <h3 class="text-xl font-bold text-white mb-6">Gửi đánh giá của bạn</h3>
+                  <c:choose>
+                    <c:when test="${not empty sessionScope.authUser}">
+                      <form action="${pageContext.request.contextPath}/movie/review" method="post">
+                        <input type="hidden" name="movieId" value="${movie.movieId}">
+                        
+                        <label class="block text-slate-400 text-sm font-bold mb-3">Xếp hạng của bạn</label>
+                        <div class="flex gap-2 mb-6">
+                          <div class="rating-input flex flex-row-reverse">
+                            <input type="radio" id="star5" name="rating" value="5" class="hidden" required/><label for="star5" class="fas fa-star cursor-pointer text-2xl text-slate-600 hover:text-yellow-400 transition-colors"></label>
+                            <input type="radio" id="star4" name="rating" value="4" class="hidden"/><label for="star4" class="fas fa-star cursor-pointer text-2xl text-slate-600 hover:text-yellow-400 transition-colors"></label>
+                            <input type="radio" id="star3" name="rating" value="3" class="hidden"/><label for="star3" class="fas fa-star cursor-pointer text-2xl text-slate-600 hover:text-yellow-400 transition-colors"></label>
+                            <input type="radio" id="star2" name="rating" value="2" class="hidden"/><label for="star2" class="fas fa-star cursor-pointer text-2xl text-slate-600 hover:text-yellow-400 transition-colors"></label>
+                            <input type="radio" id="star1" name="rating" value="1" class="hidden"/><label for="star1" class="fas fa-star cursor-pointer text-2xl text-slate-600 hover:text-yellow-400 transition-colors"></label>
+                          </div>
+                        </div>
+
+                        <label class="block text-slate-400 text-sm font-bold mb-3">Nội dung bình luận</label>
+                        <textarea name="content" rows="4" required
+                                  class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-white placeholder-slate-600 focus:outline-none focus:border-red-500 transition-all mb-6"
+                                  placeholder="Cảm nhận của bạn về phim..."></textarea>
+                        
+                        <button type="submit" class="w-full py-4 bg-red-600 hover:bg-red-500 text-white font-black rounded-2xl transition-all shadow-lg shadow-red-900/20">
+                          GỬI BÌNH LUẬN
+                        </button>
+                      </form>
+                    </c:when>
+                    <c:otherwise>
+                      <div class="text-center py-6">
+                        <p class="text-slate-500 mb-6">Vui lòng đăng nhập để gửi đánh giá cho phim này.</p>
+                        <a href="${pageContext.request.contextPath}/login?returnUrl=/movie?id=${movie.movieId}" 
+                           class="inline-block px-8 py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition-all border border-white/10">
+                          ĐĂNG NHẬP NGAY
+                        </a>
+                      </div>
+                    </c:otherwise>
+                  </c:choose>
+                </div>
+              </div>
+
+              <!-- Review List -->
+              <div class="lg:col-span-2 space-y-6">
+                <c:choose>
+                  <c:when test="${not empty reviews}">
+                    <c:forEach var="r" items="${reviews}">
+                      <div class="bg-white/5 border border-white/5 p-8 rounded-3xl group hover:border-white/10 transition-all">
+                        <div class="flex justify-between items-start mb-4">
+                          <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center font-black text-white text-lg">
+                              ${r.userName.substring(0, 1).toUpperCase()}
+                            </div>
+                            <div>
+                              <h4 class="font-bold text-white">${r.userName}</h4>
+                              <p class="text-xs text-slate-500"><fmt:formatDate value="${r.createdAt}" pattern="dd/MM/yyyy HH:mm"/></p>
+                            </div>
+                          </div>
+                          <div class="flex gap-1 text-yellow-500">
+                            <c:forEach begin="1" end="${r.rating}">
+                              <i class="fas fa-star text-sm"></i>
+                            </c:forEach>
+                            <c:forEach begin="${r.rating + 1}" end="5">
+                              <i class="fas fa-star text-sm text-slate-700"></i>
+                            </c:forEach>
+                          </div>
+                        </div>
+                        <p class="text-slate-300 leading-relaxed italic">
+                          "${r.content}"
+                        </p>
+                      </div>
+                    </c:forEach>
+                  </c:when>
+                  <c:otherwise>
+                    <div class="text-center py-16 bg-white/5 rounded-3xl border-2 border-dashed border-white/5">
+                      <i class="far fa-comment-dots text-slate-700 text-5xl mb-4"></i>
+                      <p class="text-slate-500">Chưa có bình luận nào. Hãy là người đầu tiên đánh giá phim này!</p>
+                    </div>
+                  </c:otherwise>
+                </c:choose>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -181,6 +272,11 @@
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
+    /* Rating Star Styling */
+    .rating-input input:checked ~ label { color: #facc15; }
+    .rating-input label:hover ~ label { color: #facc15; }
+    .rating-input label:hover { color: #facc15; }
   </style>
 
   <script>

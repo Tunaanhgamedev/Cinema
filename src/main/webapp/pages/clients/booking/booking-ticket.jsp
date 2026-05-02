@@ -58,6 +58,30 @@
                         border: 1px solid rgba(255, 255, 255, 0.05);
                         border-radius: 32px;
                     }
+
+                    /* SEAT VIEW PREVIEW STYLES */
+                    #seat-preview-container {
+                        position: fixed;
+                        pointer-events: none;
+                        z-index: 1000;
+                        width: 280px;
+                        background: #1e293b;
+                        border: 2px solid #6366f1;
+                        border-radius: 16px;
+                        overflow: hidden;
+                        box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+                        opacity: 0;
+                        transform: translateY(10px) scale(0.95);
+                        transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                    }
+                    #seat-preview-container.active {
+                        opacity: 1;
+                        transform: translateY(0) scale(1);
+                    }
+                    .preview-img { width: 100%; height: 150px; object-cover: cover; }
+                    .preview-info { padding: 12px; background: #0f172a; border-top: 1px solid rgba(255,255,255,0.1); }
+                    .preview-row { font-size: 10px; font-weight: 800; color: #6366f1; text-transform: uppercase; }
+                    .preview-title { font-size: 14px; font-weight: 900; color: white; margin-top: 2px; }
                 </style>
             </head>
 
@@ -199,6 +223,15 @@
 
                 <jsp:include page="/common/footer.jsp" />
 
+                <!-- SEAT VIEW PREVIEW CONTAINER -->
+                <div id="seat-preview-container">
+                    <img src="" alt="Seat View" class="preview-img">
+                    <div class="preview-info">
+                        <div class="preview-row">Hàng ---</div>
+                        <div class="preview-title">Tầm nhìn từ ghế</div>
+                    </div>
+                </div>
+
                 <div id="seatPricesData" class="hidden">
                     <c:forEach var="sp" items="${seatPrices}">
                         <span data-type="${sp.seatType}" data-surcharge="${sp.surcharge}"></span>
@@ -321,11 +354,46 @@
                                     const bk = data.booked.includes(s.code);
                                     const sid = 's_' + s.code;
                                     let ex = (s.type === 'VIP') ? 'border-amber-500/50 text-amber-500' : (s.type === 'COUPLE' ? 'border-pink-500/50 text-pink-500 w-16' : '');
-                                    h += '<div class="relative">' + (bk ? '<div class="seat-btn opacity-20 bg-slate-800">' + s.code.substring(1) + '</div>' : '<input type="checkbox" id="' + sid + '" name="seats" value="' + s.code + '" class="hidden seat-check seat" data-type="' + s.type + '"><label for="' + sid + '" class="seat-btn ' + ex + ' cursor-pointer">' + s.code.substring(1) + '</label>') + '</div>';
+                                    h += '<div class="relative">' + (bk ? '<div class="seat-btn opacity-20 bg-slate-800">' + s.code.substring(1) + '</div>' : '<input type="checkbox" id="' + sid + '" name="seats" value="' + s.code + '" class="hidden seat-check seat" data-type="' + s.type + '"><label for="' + sid + '" class="seat-btn ' + ex + ' cursor-pointer" data-seat="' + s.code + '">' + s.code.substring(1) + '</label>') + '</div>';
                                 });
                                 h += '</div></div>';
                             });
                             document.getElementById('seatGrid').innerHTML = h + '</div>';
+                            
+                            // SEAT VIEW PREVIEW LOGIC
+                            const preview = document.getElementById('seat-preview-container');
+                            const previewImg = preview.querySelector('.preview-img');
+                            const previewRow = preview.querySelector('.preview-row');
+                            const previewTitle = preview.querySelector('.preview-title');
+
+                            document.querySelectorAll('.seat-btn').forEach(btn => {
+                                btn.addEventListener('mouseenter', (e) => {
+                                    const code = btn.dataset.seat;
+                                    if(!code) return;
+                                    
+                                    const row = code.charAt(0);
+                                    let viewImg = 'middle.png';
+                                    let viewName = 'Góc nhìn trung tâm';
+                                    
+                                    if(['A','B','C'].includes(row)) { viewImg = 'front.png'; viewName = 'Góc nhìn gần màn hình'; }
+                                    else if(['G','H','I','J','K'].includes(row)) { viewImg = 'back.png'; viewName = 'Góc nhìn từ cuối rạp'; }
+                                    
+                                    previewImg.src = ctx + '/assets/images/previews/' + viewImg;
+                                    previewRow.textContent = 'HÀNG ' + row + ' - GHẾ ' + code.substring(1);
+                                    previewTitle.textContent = viewName;
+                                    preview.classList.add('active');
+                                });
+
+                                btn.addEventListener('mousemove', (e) => {
+                                    preview.style.left = (e.clientX + 20) + 'px';
+                                    preview.style.top = (e.clientY - 180) + 'px';
+                                });
+
+                                btn.addEventListener('mouseleave', () => {
+                                    preview.classList.remove('active');
+                                });
+                            });
+
                             document.querySelectorAll('input.seat').forEach(s => {
                                 s.addEventListener('change', () => {
                                     const l = document.querySelector('label[for="' + s.id + '"]');

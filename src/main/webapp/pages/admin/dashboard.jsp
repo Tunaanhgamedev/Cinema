@@ -90,6 +90,33 @@
             </div>
         </div>
 
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            <!-- Line Chart: Daily Revenue -->
+            <div class="card-glass p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fas fa-chart-line text-indigo-400 text-sm"></i> Doanh thu 7 ngày qua
+                    </h2>
+                </div>
+                <div class="h-[300px] w-full">
+                    <canvas id="dailyRevenueChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Pie Chart: Revenue by Movie -->
+            <div class="card-glass p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fas fa-chart-pie text-sky-400 text-sm"></i> Doanh thu theo Phim
+                    </h2>
+                </div>
+                <div class="h-[300px] w-full flex justify-center">
+                    <canvas id="movieRevenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Recent Bookings Table -->
             <div class="lg:col-span-2">
@@ -165,6 +192,111 @@
                 </div>
             </div>
         </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Config Chart.js defaults
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.font.family = "'Outfit', sans-serif";
+
+    // 1. Daily Revenue Chart
+    const dailyCtx = document.getElementById('dailyRevenueChart').getContext('2d');
+    const dailyLabels = [
+        <c:forEach var="item" items="${revenueDaily}" varStatus="loop">
+            '${item.label}'${!loop.last ? ',' : ''}
+        </c:forEach>
+    ];
+    const dailyData = [
+        <c:forEach var="item" items="${revenueDaily}" varStatus="loop">
+            ${item.value}${!loop.last ? ',' : ''}
+        </c:forEach>
+    ];
+
+    new Chart(dailyCtx, {
+        type: 'line',
+        data: {
+            labels: dailyLabels,
+            datasets: [{
+                label: 'Doanh thu (₫)',
+                data: dailyData,
+                borderColor: '#6366f1',
+                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#6366f1',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                    ticks: {
+                        callback: (value) => value.toLocaleString('vi-VN') + ' ₫'
+                    }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+
+    // 2. Movie Revenue Chart
+    const movieCtx = document.getElementById('movieRevenueChart').getContext('2d');
+    const movieLabels = [
+        <c:forEach var="item" items="${revenueMovie}" varStatus="loop">
+            '${item.label}'${!loop.last ? ',' : ''}
+        </c:forEach>
+    ];
+    const movieData = [
+        <c:forEach var="item" items="${revenueMovie}" varStatus="loop">
+            ${item.value}${!loop.last ? ',' : ''}
+        </c:forEach>
+    ];
+
+    new Chart(movieCtx, {
+        type: 'doughnut',
+        data: {
+            labels: movieLabels,
+            datasets: [{
+                data: movieData,
+                backgroundColor: [
+                    '#6366f1', '#0ea5e9', '#f59e0b', '#10b981', '#f43f5e'
+                ],
+                borderWidth: 0,
+                hoverOffset: 20
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
+                }
+            },
+            cutout: '70%'
+        }
+    });
+</script>
     </div>
 </div>
 

@@ -1,14 +1,39 @@
 package com.cinema.utils;
 
 import java.util.Properties;
-import jakarta.mail.*;
-import jakarta.mail.internet.*;
+
+import jakarta.mail.Authenticator;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Multipart;
+import jakarta.mail.PasswordAuthentication;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
 
 public class EmailUtil {
 
-    // Cấu hình thông tin Email gửi (Nên để trong config/env)
-    private static final String FROM_EMAIL = "bobixi.cinema@gmail.com";
-    private static final String APP_PASSWORD = "your-app-password-here"; // Mật khẩu ứng dụng Gmail
+    private static String FROM_EMAIL;
+    private static String APP_PASSWORD;
+
+    static {
+        try (java.io.InputStream is = EmailUtil.class.getClassLoader().getResourceAsStream("db.properties")) {
+            Properties props = new Properties();
+            if (is != null) {
+                props.load(is);
+                FROM_EMAIL = props.getProperty("mail.user");
+                APP_PASSWORD = props.getProperty("mail.pass");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static final java.util.concurrent.ExecutorService emailExecutor = 
+        java.util.concurrent.Executors.newFixedThreadPool(5);
 
     public static void sendEmail(String toEmail, String subject, String bodyHtml) {
         Properties props = new Properties();
@@ -38,15 +63,15 @@ public class EmailUtil {
 
             message.setContent(multipart);
 
-            // Gửi email trong luồng riêng để không chặn request của người dùng
-            new Thread(() -> {
+            // Sử dụng Thread Pool để gửi email
+            emailExecutor.submit(() -> {
                 try {
                     Transport.send(message);
                     System.out.println("Email sent successfully to: " + toEmail);
                 } catch (MessagingException e) {
                     System.err.println("Failed to send email to " + toEmail + ": " + e.getMessage());
                 }
-            }).start();
+            });
 
         } catch (Exception e) {
             e.printStackTrace();

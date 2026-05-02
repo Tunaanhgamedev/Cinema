@@ -23,6 +23,10 @@ public class AdminServlet extends HttpServlet {
 		req.setAttribute("totalMovies", movieDAO.countTotalMovies());
 		req.setAttribute("totalBookings", bookingDAO.countTotalBookings());
 		req.setAttribute("totalRevenue", bookingDAO.calculateTotalRevenue());
+		
+		// Dữ liệu biểu đồ
+		req.setAttribute("revenueDaily", bookingDAO.getRevenueLast7Days());
+		req.setAttribute("revenueMovie", bookingDAO.getRevenueByMovie());
 
 		req.getRequestDispatcher("/pages/admin/dashboard.jsp").forward(req, resp);
 	}

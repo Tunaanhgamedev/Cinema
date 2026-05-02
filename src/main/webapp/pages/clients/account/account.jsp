@@ -168,9 +168,59 @@ if (session.getAttribute("authUser") == null) {
 					</div>
 				</div>
 
-                <!-- VOUCHERS -->
+                <!-- VOUCHERS & REDEEM -->
 				<div id="vouchers-section" class="content-section">
-					<h2 style="margin-top: 0;">Kho Voucher của tôi</h2>
+					<div class="redeem-header">
+                        <h2 style="margin-top: 0;">Đổi quà tích lũy</h2>
+                        <div class="current-points-badge">
+                            Số dư: <strong><fmt:formatNumber value="${sessionScope.authUser.loyaltyPoints}" pattern="#,###" /></strong> PTS
+                        </div>
+                    </div>
+                    
+                    <div class="gift-store-grid">
+                        <div class="gift-card">
+                            <div class="gift-icon"><i class="fas fa-ticket-alt"></i></div>
+                            <div class="gift-info">
+                                <h3>Voucher 20.000đ</h3>
+                                <p>Đổi lấy mã giảm giá trực tiếp 20k cho đơn hàng bất kỳ.</p>
+                                <div class="gift-cost">500 PTS</div>
+                            </div>
+                            <form action="${pageContext.request.contextPath}/account/redeem" method="post">
+                                <input type="hidden" name="rewardId" value="1">
+                                <button type="submit" class="btn-redeem" ${sessionScope.authUser.loyaltyPoints < 500 ? 'disabled' : ''}>Đổi ngay</button>
+                            </form>
+                        </div>
+                        
+                        <div class="gift-card gold">
+                            <div class="gift-icon"><i class="fas fa-star"></i></div>
+                            <div class="gift-info">
+                                <h3>Voucher 50.000đ</h3>
+                                <p>Giảm giá 50k cực hot. Tiết kiệm hơn cho nhóm bạn.</p>
+                                <div class="gift-cost">1,000 PTS</div>
+                            </div>
+                            <form action="${pageContext.request.contextPath}/account/redeem" method="post">
+                                <input type="hidden" name="rewardId" value="2">
+                                <button type="submit" class="btn-redeem" ${sessionScope.authUser.loyaltyPoints < 1000 ? 'disabled' : ''}>Đổi ngay</button>
+                            </form>
+                        </div>
+                        
+                        <div class="gift-card platinum">
+                            <div class="gift-icon"><i class="fas fa-crown"></i></div>
+                            <div class="gift-info">
+                                <h3>Voucher 100.000đ</h3>
+                                <p>Siêu ưu đãi 100k. Gần như miễn phí một vé xem phim!</p>
+                                <div class="gift-cost">2,000 PTS</div>
+                            </div>
+                            <form action="${pageContext.request.contextPath}/account/redeem" method="post">
+                                <input type="hidden" name="rewardId" value="3">
+                                <button type="submit" class="btn-redeem" ${sessionScope.authUser.loyaltyPoints < 2000 ? 'disabled' : ''}>Đổi ngay</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <hr class="section-divider">
+
+					<h2 style="margin-top: 24px;">Kho Voucher của tôi</h2>
                     <p class="section-desc">Danh sách các mã giảm giá bạn đang sở hữu. Áp dụng khi thanh toán vé.</p>
 					
                     <div class="voucher-wallet-grid">
@@ -332,6 +382,7 @@ if (session.getAttribute("authUser") == null) {
 							<c:when test="${param.success == 'profile_updated'}">✅ Cập nhật thông tin thành công.</c:when>
 							<c:when test="${param.success == 'password_changed'}">✅ Đổi mật khẩu thành công.</c:when>
 							<c:when test="${param.success == 'settings_updated'}">✅ Lưu cài đặt thông báo thành công.</c:when>
+                            <c:when test="${param.success == 'reward_redeemed'}">🎉 Đổi quà thành công! Mã voucher mới: <strong>${param.code}</strong>. Kiểm tra trong kho voucher của bạn.</c:when>
 							<c:otherwise>✅ Thao tác thành công.</c:otherwise>
 						</c:choose>
 					</div>
@@ -343,6 +394,8 @@ if (session.getAttribute("authUser") == null) {
 							<c:when test="${param.error == 'password_mismatch'}">❌ Mật khẩu mới và xác nhận không khớp.</c:when>
 							<c:when test="${param.error == 'wrong_password'}">❌ Mật khẩu hiện tại không đúng.</c:when>
 							<c:when test="${param.error == 'invalid_input'}">❌ Dữ liệu không hợp lệ.</c:when>
+                            <c:when test="${param.error == 'not_enough_points'}">❌ Bạn không đủ điểm để đổi quà này.</c:when>
+                            <c:when test="${param.error == 'redeem_failed'}">❌ Có lỗi xảy ra trong quá trình đổi quà. Vui lòng thử lại.</c:when>
 							<c:otherwise>❌ Có lỗi xảy ra.</c:otherwise>
 						</c:choose>
 					</div>

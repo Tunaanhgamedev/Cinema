@@ -144,6 +144,20 @@ public class UserDAO {
 		}
 	}
 
+	public boolean subtractPoints(int userId, int pointsToSubtract) {
+		String sql = "UPDATE users SET points = points - ? WHERE user_id = ? AND points >= ?";
+		try (Connection cn = DBConnection.getConnection(); PreparedStatement ps = cn.prepareStatement(sql)) {
+			ps.setInt(1, pointsToSubtract);
+			ps.setInt(2, userId);
+			ps.setInt(3, pointsToSubtract);
+			int updated = ps.executeUpdate();
+			return updated > 0;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
 	public void updateProfile(int userId, String fullName, String phoneNumber, Date dateOfBirth, String gender,
 			String address) {
 

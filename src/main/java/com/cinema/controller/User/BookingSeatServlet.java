@@ -103,7 +103,7 @@ public class BookingSeatServlet extends HttpServlet {
 		req.setAttribute("movies", movies);
 		
 		// Load Combos for Step 2
-		req.setAttribute("allCombos", comboDAO.findAll());
+		req.setAttribute("combos", comboDAO.findAll());
 		
 		if (movieIdInt != null) {
 			// Kiểm tra xem phim đang chọn có trong danh sách đang chiếu không
@@ -224,13 +224,15 @@ public class BookingSeatServlet extends HttpServlet {
 			return;
 		}
 
-		// seats có thể NULL
-		if (seats != null && seats.length > 0) {
-			if (seats.length != qty) {
-				redirectBack(resp, req, movieId, showDate, showtimeIdStr, ticketQtyStr,
-						"Số ghế phải bằng số vé đã chọn.");
-				return;
-			}
+		if (seats == null || seats.length == 0) {
+			redirectBack(resp, req, movieId, showDate, showtimeIdStr, ticketQtyStr, "Vui lòng chọn ghế.");
+			return;
+		}
+
+		if (seats.length != qty) {
+			redirectBack(resp, req, movieId, showDate, showtimeIdStr, ticketQtyStr,
+					"Số ghế phải bằng số vé đã chọn.");
+			return;
 		}
 
 		// lưu selectedSeats để refresh không mất
@@ -260,7 +262,12 @@ public class BookingSeatServlet extends HttpServlet {
 			con.commit();
 			session.removeAttribute("selectedSeats");
 
-			resp.sendRedirect(req.getContextPath() + "/booking/combo?bookingId=" + bookingId);
+			String actionType = req.getParameter("actionType");
+			if ("checkout".equals(actionType)) {
+				resp.sendRedirect(req.getContextPath() + "/booking/payment?bookingId=" + bookingId);
+			} else {
+				resp.sendRedirect(req.getContextPath() + "/booking/combo?bookingId=" + bookingId);
+			}
 			return;
 
 		} catch (RuntimeException ex) {

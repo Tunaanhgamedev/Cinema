@@ -27,18 +27,22 @@
                             Chọn phim, chọn suất, chọn ghế trong vài giây.
                         </p>
 
-                        <!-- <div class="search-hero-wrapper mb-5">
-                    <form action="${pageContext.request.contextPath}/movie" method="GET" class="search-hero-form">
-                        <i class="fas fa-search"></i>
-                        <input type="text" name="q" placeholder="Tìm tên phim bạn muốn xem..." class="search-hero-input">
-                        <button type="submit" class="btn-search-hero">Tìm kiếm</button>
-                    </form>
-                </div> -->
+                        <div class="search-hero-wrapper mb-8 relative">
+                            <form action="${pageContext.request.contextPath}/movie" method="GET" class="search-hero-form" id="heroSearchForm">
+                                <i class="fas fa-search"></i>
+                                <input type="text" name="q" id="heroSearchInput" autocomplete="off"
+                                       placeholder="Tìm tên phim bạn muốn xem..." class="search-hero-input">
+                                <button type="submit" class="btn-search-hero">Tìm kiếm</button>
+                            </form>
+                            <!-- Vùng kết quả AJAX -->
+                            <div id="heroSearchResults" class="absolute left-0 right-0 mt-2 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl z-50 hidden max-h-[400px] overflow-y-auto overflow-x-hidden">
+                                <!-- Kết quả sẽ được render ở đây -->
+                            </div>
+                        </div>
 
                         <div class="hero-actions">
                             <a href="#nowshowing" class="btn-neon">Xem phim đang chiếu</a>
-                            <a href="${pageContext.request.contextPath}/pages/clients/booking-seat"
-                                class="btn-ghost">Đặt vé ngay</a>
+                            <a href="${pageContext.request.contextPath}/booking-seat" class="btn-ghost">Đặt vé ngay</a>
                         </div>
 
                         <div class="hero-stats">
@@ -130,6 +134,64 @@
                     window.scrollTo({ top: 0, behavior: "smooth" });
                 });
 
+                // Real-time Search Hero
+                const heroInput = document.getElementById('heroSearchInput');
+                const heroResults = document.getElementById('heroSearchResults');
+                let searchTimeout = null;
+
+                if (heroInput) {
+                    heroInput.addEventListener('input', (e) => {
+                        const q = e.target.value.trim();
+                        clearTimeout(searchTimeout);
+
+                        if (q.length < 2) {
+                            heroResults.innerHTML = '';
+                            heroResults.classList.add('hidden');
+                            return;
+                        }
+
+                        searchTimeout = setTimeout(() => {
+                            const url = '${pageContext.request.contextPath}/movie?ajax=true&q=' + encodeURIComponent(q);
+                            console.log('[HeroSearch] Fetching:', url);
+                            fetch(url)
+                                .then(res => res.json())
+                                .then(data => {
+                                    if (data && data.length > 0) {
+                                        let html = '<div class="p-4 flex flex-col gap-2">';
+                                        data.forEach(m => {
+                                            html += `
+                                                <a href="${pageContext.request.contextPath}/booking-seat?movieId=${m.movieId}" 
+                                                   class="flex items-center gap-4 p-3 hover:bg-white/5 rounded-2xl transition-all group">
+                                                    <img src="${pageContext.request.contextPath}/` + m.poster + `" class="w-12 h-16 object-cover rounded-xl shadow-lg">
+                                                    <div class="flex-1">
+                                                        <h4 class="text-white font-bold group-hover:text-indigo-400 transition-colors">` + m.title + `</h4>
+                                                        <p class="text-xs text-slate-400">` + m.genre + ` • ` + m.duration + ` phút</p>
+                                                    </div>
+                                                    <div class="text-[10px] font-black bg-indigo-600/20 text-indigo-400 px-3 py-1 rounded-full border border-indigo-500/20">
+                                                        ĐẶT VÉ
+                                                    </div>
+                                                </a>
+                                            `;
+                                        });
+                                        html += '</div>';
+                                        heroResults.innerHTML = html;
+                                        heroResults.classList.remove('hidden');
+                                    } else {
+                                        heroResults.innerHTML = '<div class="p-8 text-center text-slate-500 text-sm italic">Không tìm thấy phim nào khớp...</div>';
+                                        heroResults.classList.remove('hidden');
+                                    }
+                                })
+                                .catch(err => console.error('Search error:', err));
+                        }, 300);
+                    });
+
+                    // Đóng kết quả khi click ra ngoài
+                    document.addEventListener('click', (e) => {
+                        if (!heroInput.contains(e.target) && !heroResults.contains(e.target)) {
+                            heroResults.classList.add('hidden');
+                        }
+                    });
+                }
             </script>
         </body>
 

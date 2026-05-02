@@ -83,7 +83,13 @@ public class ShowtimeDAO {
 					st.setShowtimeId(rs.getInt("showtime_id"));
 					st.setMovieId(rs.getInt("movie_id"));
 					st.setRoomId(rs.getInt("room_id"));
-					st.setShowDate(rs.getDate("show_date"));
+					try {
+						st.setShowDate(rs.getDate("show_date"));
+					} catch (Exception ex) {
+						if (rs.getTimestamp("start_time") != null) {
+							st.setShowDate(new java.sql.Date(rs.getTimestamp("start_time").getTime()));
+						}
+					}
 					st.setStartTime(rs.getTimestamp("start_time"));
 					st.setEndTime(rs.getTimestamp("end_time"));
 					st.setPrice(rs.getBigDecimal("price"));
@@ -92,6 +98,41 @@ public class ShowtimeDAO {
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException("ShowtimeDAO.findShowtimeById error", e);
+		}
+		return null;
+	}
+
+	public ShowtimeView findShowtimeViewById(int showtimeId) {
+		String sql = "SELECT s.*, m.title AS movie_name, r.room_name AS room_name " +
+		             "FROM showtimes s " +
+		             "JOIN movies m ON s.movie_id = m.movie_id " +
+		             "JOIN rooms r ON s.room_id = r.room_id " +
+		             "WHERE s.showtime_id = ?";
+		try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+			ps.setInt(1, showtimeId);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) {
+					ShowtimeView st = new ShowtimeView();
+					st.setShowtimeId(rs.getInt("showtime_id"));
+					st.setMovieId(rs.getInt("movie_id"));
+					st.setRoomId(rs.getInt("room_id"));
+					try {
+						st.setShowDate(rs.getDate("show_date"));
+					} catch (Exception ex) {
+						if (rs.getTimestamp("start_time") != null) {
+							st.setShowDate(new java.sql.Date(rs.getTimestamp("start_time").getTime()));
+						}
+					}
+					st.setStartTime(rs.getTimestamp("start_time"));
+					st.setEndTime(rs.getTimestamp("end_time"));
+					st.setPrice(rs.getBigDecimal("price"));
+					st.setMovieName(rs.getString("movie_name"));
+					st.setRoomName(rs.getString("room_name"));
+					return st;
+				}
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException("ShowtimeDAO.findShowtimeViewById error", e);
 		}
 		return null;
 	}

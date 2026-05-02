@@ -205,7 +205,7 @@
       </div>
 
       <div class="cta-row">
-        <form action="<%= ctx %>/booking/payment/confirm" method="post" class="cta-form" id="paymentForm">
+        <form action="<%= ctx %>/booking/payment" method="post" class="cta-form" id="paymentForm">
           <input type="hidden" name="bookingId" value="<%= bookingIdStr %>">
           <input type="hidden" name="voucherCode" id="appliedVoucherCode" value="">
           <button type="submit" class="btn-confirm">Xác nhận thanh toán</button>

@@ -82,7 +82,7 @@
                                 <div class="text-[10px] text-slate-400 uppercase font-bold">Số ghế</div>
                                 <div class="font-bold">
                                     <c:forEach var="s" items="${seats}" varStatus="loop">
-                                        ${s.seatNumber}${!loop.last ? ', ' : ''}
+                                        ${s.seatRow}${s.seatNumber}${!loop.last ? ', ' : ''}
                                     </c:forEach>
                                 </div>
                             </div>

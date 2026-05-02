@@ -35,7 +35,7 @@ public class DBConnection {
 
 			// URL Cloud yêu cầu SSL
 			String url = "jdbc:mysql://" + host + ":" + port + "/" + dbName 
-					+ "?useSSL=true&requireSSL=true&ssl-mode=REQUIRED&allowPublicKeyRetrieval=true";
+					+ "?useSSL=true&requireSSL=true&ssl-mode=REQUIRED&allowPublicKeyRetrieval=true&serverTimezone=UTC";
 
 			System.out.println("📡 Đang khởi tạo kết nối tới: " + host + ":" + port + "/" + dbName);
 

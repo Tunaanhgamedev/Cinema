@@ -25,16 +25,24 @@ public class SeatDAO {
 		try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
 			ps.setInt(1, roomId);
+			java.util.Set<String> seenSeats = new java.util.HashSet<>();
 			try (ResultSet rs = ps.executeQuery()) {
 				while (rs.next()) {
+					String row = rs.getString("seat_row");
+					int number = rs.getInt("seat_number");
+					String key = row + "-" + number;
+
+					// Nếu đã thấy ghế này rồi thì bỏ qua (tránh lỗi dữ liệu trùng trong DB)
+					if (seenSeats.contains(key)) continue;
+					seenSeats.add(key);
+
 					Seat s = new Seat();
 					s.setSeatId(rs.getInt("seat_id"));
 					s.setRoomId(rs.getInt("room_id"));
 
-					String row = rs.getString("seat_row");
 					s.setSeatRow((row != null && !row.isEmpty()) ? row.charAt(0) : 'A');
 
-					s.setSeatNumber(rs.getInt("seat_number"));
+					s.setSeatNumber(number);
 
 					String type = rs.getString("seat_type");
 					s.setSeatType(type != null ? SeatType.valueOf(type) : SeatType.NORMAL);

@@ -22,6 +22,10 @@ import com.cinema.model.Seat;
 import com.cinema.model.User;
 import com.cinema.utils.DBConnection;
 import com.cinema.views.BookingComboDetail;
+import com.cinema.dao.ShowtimeDAO;
+import com.cinema.dao.SeatPriceDAO;
+import com.cinema.model.Showtime;
+import com.cinema.model.SeatPrice;
 
 @WebServlet("/booking/payment")
 public class PaymentServlet extends HttpServlet {
@@ -30,11 +34,15 @@ public class PaymentServlet extends HttpServlet {
 
 	private BookingSeatDAO bookingSeatDAO;
 	private BookingComboDAO bookingComboDAO;
+	private ShowtimeDAO showtimeDAO;
+	private SeatPriceDAO seatPriceDAO;
 
 	@Override
 	public void init() {
 		bookingSeatDAO = new BookingSeatDAOImpl();
 		bookingComboDAO = new BookingComboDAOImpl();
+		showtimeDAO = new ShowtimeDAO();
+		seatPriceDAO = new SeatPriceDAO();
 	}
 
 	@Override
@@ -54,9 +62,24 @@ public class PaymentServlet extends HttpServlet {
 		// 2) COMBO theo booking
 		List<BookingComboDetail> comboList = bookingComboDAO.findDetailByBookingId(bookingId);
 
-		// 3) TÍNH TIỀN VÉ (tạm FIX 75k/ghế)
-		BigDecimal ticketPrice = new BigDecimal("75000");
-		BigDecimal ticketSubtotal = ticketPrice.multiply(new BigDecimal(seatList == null ? 0 : seatList.size()));
+		// 2.5) Lấy showtimeId từ booking
+		BookingInfo bInfo = getBookingInfoNoLock(bookingId);
+		if (bInfo == null) {
+			response.sendRedirect(request.getContextPath() + "/home");
+			return;
+		}
+		Showtime st = showtimeDAO.findShowtimeById(bInfo.showtimeId);
+		BigDecimal ticketPrice = (st != null && st.getPrice() != null) ? st.getPrice() : new BigDecimal("75000");
+
+		// 3) TÍNH TIỀN VÉ thực tế (Base Price + Phụ phí từng ghế)
+		BigDecimal ticketSubtotal = BigDecimal.ZERO;
+		if (seatList != null) {
+			for (Seat s : seatList) {
+				SeatPrice sp = seatPriceDAO.getByType(s.getSeatType());
+				BigDecimal surcharge = (sp != null) ? BigDecimal.valueOf(sp.getSurcharge()) : BigDecimal.ZERO;
+				ticketSubtotal = ticketSubtotal.add(ticketPrice.add(surcharge));
+			}
+		}
 
 		// 4) TÍNH TIỀN COMBO
 		BigDecimal comboSubtotal = BigDecimal.ZERO;
@@ -133,8 +156,17 @@ public class PaymentServlet extends HttpServlet {
 			List<Seat> seatList = bookingSeatDAO.findSeatsByBookingId(bookingId);
 			List<BookingComboDetail> comboList = bookingComboDAO.findDetailByBookingId(bookingId);
 
-			BigDecimal ticketPrice = new BigDecimal("75000");
-			BigDecimal ticketSubtotal = ticketPrice.multiply(new BigDecimal(seatList == null ? 0 : seatList.size()));
+			Showtime st = showtimeDAO.findShowtimeById(info.showtimeId);
+			BigDecimal ticketPrice = (st != null && st.getPrice() != null) ? st.getPrice() : new BigDecimal("75000");
+
+			BigDecimal ticketSubtotal = BigDecimal.ZERO;
+			if (seatList != null) {
+				for (Seat s : seatList) {
+					SeatPrice sp = seatPriceDAO.getByType(s.getSeatType());
+					BigDecimal surcharge = (sp != null) ? BigDecimal.valueOf(sp.getSurcharge()) : BigDecimal.ZERO;
+					ticketSubtotal = ticketSubtotal.add(ticketPrice.add(surcharge));
+				}
+			}
 
 			BigDecimal comboSubtotal = BigDecimal.ZERO;
 			if (comboList != null) {
@@ -235,7 +267,7 @@ public class PaymentServlet extends HttpServlet {
 
 	// Lock booking row để tránh 2 tab thanh toán cùng lúc
 	private BookingInfo getBookingInfoForUpdate(Connection con, int bookingId) {
-		String sql = "SELECT booking_id, user_id, status FROM bookings WHERE booking_id=? FOR UPDATE";
+		String sql = "SELECT booking_id, user_id, showtime_id, status FROM bookings WHERE booking_id=? FOR UPDATE";
 		try (PreparedStatement ps = con.prepareStatement(sql)) {
 			ps.setInt(1, bookingId);
 			try (ResultSet rs = ps.executeQuery()) {
@@ -244,11 +276,31 @@ public class PaymentServlet extends HttpServlet {
 				BookingInfo bi = new BookingInfo();
 				bi.bookingId = rs.getInt("booking_id");
 				bi.userId = rs.getInt("user_id");
+				bi.showtimeId = rs.getInt("showtime_id");
 				bi.status = rs.getString("status");
 				return bi;
 			}
 		} catch (Exception e) {
 			throw new RuntimeException("getBookingInfoForUpdate error", e);
+		}
+	}
+
+	private BookingInfo getBookingInfoNoLock(int bookingId) {
+		String sql = "SELECT booking_id, user_id, showtime_id, status FROM bookings WHERE booking_id=?";
+		try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+			ps.setInt(1, bookingId);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (!rs.next())
+					return null;
+				BookingInfo bi = new BookingInfo();
+				bi.bookingId = rs.getInt("booking_id");
+				bi.userId = rs.getInt("user_id");
+				bi.showtimeId = rs.getInt("showtime_id");
+				bi.status = rs.getString("status");
+				return bi;
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("getBookingInfoNoLock error", e);
 		}
 	}
 
@@ -298,6 +350,7 @@ public class PaymentServlet extends HttpServlet {
 	private static class BookingInfo {
 		int bookingId;
 		int userId;
+		int showtimeId;
 		String status;
 	}
 }

@@ -14,20 +14,21 @@
   <jsp:include page="/common/header.jsp" />
 
   <!-- Hero Section (Fixed Padding to avoid overlap) -->
-  <section class="bg-slate-900 pt-40 pb-24 relative overflow-hidden">
+  <section class="bg-slate-900 pt-48 pb-32 relative overflow-hidden">
     <div class="absolute inset-0 opacity-20">
-        <div class="absolute inset-0 bg-gradient-to-br from-red-600 to-transparent"></div>
+        <div class="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-transparent"></div>
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
     </div>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-      <div class="inline-flex items-center gap-2 bg-red-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest mb-6 shadow-lg shadow-red-500/20">
-        <i class="fas fa-calendar-alt"></i> Hệ thống lịch chiếu chuyên nghiệp
+      <div class="inline-flex items-center gap-2 bg-indigo-600 text-white px-5 py-2 rounded-full text-[11px] font-black uppercase tracking-widest mb-8 shadow-xl shadow-indigo-500/20 border border-white/10">
+        <i class="fas fa-calendar-alt animate-bounce"></i> Hệ thống lịch chiếu thông minh
       </div>
-      <h1 class="text-4xl md:text-7xl font-black text-white mb-6 tracking-tighter uppercase italic">
-        Lịch chiếu phim
+      <h1 class="text-5xl md:text-8xl font-black text-white mb-8 tracking-tighter uppercase italic leading-none">
+        Lịch <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">chiếu</span> phim
       </h1>
-      <p class="text-slate-400 text-lg max-w-2xl mx-auto font-medium">
-        Khám phá lịch chiếu phim mới nhất tại BOBIXI Cinema Đà Nẵng. 
-        <br class="hidden md:block">Chọn ngày và đặt vé ngay để tận hưởng những phút giây thư giãn.
+      <p class="text-slate-400 text-xl max-w-2xl mx-auto font-medium leading-relaxed">
+        Cập nhật liên tục những siêu phẩm điện ảnh mới nhất. 
+        <br class="hidden md:block">Trải nghiệm đặt vé một chạm, xem phim cực đã.
       </p>
     </div>
   </section>
@@ -37,23 +38,25 @@
     <div class="bg-white rounded-[3rem] shadow-xl shadow-slate-200/40 border border-slate-100 p-8 md:p-12 mb-12">
       
       <!-- Date Selection Row -->
-      <div class="mb-12">
-        <div class="flex items-center gap-4 mb-8">
-            <h2 class="text-[11px] font-black text-red-500 uppercase tracking-[0.3em] whitespace-nowrap">Chọn ngày xem phim</h2>
+      <div class="mb-16">
+        <div class="flex items-center gap-4 mb-10">
+            <h2 class="text-[12px] font-black text-indigo-500 uppercase tracking-[0.4em] whitespace-nowrap">Chọn ngày công chiếu</h2>
             <div class="h-px w-full bg-slate-100"></div>
         </div>
         
-        <div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+        <div class="flex gap-5 overflow-x-auto pb-6 scrollbar-hide snap-x">
           <c:forEach var="d" items="${availableDates}">
             <fmt:formatDate value="${d}" pattern="yyyy-MM-dd" var="iso" />
             <fmt:formatDate value="${d}" pattern="E" var="dayOfWeek" />
-            <fmt:formatDate value="${d}" pattern="dd/MM" var="label" />
+            <fmt:formatDate value="${d}" pattern="dd" var="day" />
+            <fmt:formatDate value="${d}" pattern="MM" var="month" />
             
             <a href="${pageContext.request.contextPath}/showtime?date=${iso}" 
-               class="flex-shrink-0 w-24 md:w-28 py-6 rounded-[2rem] flex flex-col items-center justify-center transition-all duration-500
-               ${iso == selectedDate ? 'bg-red-500 text-white shadow-2xl shadow-red-200 scale-105 ring-4 ring-red-500/10' : 'bg-slate-50 text-slate-500 hover:bg-white hover:shadow-xl hover:text-red-500 border border-transparent hover:border-red-100'}">
-               <span class="text-[10px] font-black uppercase tracking-widest opacity-60 mb-2">${dayOfWeek}</span>
-               <span class="text-2xl font-black">${label}</span>
+               class="flex-shrink-0 w-28 md:w-32 py-8 rounded-[2.5rem] flex flex-col items-center justify-center transition-all duration-500 snap-center
+               ${iso == selectedDate ? 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-2xl shadow-indigo-200 scale-110 ring-8 ring-indigo-500/10' : 'bg-slate-50 text-slate-400 hover:bg-white hover:shadow-2xl hover:text-indigo-600 border border-transparent hover:border-indigo-100'}">
+               <span class="text-[10px] font-black uppercase tracking-[0.2em] opacity-60 mb-3">${dayOfWeek}</span>
+               <span class="text-4xl font-black mb-1">${day}</span>
+               <span class="text-[10px] font-bold opacity-50 uppercase mt-1">Tháng ${month}</span>
             </a>
           </c:forEach>
         </div>

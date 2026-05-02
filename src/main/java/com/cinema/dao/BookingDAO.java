@@ -92,9 +92,17 @@ public class BookingDAO {
 					b.setBookingId(rs.getInt("booking_id"));
 					b.setUserId(rs.getInt("user_id"));
 					b.setShowtimeId(rs.getInt("showtime_id"));
-					b.setBookingDate(rs.getTimestamp("booking_date"));
+					try {
+						b.setBookingDate(rs.getTimestamp("booking_date"));
+					} catch (Exception ex) {
+						b.setBookingDate(rs.getTimestamp("booking_time"));
+					}
 					b.setTotalPrice(rs.getLong("total_price"));
-					b.setDiscountAmount(rs.getLong("discount_amount"));
+					try {
+						b.setDiscountAmount(rs.getLong("discount_amount"));
+					} catch (Exception ex) {
+						b.setDiscountAmount(0L);
+					}
 					b.setStatus(com.cinema.enums.StatusBooking.valueOf(rs.getString("status")));
 					return b;
 				}
@@ -103,6 +111,39 @@ public class BookingDAO {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public java.util.List<com.cinema.model.Booking> findByUserId(int userId) {
+		java.util.List<com.cinema.model.Booking> list = new java.util.ArrayList<>();
+		String sql = "SELECT * FROM bookings WHERE user_id = ? ORDER BY booking_id DESC";
+		try (Connection con = com.cinema.utils.DBConnection.getConnection();
+				PreparedStatement ps = con.prepareStatement(sql)) {
+			ps.setInt(1, userId);
+			try (ResultSet rs = ps.executeQuery()) {
+				while (rs.next()) {
+					com.cinema.model.Booking b = new com.cinema.model.Booking();
+					b.setBookingId(rs.getInt("booking_id"));
+					b.setUserId(rs.getInt("user_id"));
+					b.setShowtimeId(rs.getInt("showtime_id"));
+					try {
+						b.setBookingDate(rs.getTimestamp("booking_date"));
+					} catch (Exception ex) {
+						b.setBookingDate(rs.getTimestamp("booking_time"));
+					}
+					b.setTotalPrice(rs.getLong("total_price"));
+					try {
+						b.setDiscountAmount(rs.getLong("discount_amount"));
+					} catch (Exception ex) {
+						b.setDiscountAmount(0L);
+					}
+					b.setStatus(com.cinema.enums.StatusBooking.valueOf(rs.getString("status")));
+					list.add(b);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return list;
 	}
 
 	public java.util.List<com.cinema.model.Seat> getSeatsByBookingId(int bookingId) {

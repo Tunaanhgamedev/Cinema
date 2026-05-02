@@ -65,12 +65,54 @@
     }
     .legend-item { display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 600; color: #94a3b8; }
     .legend-box { width: 16px; height: 16px; border-radius: 4px; }
+
+    /* SEAT VIEW PREVIEW */
+    .view-preview-popup {
+        position: fixed;
+        pointer-events: none;
+        width: 280px;
+        background: rgba(15, 23, 42, 0.9);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 12px;
+        z-index: 1000;
+        opacity: 0;
+        transform: translateY(10px) scale(0.95);
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    .view-preview-popup.active {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    .preview-img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 12px;
+        margin-bottom: 10px;
+    }
+    .preview-info {
+        text-align: center;
+    }
+    .preview-info h4 { font-size: 14px; font-weight: 800; color: white; margin-bottom: 2px; }
+    .preview-info p { font-size: 11px; color: #94a3b8; }
 </style>
 
 <div class="max-w-6xl mx-auto py-12 px-4">
     <div class="text-center mb-16">
         <h2 class="text-5xl font-black text-white mb-4 tracking-tighter">Chọn vị trí ngồi</h2>
         <p class="text-slate-400">Vui lòng chọn chỗ ngồi bạn yêu thích để tận hưởng bộ phim.</p>
+    </div>
+
+    <!-- View Preview Popup -->
+    <div id="view-preview" class="view-preview-popup">
+        <img id="preview-img" src="" class="preview-img" alt="Seat View">
+        <div class="preview-info">
+            <h4 id="preview-row">Tầm nhìn hàng A</h4>
+            <p id="preview-desc">Góc nhìn cận cảnh màn hình</p>
+        </div>
     </div>
 
     <div class="flex flex-col items-center">
@@ -98,13 +140,17 @@
                         
                         <div class="seat-box ${s.seatType} ${isBooked ? 'BOOKED' : ''}" 
                              id="seat-${s.seatId}"
+                             data-row="${s.seatRow}"
+                             onmouseover="showPreview(event, '${s.seatRow}')"
+                             onmousemove="movePreview(event)"
+                             onmouseleave="hidePreview()"
                              onclick="toggleSeat(this, '${s.seatId}')">
-                            <div class="seat-icon">
-                                ${s.seatRow}${s.seatNumber}
-                            </div>
-                            <c:if test="${!isBooked}">
-                                <input type="checkbox" name="seatIds" value="${s.seatId}" id="check-${s.seatId}" class="hidden">
-                            </c:if>
+                             <div class="seat-icon">
+                                 ${s.seatRow}${s.seatNumber}
+                             </div>
+                             <c:if test="${!isBooked}">
+                                 <input type="checkbox" name="seatIds" value="${s.seatId}" id="check-${s.seatId}" class="hidden">
+                             </c:if>
                         </div>
                     </c:forEach>
                 </div>
@@ -152,5 +198,42 @@
             btn.disabled = true;
             btn.classList.add('opacity-50', 'cursor-not-allowed');
         }
+    }
+
+    const previewPopup = document.getElementById('view-preview');
+    const previewImg = document.getElementById('preview-img');
+    const previewRowText = document.getElementById('preview-row');
+    const previewDesc = document.getElementById('preview-desc');
+
+    const viewAssets = {
+        'A': { img: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=500&auto=format&fit=crop', desc: 'Góc nhìn cực gần, sống động từng chi tiết' },
+        'B': { img: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=500&auto=format&fit=crop', desc: 'Góc nhìn cận cảnh màn hình' },
+        'C': { img: 'https://images.unsplash.com/photo-1517604401157-538a9663ecf3?q=80&w=500&auto=format&fit=crop', desc: 'Vị trí lý tưởng, bao quát màn hình' },
+        'D': { img: 'https://images.unsplash.com/photo-1517604401157-538a9663ecf3?q=80&w=500&auto=format&fit=crop', desc: 'Góc nhìn tiêu chuẩn từ trung tâm' },
+        'E': { img: 'https://images.unsplash.com/photo-1517604401157-538a9663ecf3?q=80&w=500&auto=format&fit=crop', desc: 'Tầm nhìn đẹp nhất trong phòng chiếu' },
+        'F': { img: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=500&auto=format&fit=crop', desc: 'Góc nhìn bao quát từ phía sau' },
+        'G': { img: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=500&auto=format&fit=crop', desc: 'Tầm nhìn từ xa, không gây mỏi mắt' },
+        'H': { img: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=500&auto=format&fit=crop', desc: 'Hàng ghế sau cùng, không gian riêng tư' }
+    };
+
+    function showPreview(e, row) {
+        const asset = viewAssets[row] || viewAssets['D'];
+        previewImg.src = asset.img;
+        previewRowText.innerText = 'Tầm nhìn từ hàng ' + row;
+        previewDesc.innerText = asset.desc;
+        
+        previewPopup.classList.add('active');
+        movePreview(e);
+    }
+
+    function movePreview(e) {
+        const x = e.clientX + 20;
+        const y = e.clientY - 220;
+        previewPopup.style.left = x + 'px';
+        previewPopup.style.top = y + 'px';
+    }
+
+    function hidePreview() {
+        previewPopup.classList.remove('active');
     }
 </script>

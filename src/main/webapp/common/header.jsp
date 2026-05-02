@@ -25,6 +25,7 @@
             <nav class="hidden md:flex space-x-10">
                 <a href="${pageContext.request.contextPath}/movie" class="text-slate-400 hover:text-white font-bold tracking-widest text-[13px] transition-colors">PHIM</a>
                 <a href="${pageContext.request.contextPath}/showtime" class="text-slate-400 hover:text-white font-bold tracking-widest text-[13px] transition-colors">LỊCH CHIẾU</a>
+                <a href="${pageContext.request.contextPath}/combos" class="text-slate-400 hover:text-white font-bold tracking-widest text-[13px] transition-colors">COMBO</a>
                 <a href="${pageContext.request.contextPath}/booking-seat" class="text-slate-400 hover:text-white font-bold tracking-widest text-[13px] transition-colors">ĐẶT VÉ</a>
                 <a href="${pageContext.request.contextPath}/pages/clients/cinema/cinema-detail.jsp" class="text-slate-400 hover:text-white font-bold tracking-widest text-[13px] transition-colors">RẠP</a>
                 <a href="${pageContext.request.contextPath}/contact" class="text-slate-400 hover:text-white font-bold tracking-widest text-[13px] transition-colors">LIÊN HỆ</a>

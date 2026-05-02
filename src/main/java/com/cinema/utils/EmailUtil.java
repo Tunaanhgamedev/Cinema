@@ -118,4 +118,36 @@ public class EmailUtil {
             </div>
         """.formatted(userName, movieTitle, seats, time, total);
     }
+
+    public static String getVoucherTemplate(String userName, String voucherCode, String discount, String expiryDate) {
+        return """
+            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f8fafc; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                <div style="background: linear-gradient(135deg, #6366f1, #a855f7); padding: 40px 20px; text-align: center; color: #fff;">
+                    <h1 style="margin: 0; font-size: 28px; letter-spacing: 2px;">BOBIXI GIFT VOUCHER</h1>
+                    <p style="opacity: 0.8; margin-top: 10px;">Món quà đặc biệt dành riêng cho bạn!</p>
+                </div>
+                
+                <div style="padding: 40px; text-align: center;">
+                    <p style="font-size: 18px; color: #1e293b;">Chào <strong>%s</strong>,</p>
+                    <p style="color: #64748b; line-height: 1.6;">Để cảm ơn bạn đã luôn đồng hành cùng BOBIXI Cinema, chúng tôi xin tặng bạn mã giảm giá ưu đãi dưới đây:</p>
+                    
+                    <div style="margin: 30px 0; padding: 30px; background-color: #fff; border: 2px dashed #e2e8f0; border-radius: 15px; position: relative;">
+                        <div style="font-size: 48px; font-weight: 900; color: #6366f1; margin-bottom: 10px;">%s</div>
+                        <div style="font-size: 18px; color: #1e293b; font-weight: bold; text-transform: uppercase;">GIẢM NGAY %s</div>
+                    </div>
+                    
+                    <div style="background-color: #eff6ff; padding: 15px; border-radius: 10px; color: #2563eb; font-size: 14px; font-weight: 600;">
+                        Hạn sử dụng đến ngày: %s
+                    </div>
+                    
+                    <a href="https://bobixi.vn/booking" style="display: inline-block; margin-top: 40px; padding: 18px 35px; background-color: #6366f1; color: #fff; text-decoration: none; border-radius: 12px; font-weight: bold; box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);">SỬ DỤNG NGAY</a>
+                </div>
+                
+                <div style="padding: 20px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0;">
+                    <p>Mã voucher chỉ áp dụng cho đặt vé trực tuyến tại website BOBIXI Cinema.</p>
+                    <p>&copy; 2026 BOBIXI Cinema. All rights reserved.</p>
+                </div>
+            </div>
+        """.formatted(userName, discount, voucherCode, expiryDate);
+    }
 }

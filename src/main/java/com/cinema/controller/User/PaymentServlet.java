@@ -222,7 +222,7 @@ public class PaymentServlet extends HttpServlet {
 				}
 			}
 
-			// ✅ Gửi Email xác nhận (Chạy ngầm)
+			// ✅ Gửi Email xác nhận & Tặng Voucher (Chạy ngầm)
 			try {
 				final BigDecimal finalTotal = grandTotal;
 				final String userEmail = u.getEmail();
@@ -230,6 +230,7 @@ public class PaymentServlet extends HttpServlet {
 				
 				new Thread(() -> {
 					try {
+						// 1. Gửi Email xác nhận đặt vé
 						StringBuilder seatsStr = new StringBuilder();
 						if (seatList != null) {
 							for (com.cinema.model.Seat seat : seatList) {
@@ -238,15 +239,39 @@ public class PaymentServlet extends HttpServlet {
 							}
 						}
 
-						String body = com.cinema.utils.EmailUtil.getBookingConfirmationTemplate(
+						String confirmBody = com.cinema.utils.EmailUtil.getBookingConfirmationTemplate(
 							userName, 
 							"Vé xem phim tại BOBIXI", 
 							seatsStr.toString(), 
 							"Rạp BOBIXI Đà Nẵng", 
 							String.format("%,.0f", finalTotal)
 						);
-						
-						com.cinema.utils.EmailUtil.sendEmail(userEmail, "Xác nhận đặt vé thành công - BOBIXI Cinema", body);
+						com.cinema.utils.EmailUtil.sendEmail(userEmail, "Xác nhận đặt vé thành công - BOBIXI Cinema", confirmBody);
+
+						// 2. Tặng Voucher nếu hóa đơn > 200k
+						if (finalTotal.compareTo(new BigDecimal("200000")) >= 0) {
+							com.cinema.dao.VoucherDAO vDAO = new com.cinema.dao.VoucherDAO();
+							String randomCode = "GIFT" + (int)(Math.random() * 9000 + 1000);
+							
+							com.cinema.model.Voucher v = new com.cinema.model.Voucher();
+							v.setCode(randomCode);
+							v.setDiscountValue(new BigDecimal("15")); // Giảm 15%
+							v.setDiscountType("PERCENT");
+							v.setMinOrderValue(new BigDecimal("100000"));
+							v.setValidFrom(new java.sql.Timestamp(System.currentTimeMillis()));
+							v.setValidTo(new java.sql.Timestamp(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000)); // 30 ngày
+							v.setActive(true);
+							
+							vDAO.insert(v);
+							
+							String voucherBody = com.cinema.utils.EmailUtil.getVoucherTemplate(
+								userName, 
+								randomCode, 
+								"15%", 
+								new java.text.SimpleDateFormat("dd/MM/yyyy").format(v.getValidTo())
+							);
+							com.cinema.utils.EmailUtil.sendEmail(userEmail, "Quà tặng đặc biệt từ BOBIXI Cinema - Voucher 15%", voucherBody);
+						}
 					} catch (Exception ex) {
 						ex.printStackTrace();
 					}

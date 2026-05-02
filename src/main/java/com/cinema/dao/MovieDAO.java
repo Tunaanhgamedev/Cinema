@@ -71,6 +71,21 @@ public class MovieDAO {
 		}
 	}
 
+	public List<Movie> findComingSoon() {
+		String sql = "SELECT * FROM movies WHERE status = 'COMING_SOON' ORDER BY release_date ASC";
+		List<Movie> list = new ArrayList<>();
+		try (Connection cn = DBConnection.getConnection();
+				PreparedStatement ps = cn.prepareStatement(sql);
+				ResultSet rs = ps.executeQuery()) {
+			while (rs.next()) {
+				list.add(mapResultSetToMovie(rs));
+			}
+			return list;
+		} catch (Exception e) {
+			throw new RuntimeException("MovieDAO.findComingSoon failed: " + e.getMessage(), e);
+		}
+	}
+
 	public int countTotalMovies() {
 		String sql = "SELECT COUNT(*) FROM movies";
 		try (Connection cn = DBConnection.getConnection();

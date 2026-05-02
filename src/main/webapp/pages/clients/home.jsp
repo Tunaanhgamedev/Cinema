@@ -77,6 +77,41 @@
             <!-- Nếu bạn vẫn muốn banner cũ thì để lại, không muốn thì xoá -->
             <jsp:include page="/common/banner.jsp" />
 
+            <!-- PROMO & ADS SECTION -->
+            <section class="promo-section home-section">
+                <div class="section-head">
+                    <h2 class="section-title">ƯU ĐÃI ĐẶC BIỆT</h2>
+                    <div class="section-line"></div>
+                </div>
+                <div class="promo-grid">
+                    <div class="promo-card combo-card">
+                        <div class="promo-content">
+                            <span class="promo-tag">Best Seller</span>
+                            <h3>Combo Đôi Hoàn Hảo</h3>
+                            <p>2 Bắp lớn + 2 Nước ngọt + 1 Topping bất kỳ. Tiết kiệm ngay 30%.</p>
+                            <div class="price">Chỉ 129.000đ</div>
+                            <a href="#" class="btn-promo">Mua ngay</a>
+                        </div>
+                        <div class="promo-img">
+                            <img src="https://images.unsplash.com/photo-1572177191856-3cde6403ec1b?q=80&w=600&auto=format&fit=crop" alt="Combo Popcorn">
+                        </div>
+                    </div>
+
+                    <div class="promo-card loyalty-card-promo">
+                        <div class="promo-content">
+                            <span class="promo-tag">Membership</span>
+                            <h3>Trở thành Hội viên BOBIXI</h3>
+                            <p>Tích điểm 5% mỗi giao dịch, đổi vé miễn phí và nhận quà sinh nhật bất ngờ.</p>
+                            <div class="loyalty-perks">
+                                <span><i class="fas fa-check-circle"></i> Giảm 10% bắp nước</span>
+                                <span><i class="fas fa-check-circle"></i> Ưu tiên chọn ghế đẹp</span>
+                            </div>
+                            <a href="${pageContext.request.contextPath}/register" class="btn-promo btn-gold">Đăng ký ngay</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- NOW SHOWING -->
             <section class="home-section wow-section" id="nowshowing">
                 <div class="section-head">
@@ -102,6 +137,33 @@
                                         class="btn-buy btn-wow">Mua vé</a>
                                     <a href="${pageContext.request.contextPath}/movie?id=${m.movieId}"
                                         class="btn-trailer">Chi tiết</a>
+                                </div>
+                            </div>
+                        </div>
+                    </c:forEach>
+                </div>
+            </section>
+
+            <!-- COMING SOON -->
+            <section class="home-section wow-section">
+                <div class="section-head">
+                    <h2 class="section-title">PHIM SẮP CHIẾU</h2>
+                    <div class="section-line"></div>
+                </div>
+                <div class="movie-grid wow-grid">
+                    <c:forEach var="m" items="${comingSoonMovies}">
+                        <div class="movie-item wow-card coming-soon-card">
+                            <div class="movie-poster">
+                                <img src="${pageContext.request.contextPath}/${m.poster}" alt="${m.title}"
+                                    loading="lazy">
+                                <span class="movie-badge badge-blue">COMING SOON</span>
+                            </div>
+                            <div class="movie-body">
+                                <h3>${m.title}</h3>
+                                <div class="movie-meta">Ngày khởi chiếu: ${m.releaseDate}</div>
+                                <div class="movie-actions">
+                                    <a href="${pageContext.request.contextPath}/movie?id=${m.movieId}"
+                                        class="btn-trailer w-full">Xem Trailer</a>
                                 </div>
                             </div>
                         </div>

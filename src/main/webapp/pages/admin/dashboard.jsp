@@ -44,48 +44,70 @@
         </div>
 
         <!-- Quick Stats Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            <!-- Movie Stats -->
             <div class="card-glass p-6 group hover:border-indigo-500/30 transition-all">
                 <div class="flex items-center justify-between mb-4">
                     <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
                         <i class="fas fa-film text-xl"></i>
                     </div>
-                    <span class="text-emerald-400 text-xs font-bold">+12%</span>
                 </div>
                 <h3 class="text-slate-400 text-xs font-black uppercase tracking-widest mb-1">Tổng Phim</h3>
                 <div class="text-3xl font-black text-white">${totalMovies}</div>
             </div>
 
+            <!-- Booking Stats -->
             <div class="card-glass p-6 group hover:border-sky-500/30 transition-all">
                 <div class="flex items-center justify-between mb-4">
                     <div class="w-12 h-12 rounded-2xl bg-sky-500/10 flex items-center justify-center text-sky-400 group-hover:scale-110 transition-transform">
                         <i class="fas fa-ticket-alt text-xl"></i>
                     </div>
-                    <span class="text-emerald-400 text-xs font-bold">+5%</span>
                 </div>
                 <h3 class="text-slate-400 text-xs font-black uppercase tracking-widest mb-1">Vé đã bán</h3>
                 <div class="text-3xl font-black text-white">${totalBookings}</div>
             </div>
 
-            <div class="card-glass p-6 group hover:border-amber-500/30 transition-all">
+            <!-- Revenue Stats -->
+            <div class="card-glass p-6 group hover:border-emerald-500/30 transition-all">
                 <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-400 group-hover:scale-110 transition-transform">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
                         <i class="fas fa-coins text-xl"></i>
                     </div>
-                    <span class="text-rose-400 text-xs font-bold">-2%</span>
                 </div>
                 <h3 class="text-slate-400 text-xs font-black uppercase tracking-widest mb-1">Doanh thu</h3>
                 <div class="text-3xl font-black text-white"><fmt:formatNumber value="${totalRevenue}" type="currency" currencySymbol="₫" maxFractionDigits="0" /></div>
             </div>
 
+            <!-- Discount Stats -->
+            <div class="card-glass p-6 group hover:border-rose-500/30 transition-all">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-400 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-percent text-xl"></i>
+                    </div>
+                </div>
+                <h3 class="text-slate-400 text-xs font-black uppercase tracking-widest mb-1">Tổng Giảm giá</h3>
+                <div class="text-3xl font-black text-white"><fmt:formatNumber value="${totalDiscount}" type="currency" currencySymbol="₫" maxFractionDigits="0" /></div>
+            </div>
+
+            <!-- Voucher Stats -->
+            <div class="card-glass p-6 group hover:border-amber-500/30 transition-all">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-400 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-tags text-xl"></i>
+                    </div>
+                </div>
+                <h3 class="text-slate-400 text-xs font-black uppercase tracking-widest mb-1">Voucher Đang Chạy</h3>
+                <div class="text-3xl font-black text-white">${activeVouchers}</div>
+            </div>
+
+            <!-- User Stats -->
             <div class="card-glass p-6 group hover:border-emerald-500/30 transition-all">
                 <div class="flex items-center justify-between mb-4">
                     <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
                         <i class="fas fa-users text-xl"></i>
                     </div>
-                    <span class="text-emerald-400 text-xs font-bold">+18%</span>
                 </div>
-                <h3 class="text-slate-400 text-xs font-black uppercase tracking-widest mb-1">Người dùng</h3>
+                <h3 class="text-slate-400 text-xs font-black uppercase tracking-widest mb-1">Thành viên</h3>
                 <div class="text-3xl font-black text-white">${userCount}</div>
             </div>
         </div>

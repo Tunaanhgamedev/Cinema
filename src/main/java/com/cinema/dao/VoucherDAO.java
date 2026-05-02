@@ -150,4 +150,15 @@ public class VoucherDAO {
         }
         return new VoucherResult(false, "Mã giảm giá không tồn tại hoặc đã bị vô hiệu hóa.");
     }
+    public int countActiveVouchers() {
+        String sql = "SELECT COUNT(*) FROM vouchers WHERE is_active = TRUE AND (valid_to IS NULL OR valid_to > CURRENT_TIMESTAMP)";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }

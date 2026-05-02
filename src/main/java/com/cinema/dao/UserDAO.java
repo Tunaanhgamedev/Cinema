@@ -199,4 +199,16 @@ public class UserDAO {
 		}
 	}
 
+	public int countTotalUsers() {
+		String sql = "SELECT COUNT(*) FROM users";
+		try (Connection con = DBConnection.getConnection();
+				PreparedStatement ps = con.prepareStatement(sql);
+				ResultSet rs = ps.executeQuery()) {
+			if (rs.next())
+				return rs.getInt(1);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
 }

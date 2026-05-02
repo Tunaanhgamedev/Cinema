@@ -156,7 +156,10 @@ CREATE TABLE vouchers (
     min_order_value DECIMAL(10,2),    -- Đơn tối thiểu
     valid_from DATETIME,
     valid_to DATETIME,
-    is_active BOOLEAN DEFAULT TRUE
+    is_active BOOLEAN DEFAULT TRUE,
+    user_id INT NULL,                 -- ID người dùng sở hữu (nếu là voucher cá nhân)
+    is_used BOOLEAN DEFAULT FALSE,    -- Trạng thái đã sử dụng
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 ALTER TABLE payments 
 ADD COLUMN transaction_id VARCHAR(100), -- Mã giao dịch từ VNPay/Momo trả về

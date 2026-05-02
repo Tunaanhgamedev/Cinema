@@ -22,6 +22,12 @@ public class AccountServlet extends HttpServlet {
 			return;
 		}
 
+		com.cinema.model.User u = (com.cinema.model.User) session.getAttribute("authUser");
+		com.cinema.dao.VoucherDAO voucherDAO = new com.cinema.dao.VoucherDAO();
+		java.util.List<com.cinema.model.Voucher> myVouchers = voucherDAO.findByUserId(u.getUserId());
+		
+		req.setAttribute("myVouchers", myVouchers);
+
 		// forward đúng file jsp account của bạn
 		req.getRequestDispatcher("/pages/clients/account/account.jsp").forward(req, resp);
 	}

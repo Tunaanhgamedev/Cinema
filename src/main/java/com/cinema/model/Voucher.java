@@ -12,6 +12,8 @@ public class Voucher {
     private Timestamp validFrom;
     private Timestamp validTo;
     private boolean isActive;
+    private Integer userId;
+    private boolean isUsed;
 
     public Voucher() {}
 
@@ -38,4 +40,10 @@ public class Voucher {
 
     public boolean isActive() { return isActive; }
     public void setActive(boolean active) { isActive = active; }
+
+    public Integer getUserId() { return userId; }
+    public void setUserId(Integer userId) { this.userId = userId; }
+
+    public boolean isUsed() { return isUsed; }
+    public void setUsed(boolean used) { isUsed = used; }
 }

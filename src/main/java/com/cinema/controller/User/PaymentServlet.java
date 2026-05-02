@@ -261,6 +261,8 @@ public class PaymentServlet extends HttpServlet {
 							v.setValidFrom(new java.sql.Timestamp(System.currentTimeMillis()));
 							v.setValidTo(new java.sql.Timestamp(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000)); // 30 ngày
 							v.setActive(true);
+							v.setUserId(u.getUserId()); // Gắn chủ sở hữu
+							v.setUsed(false);
 							
 							vDAO.insert(v);
 							

@@ -61,8 +61,10 @@ if (session.getAttribute("authUser") == null) {
 
 				<nav class="account-menu">
 					<a href="#overview" class="menu-item active"
-						onclick="showSection('overview'); return false;">Tổng quan</a> <a
-						href="#profile" class="menu-item"
+						onclick="showSection('overview'); return false;">Tổng quan</a> 
+                    <a href="#vouchers" class="menu-item"
+						onclick="showSection('vouchers'); return false;">Kho Voucher</a>
+                    <a href="#profile" class="menu-item"
 						onclick="showSection('profile'); return false;">Thông tin cá
 						nhân</a> <a href="#settings" class="menu-item"
 						onclick="showSection('settings'); return false;">Nhận thông
@@ -164,6 +166,46 @@ if (session.getAttribute("authUser") == null) {
 							</c:choose>
 						</div>
 					</div>
+				</div>
+
+                <!-- VOUCHERS -->
+				<div id="vouchers-section" class="content-section">
+					<h2 style="margin-top: 0;">Kho Voucher của tôi</h2>
+                    <p class="section-desc">Danh sách các mã giảm giá bạn đang sở hữu. Áp dụng khi thanh toán vé.</p>
+					
+                    <div class="voucher-wallet-grid">
+                        <c:forEach var="v" items="${myVouchers}">
+                            <div class="wallet-voucher-card">
+                                <div class="voucher-left">
+                                    <div class="discount-val">
+                                        <c:choose>
+                                            <c:when test="${v.discountType == 'PERCENT'}">${v.discountValue.intValue()}%</c:when>
+                                            <c:otherwise><fmt:formatNumber value="${v.discountValue}" pattern="#,###" />đ</c:otherwise>
+                                        </c:choose>
+                                    </div>
+                                    <div class="off-text">GIẢM</div>
+                                </div>
+                                <div class="voucher-right">
+                                    <h4 class="v-title">Voucher Đặc Quyền</h4>
+                                    <div class="v-code" onclick="copyVoucher('${v.code}')" title="Click để sao chép">
+                                        Mã: <span>${v.code}</span>
+                                        <i class="fas fa-copy ms-2 opacity-50"></i>
+                                    </div>
+                                    <p class="v-min">Đơn tối thiểu: <fmt:formatNumber value="${v.minOrderValue}" pattern="#,###" />đ</p>
+                                    <p class="v-expiry">HSD: <fmt:formatDate value="${v.validTo}" pattern="dd/MM/yyyy" /></p>
+                                </div>
+                                <div class="voucher-cut"></div>
+                            </div>
+                        </c:forEach>
+                        
+                        <c:if test="${empty myVouchers}">
+                            <div class="empty-vouchers">
+                                <i class="fas fa-ticket-alt"></i>
+                                <p>Bạn chưa có voucher nào. Hãy đặt vé giá trị trên 200k để nhận quà nhé!</p>
+                                <a href="${pageContext.request.contextPath}/home" class="btn-buy-now">ĐẶT VÉ NGAY</a>
+                            </div>
+                        </c:if>
+                    </div>
 				</div>
 
 				<!-- PROFILE -->
@@ -332,6 +374,12 @@ if (session.getAttribute("authUser") == null) {
 
 			history.pushState(null, null, '#' + sectionId);
 		}
+
+        function copyVoucher(code) {
+            navigator.clipboard.writeText(code).then(() => {
+                alert('Đã sao chép mã: ' + code);
+            });
+        }
 
 		(function initHash() {
 			var hash = window.location.hash ? window.location.hash.substring(1)

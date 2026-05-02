@@ -54,7 +54,7 @@ public class VoucherDAO {
     }
 
     public void insert(Voucher v) {
-        String sql = "INSERT INTO vouchers (code, discount_value, discount_type, min_order_value, valid_from, valid_to, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO vouchers (code, discount_value, discount_type, min_order_value, valid_from, valid_to, is_active, user_id, is_used) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, v.getCode());
@@ -64,6 +64,8 @@ public class VoucherDAO {
             ps.setTimestamp(5, v.getValidFrom());
             ps.setTimestamp(6, v.getValidTo());
             ps.setBoolean(7, v.isActive());
+            if (v.getUserId() != null) ps.setInt(8, v.getUserId()); else ps.setNull(8, java.sql.Types.INTEGER);
+            ps.setBoolean(9, v.isUsed());
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -71,7 +73,7 @@ public class VoucherDAO {
     }
 
     public void update(Voucher v) {
-        String sql = "UPDATE vouchers SET code=?, discount_value=?, discount_type=?, min_order_value=?, valid_from=?, valid_to=?, is_active=? WHERE voucher_id=?";
+        String sql = "UPDATE vouchers SET code=?, discount_value=?, discount_type=?, min_order_value=?, valid_from=?, valid_to=?, is_active=?, user_id=?, is_used=? WHERE voucher_id=?";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, v.getCode());
@@ -81,7 +83,9 @@ public class VoucherDAO {
             ps.setTimestamp(5, v.getValidFrom());
             ps.setTimestamp(6, v.getValidTo());
             ps.setBoolean(7, v.isActive());
-            ps.setInt(8, v.getVoucherId());
+            if (v.getUserId() != null) ps.setInt(8, v.getUserId()); else ps.setNull(8, java.sql.Types.INTEGER);
+            ps.setBoolean(9, v.isUsed());
+            ps.setInt(10, v.getVoucherId());
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -109,11 +113,13 @@ public class VoucherDAO {
         v.setValidFrom(rs.getTimestamp("valid_from"));
         v.setValidTo(rs.getTimestamp("valid_to"));
         v.setActive(rs.getBoolean("is_active"));
+        v.setUserId(rs.getObject("user_id") != null ? rs.getInt("user_id") : null);
+        v.setUsed(rs.getBoolean("is_used"));
         return v;
     }
 
     public VoucherResult checkVoucher(String code, double orderTotal) {
-        String sql = "SELECT * FROM vouchers WHERE code = ? AND is_active = TRUE";
+        String sql = "SELECT * FROM vouchers WHERE code = ? AND is_active = TRUE AND is_used = FALSE";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             
@@ -148,7 +154,7 @@ public class VoucherDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return new VoucherResult(false, "Mã giảm giá không tồn tại hoặc đã bị vô hiệu hóa.");
+        return new VoucherResult(false, "Mã giảm giá không tồn tại, đã hết hạn hoặc đã được sử dụng.");
     }
     public int countActiveVouchers() {
         String sql = "SELECT COUNT(*) FROM vouchers WHERE is_active = TRUE AND (valid_to IS NULL OR valid_to > CURRENT_TIMESTAMP)";
@@ -160,5 +166,33 @@ public class VoucherDAO {
             e.printStackTrace();
         }
         return 0;
+    }
+
+    public List<Voucher> findByUserId(int userId) {
+        List<Voucher> list = new ArrayList<>();
+        String sql = "SELECT * FROM vouchers WHERE user_id = ? AND is_active = TRUE AND is_used = FALSE ORDER BY valid_to ASC";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public void markAsUsed(String code) {
+        String sql = "UPDATE vouchers SET is_used = TRUE WHERE code = ?";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, code);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

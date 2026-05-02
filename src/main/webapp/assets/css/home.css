@@ -34,30 +34,34 @@ body{
 /* ===== HERO (CGV-like banner) ===== */
 .hero-wow{
   position: relative;
-  padding: 68px 0 42px;
+  padding: 120px 0 80px;
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
   overflow:hidden;
+  background: #000;
 }
 
-/* overlay tối */
-.hero-wow::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:
-    linear-gradient(90deg, rgba(0,0,0,.78) 0%, rgba(0,0,0,.55) 45%, rgba(0,0,0,.30) 100%),
-    radial-gradient(1200px 520px at 30% 30%, rgba(227,0,27,.18), transparent 60%);
-  pointer-events:none;
-  z-index: 1;
-}
-
-/* background image/video lớp dưới (nếu bạn có .hero-bg) */
-.hero-bg{
-  position:absolute;
-  inset:0;
-  background: url("../img/hero-cinema.jpg") center/cover no-repeat; /* đổi đường dẫn theo bạn */
-  filter: saturate(1.05) contrast(1.05) brightness(.78);
-  transform: scale(1.02);
+.hero-video-wrapper {
+  position: absolute;
+  inset: 0;
   z-index: 0;
+}
+
+.hero-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.4) saturate(1.2);
+}
+
+.video-overlay {
+  position: absolute;
+  inset: 0;
+  background: 
+    linear-gradient(90deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.8) 100%),
+    linear-gradient(0deg, rgba(0,0,0,1) 0%, transparent 40%);
+  pointer-events: none;
 }
 
 /* tắt animation gradient cũ */

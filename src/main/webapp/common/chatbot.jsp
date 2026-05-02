@@ -37,6 +37,13 @@
                     Chào bạn! Tôi là BobiBot. Bạn cần tôi tư vấn phim hay hay giải đáp thắc mắc gì không? 🍿
                 </div>
             </div>
+            <!-- Mood Picker -->
+            <div class="mood-picker flex justify-center gap-4 py-2 border-y border-white/5 bg-white/5 rounded-2xl">
+                <button onclick="quickAction('Tôi đang cảm thấy vui')" class="text-2xl hover:scale-125 transition-transform" title="Vui vẻ">🔥</button>
+                <button onclick="quickAction('Tôi đang thấy buồn')" class="text-2xl hover:scale-125 transition-transform" title="Buồn bã">💖</button>
+                <button onclick="quickAction('Tôi đang bị stress')" class="text-2xl hover:scale-125 transition-transform" title="Căng thẳng">😴</button>
+                <button onclick="quickAction('Tôi đang thấy chán')" class="text-2xl hover:scale-125 transition-transform" title="Chán nản">😑</button>
+            </div>
             <!-- Quick Actions -->
             <div class="flex flex-wrap gap-2 mt-2">
                 <button onclick="quickAction('Phim hot nhất')" class="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] text-slate-400 hover:bg-red-600/20 hover:text-red-500 hover:border-red-600/50 transition-all">🎬 Phim hot</button>

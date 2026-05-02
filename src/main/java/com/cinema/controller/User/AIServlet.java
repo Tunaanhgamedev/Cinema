@@ -64,7 +64,20 @@ public class AIServlet extends HttpServlet {
         else if (userMessage.contains("đặt vé") || userMessage.contains("mua vé") || userMessage.contains("làm sao")) {
             aiResponse = "Quy trình đặt vé rất đơn giản:<br>1. Chọn phim bạn thích.<br>2. Chọn suất chiếu phù hợp.<br>3. Chọn ghế ngồi trên sơ đồ.<br>4. Thanh toán online để nhận mã vé ngay lập tức!<br>Tôi có thể giúp bạn chọn phim ngay bây giờ không?";
         }
-        // 7. Thể loại
+        // 7. Tư vấn theo tâm trạng (Mood-based)
+        else if (userMessage.matches(".*(vui|hưng phấn|excited|happy).*")) {
+            aiResponse = "Tuyệt quá! Khi đang vui, bạn nên xem những siêu phẩm **Hành động** kịch tính hoặc **Kinh dị** để đẩy cảm xúc lên đỉnh điểm. Bạn muốn tôi gợi ý vài phim bom tấn 'cực cháy' không?";
+        }
+        else if (userMessage.matches(".*(buồn|cô đơn|sad|alone).*")) {
+            aiResponse = "Đừng buồn nhé, BobiBot ở đây với bạn! Một bộ phim **Tình cảm** nhẹ nhàng hoặc **Hài hước** sẽ là liều thuốc chữa lành tốt nhất lúc này. Bạn muốn thử xem danh sách phim 'healing' của chúng tôi không?";
+        }
+        else if (userMessage.matches(".*(stress|mệt|tired|căng thẳng).*")) {
+            aiResponse = "Bầu không khí vui nhộn của phim **Hoạt hình** hoặc **Hài** sẽ giúp bạn xua tan mệt mỏi ngay. Hãy để BOBIXI giúp bạn thư giãn sau một ngày dài nhé! 🍿";
+        }
+        else if (userMessage.matches(".*(chán|bored).*")) {
+            aiResponse = "Đang chán à? Hãy để những pha rượt đuổi trong phim **Hành động** hoặc sự kịch tính của phim **Kinh dị** làm mới lại năng lượng của bạn. Xem phim ngay thôi!";
+        }
+        // 8. Thể loại
         else if (userMessage.matches(".*(hành động|kinh dị|tình cảm|hài|hoạt hình).*")) {
             String genre = userMessage.contains("hành động") ? "Hành động" : (userMessage.contains("kinh dị") ? "Kinh dị" : "Tình cảm");
             aiResponse = "Dòng phim " + genre + " hiện đang rất được ưa chuộng. Bạn hãy vào mục 'Phim' để xem danh sách mới nhất nhé. Bạn muốn tôi giới thiệu một bộ phim cụ thể không?";

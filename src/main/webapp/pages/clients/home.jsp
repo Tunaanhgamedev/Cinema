@@ -80,34 +80,80 @@
             <!-- PROMO & ADS SECTION -->
             <section class="promo-section home-section">
                 <div class="section-head">
-                    <h2 class="section-title">ƯU ĐÃI ĐẶC BIỆT</h2>
+                    <h2 class="section-title">ƯU ĐÃI & HỘI VIÊN</h2>
                     <div class="section-line"></div>
                 </div>
                 <div class="promo-grid">
+                    <!-- Combo Card -->
                     <div class="promo-card combo-card">
                         <div class="promo-content">
                             <span class="promo-tag">Best Seller</span>
                             <h3>Combo Đôi Hoàn Hảo</h3>
                             <p>2 Bắp lớn + 2 Nước ngọt + 1 Topping bất kỳ. Tiết kiệm ngay 30%.</p>
                             <div class="price">Chỉ 129.000đ</div>
-                            <a href="#" class="btn-promo">Mua ngay</a>
+                            <a href="${pageContext.request.contextPath}/combo" class="btn-promo">Khám phá Menu</a>
                         </div>
                         <div class="promo-img">
                             <img src="https://images.unsplash.com/photo-1572177191856-3cde6403ec1b?q=80&w=600&auto=format&fit=crop" alt="Combo Popcorn">
                         </div>
                     </div>
 
+                    <!-- Loyalty Promo Card -->
                     <div class="promo-card loyalty-card-promo">
                         <div class="promo-content">
                             <span class="promo-tag">Membership</span>
-                            <h3>Trở thành Hội viên BOBIXI</h3>
-                            <p>Tích điểm 5% mỗi giao dịch, đổi vé miễn phí và nhận quà sinh nhật bất ngờ.</p>
+                            <h3>Gia nhập Cộng đồng BOBIXI</h3>
+                            <p>Tích điểm 5% mỗi giao dịch, đổi vé miễn phí và nhận voucher quyền năng.</p>
                             <div class="loyalty-perks">
-                                <span><i class="fas fa-check-circle"></i> Giảm 10% bắp nước</span>
-                                <span><i class="fas fa-check-circle"></i> Ưu tiên chọn ghế đẹp</span>
+                                <span><i class="fas fa-star"></i> Tích điểm đổi quà 24/7</span>
+                                <span><i class="fas fa-gift"></i> Voucher giảm giá lên đến 100k</span>
                             </div>
-                            <a href="${pageContext.request.contextPath}/register" class="btn-promo btn-gold">Đăng ký ngay</a>
+                            <a href="${pageContext.request.contextPath}/register" class="btn-promo btn-gold">Đăng ký thành viên</a>
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MEMBERSHIP TIERS SECTION -->
+            <section class="membership-tiers-section home-section">
+                <div class="section-head">
+                    <h2 class="section-title">HẠNG THÀNH VIÊN</h2>
+                    <div class="section-line"></div>
+                </div>
+                <div class="tiers-grid">
+                    <!-- Silver -->
+                    <div class="tier-card tier-silver">
+                        <div class="tier-icon"><i class="fas fa-medal"></i></div>
+                        <h3>SILVER</h3>
+                        <p class="tier-desc">Hạng khởi đầu cho mọi hành trình điện ảnh.</p>
+                        <ul class="tier-list">
+                            <li><i class="fas fa-check"></i> Tích lũy 5% điểm</li>
+                            <li><i class="fas fa-check"></i> Voucher sinh nhật 20k</li>
+                        </ul>
+                    </div>
+                    <!-- Gold -->
+                    <div class="tier-card tier-gold">
+                        <div class="tier-icon"><i class="fas fa-crown"></i></div>
+                        <div class="tier-badge-popular">Phổ biến nhất</div>
+                        <h3>GOLD</h3>
+                        <p class="tier-desc">Nâng tầm trải nghiệm với ưu đãi nhân đôi.</p>
+                        <ul class="tier-list">
+                            <li><i class="fas fa-check"></i> Tích lũy 7% điểm</li>
+                            <li><i class="fas fa-check"></i> Voucher sinh nhật 50k</li>
+                            <li><i class="fas fa-check"></i> Giảm 5% Combo bắp nước</li>
+                        </ul>
+                    </div>
+                    <!-- Platinum -->
+                    <div class="tier-card tier-platinum">
+                        <div class="tier-icon"><i class="fas fa-gem"></i></div>
+                        <h3>PLATINUM</h3>
+                        <p class="tier-desc">Đặc quyền tối thượng dành cho mọt phim chính hiệu.</p>
+                        <ul class="tier-list">
+                            <li><i class="fas fa-check"></i> Tích lũy 10% điểm</li>
+                            <li><i class="fas fa-check"></i> Voucher sinh nhật 100k</li>
+                            <li><i class="fas fa-check"></i> Miễn phí đổi vé 2 lần/tháng</li>
+                            <li><i class="fas fa-check"></i> Quà tặng đặc biệt cuối năm</li>
+                        </ul>
                     </div>
                 </div>
             </section>

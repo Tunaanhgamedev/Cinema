@@ -32,39 +32,45 @@ public class AIServlet extends HttpServlet {
 
         String aiResponse = "";
         
-        // Logic tư vấn thông minh (Demo)
-        if (userMessage.contains("chào") || userMessage.contains("hi") || userMessage.contains("hello")) {
-            aiResponse = "Xin chào! Tôi là **BobiBot**, trợ lý AI của BOBIXI Cinema. Tôi có thể giúp bạn tìm phim hay, kiểm tra khuyến mãi hoặc giải đáp về hạng thành viên. Bạn muốn xem gì hôm nay?";
+        // 1. Chào hỏi
+        if (userMessage.matches(".*(chào|hi|hello|hey).*")) {
+            aiResponse = "Xin chào! Tôi là **BobiBot**, trợ lý AI của BOBIXI Cinema. Bạn cần tôi tìm phim hay, xem lịch chiếu hay giải đáp về bắp nước hôm nay?";
         } 
-        else if (userMessage.contains("phim") || userMessage.contains("chi chiếu") || userMessage.contains("xem gì")) {
+        // 2. Lịch chiếu & Phim đang chiếu
+        else if (userMessage.contains("lịch chiếu") || userMessage.contains("suất chiếu")) {
+            aiResponse = "Lịch chiếu hôm nay đang rất đầy đủ tại các phòng chiếu hiện đại. Bạn muốn xem phim vào khung giờ nào (Sáng, Chiều hay Tối) để tôi gợi ý chính xác hơn?";
+        }
+        else if (userMessage.contains("phim") || userMessage.contains("xem gì")) {
             List<Movie> movies = movieDAO.findAllWithFilters("", "newest");
             String movieTitles = movies.stream()
                                      .limit(3)
-                                     .map(m -> "• **" + m.getTitle() + "** (" + m.getGenre() + ")")
+                                     .map(m -> "• **" + m.getTitle() + "** [" + m.getGenre() + "]")
                                      .collect(Collectors.joining("<br>"));
-            aiResponse = "Hiện tại rạp đang có những siêu phẩm cực hot:<br>" + movieTitles + "<br>Bạn muốn đặt vé phim nào trong số này không?";
+            aiResponse = "Đây là 3 siêu phẩm đang làm mưa làm gió tại BOBIXI:<br>" + movieTitles + "<br>Bạn đã xem qua chưa? Đặt vé ngay kẻo lỡ nhé!";
         }
-        else if (userMessage.contains("giảm giá") || userMessage.contains("khuyến mãi") || userMessage.contains("voucher")) {
-            aiResponse = "BOBIXI đang có chương trình **Tích điểm 5%** cho mỗi hóa đơn! Ngoài ra, nếu bạn đổi điểm, bạn có thể nhận Voucher lên đến **100.000đ**. Hãy vào mục 'Tài khoản' để xem ví Voucher của mình nhé!";
+        // 3. Khuyến mãi & Thành viên
+        else if (userMessage.contains("giảm giá") || userMessage.contains("khuyến mãi") || userMessage.contains("voucher") || userMessage.contains("hội viên")) {
+            aiResponse = "Chúng tôi có 3 hạng thành viên: **Silver**, **Gold** và **Platinum**. <br>Mỗi hạng sẽ được tích điểm từ 5% - 10%. Đặc biệt, hạng Platinum được tặng Voucher **100.000đ** vào dịp sinh nhật đó!";
         }
-        else if (userMessage.contains("giá vé")) {
-            aiResponse = "Giá vé tại BOBIXI rất cạnh tranh:<br>• Ghế Thường: từ 60.000đ<br>• Ghế VIP: +20.000đ phụ phí<br>• Ghế Đôi (Couple): +50.000đ phụ phí.<br>Giá có thể thay đổi tùy suất chiếu bạn nhé!";
+        // 4. Bắp nước (Combo)
+        else if (userMessage.contains("bắp") || userMessage.contains("nước") || userMessage.contains("combo") || userMessage.contains("ăn gì")) {
+            aiResponse = "Đến BOBIXI thì không thể bỏ qua **Combo Đôi Hoàn Hảo** (2 nước + 1 bắp lớn) chỉ với 129k. Ngoài ra còn có các Combo nhân vật theo phim cực chất nữa đấy!";
         }
-        else if (userMessage.contains("hành động") || userMessage.contains("kinh dị") || userMessage.contains("tình cảm")) {
+        // 5. Giá vé
+        else if (userMessage.contains("giá vé") || userMessage.contains("bao nhiêu tiền")) {
+            aiResponse = "Giá vé cơ bản chỉ từ **60.000đ**. <br>• Ghế VIP: +20k<br>• Ghế Đôi: +50k<br>Rất phù hợp cho một buổi hẹn hò xem phim chất lượng đúng không nào?";
+        }
+        // 6. Hướng dẫn đặt vé
+        else if (userMessage.contains("đặt vé") || userMessage.contains("mua vé") || userMessage.contains("làm sao")) {
+            aiResponse = "Quy trình đặt vé rất đơn giản:<br>1. Chọn phim bạn thích.<br>2. Chọn suất chiếu phù hợp.<br>3. Chọn ghế ngồi trên sơ đồ.<br>4. Thanh toán online để nhận mã vé ngay lập tức!<br>Tôi có thể giúp bạn chọn phim ngay bây giờ không?";
+        }
+        // 7. Thể loại
+        else if (userMessage.matches(".*(hành động|kinh dị|tình cảm|hài|hoạt hình).*")) {
             String genre = userMessage.contains("hành động") ? "Hành động" : (userMessage.contains("kinh dị") ? "Kinh dị" : "Tình cảm");
-            List<Movie> filtered = movieDAO.findAllWithFilters("", "newest").stream()
-                                          .filter(m -> m.getGenre().contains(genre))
-                                          .limit(2)
-                                          .collect(Collectors.toList());
-            if (!filtered.isEmpty()) {
-                String result = filtered.stream().map(m -> "**" + m.getTitle() + "**").collect(Collectors.joining(", "));
-                aiResponse = "Nếu bạn thích " + genre + ", tôi gợi ý bạn xem ngay: " + result + ". Chắc chắn bạn sẽ không thất vọng!";
-            } else {
-                aiResponse = "Tiếc quá, hiện rạp chưa có phim " + genre + " mới. Bạn có muốn thử xem thể loại khác không?";
-            }
+            aiResponse = "Dòng phim " + genre + " hiện đang rất được ưa chuộng. Bạn hãy vào mục 'Phim' để xem danh sách mới nhất nhé. Bạn muốn tôi giới thiệu một bộ phim cụ thể không?";
         }
         else {
-            aiResponse = "Cảm ơn bạn đã nhắn tin! Hiện tại tôi đang học hỏi thêm. Bạn có thể hỏi về 'phim đang chiếu', 'giá vé' hoặc 'khuyến mãi' để tôi hỗ trợ tốt nhất nhé! 😊";
+            aiResponse = "Câu hỏi này thú vị quá! BobiBot đang được nâng cấp để hiểu bạn hơn. Hiện tại bạn có thể hỏi tôi về 'phim hot', 'combo bắp nước' hoặc 'cách đặt vé' nhé! 🍿";
         }
 
         JsonObject jsonResponse = new JsonObject();

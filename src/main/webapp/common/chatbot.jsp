@@ -37,6 +37,13 @@
                     Chào bạn! Tôi là BobiBot. Bạn cần tôi tư vấn phim hay hay giải đáp thắc mắc gì không? 🍿
                 </div>
             </div>
+            <!-- Quick Actions -->
+            <div class="flex flex-wrap gap-2 mt-2">
+                <button onclick="quickAction('Phim hot nhất')" class="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] text-slate-400 hover:bg-red-600/20 hover:text-red-500 hover:border-red-600/50 transition-all">🎬 Phim hot</button>
+                <button onclick="quickAction('Combo bắp nước')" class="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] text-slate-400 hover:bg-red-600/20 hover:text-red-500 hover:border-red-600/50 transition-all">🍿 Bắp nước</button>
+                <button onclick="quickAction('Cách đặt vé')" class="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] text-slate-400 hover:bg-red-600/20 hover:text-red-500 hover:border-red-600/50 transition-all">🎟️ Đặt vé</button>
+                <button onclick="quickAction('Hạng thành viên')" class="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] text-slate-400 hover:bg-red-600/20 hover:text-red-500 hover:border-red-600/50 transition-all">💎 Thành viên</button>
+            </div>
         </div>
 
         <!-- Input Area -->
@@ -147,6 +154,11 @@
             document.getElementById(typingId).remove();
             addMessage('Rất tiếc, tôi đang gặp lỗi kết nối. Hãy thử lại sau ít phút nhé! 😅');
         }
+    }
+
+    async function quickAction(text) {
+        chatInput.value = text;
+        await sendMessage();
     }
 
     chatSend.onclick = sendMessage;

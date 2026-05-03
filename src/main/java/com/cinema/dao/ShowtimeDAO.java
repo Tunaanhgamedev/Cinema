@@ -291,4 +291,23 @@ public class ShowtimeDAO {
         }
         return list;
     }
+
+    public boolean isOverlap(int roomId, java.sql.Timestamp start, java.sql.Timestamp end, Integer excludeId) {
+        String sql = "SELECT COUNT(*) FROM showtimes WHERE room_id = ? AND ((start_time < ? AND end_time > ?))";
+        if (excludeId != null) {
+            sql += " AND showtime_id <> " + excludeId;
+        }
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, roomId);
+            ps.setTimestamp(2, end);
+            ps.setTimestamp(3, start);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

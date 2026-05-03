@@ -212,7 +212,7 @@ public class PaymentServlet extends HttpServlet {
 			// ✅ Cộng điểm tích lũy (1000 VNĐ = 1 điểm)
 			int pointsToAdd = grandTotal.divide(new BigDecimal("1000")).intValue();
 			if (pointsToAdd > 0) {
-				com.cinema.dao.UserDAO userDAO = new com.cinema.dao.UserDAO();
+				com.cinema.dao.UserDAO userDAO = new com.cinema.dao.impl.UserDAOImpl();
 				userDAO.addPoints(u.getUserId(), pointsToAdd);
 				
 				// Cập nhật lại session user để hiển thị điểm mới

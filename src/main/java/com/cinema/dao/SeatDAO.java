@@ -39,9 +39,14 @@ public class SeatDAO {
 
                     String type = rs.getString("seat_type");
                     try {
-                        s.setSeatType(SeatType.valueOf(type));
+                        // Ánh xạ linh hoạt: Nếu DB là STANDARD thì coi như NORMAL
+                        if ("STANDARD".equalsIgnoreCase(type)) {
+                            s.setSeatType(SeatType.NORMAL);
+                        } else {
+                            s.setSeatType(SeatType.valueOf(type.toUpperCase()));
+                        }
                     } catch (Exception e) {
-                        s.setSeatType(SeatType.STANDARD);
+                        s.setSeatType(SeatType.NORMAL);
                     }
                     
                     s.setGridRow(rs.getInt("grid_row"));

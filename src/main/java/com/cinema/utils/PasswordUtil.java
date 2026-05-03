@@ -11,6 +11,10 @@ public class PasswordUtil {
 		return BCrypt.hashpw(plainPassword, BCrypt.gensalt(10));
 	}
 
+	public static String hashPassword(String plainPassword) {
+		return hash(plainPassword);
+	}
+
 	// Kiểm tra mật khẩu khi đăng nhập
 	public static boolean verify(String plainPassword, String hashedPassword) {
 		if (plainPassword == null || hashedPassword == null)

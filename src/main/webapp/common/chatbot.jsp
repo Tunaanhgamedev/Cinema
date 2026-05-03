@@ -1,13 +1,15 @@
 <!-- BobiBot - AI Cinema Assistant -->
 <div id="ai-chatbot-wrapper" class="fixed bottom-8 right-8 z-[999] font-['Outfit']">
     <!-- Chat Toggle Button -->
-    <button id="chatbot-toggle" class="w-16 h-16 bg-gradient-to-tr from-red-600 to-rose-600 rounded-full shadow-2xl flex items-center justify-center text-white text-2xl hover:scale-110 transition-all group">
+    <button id="chatbot-toggle"
+        class="w-16 h-16 bg-gradient-to-tr from-red-600 to-rose-600 rounded-full shadow-2xl flex items-center justify-center text-white text-2xl hover:scale-110 transition-all group">
         <i class="fas fa-robot group-hover:rotate-12 transition-transform"></i>
         <span class="absolute -top-1 -right-1 w-5 h-5 bg-green-500 border-2 border-slate-900 rounded-full"></span>
     </button>
 
     <!-- Chat Window -->
-    <div id="chatbot-window" class="absolute bottom-20 right-0 w-[380px] h-[550px] bg-slate-900/95 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden hidden scale-90 opacity-0 origin-bottom-right transition-all duration-300">
+    <div id="chatbot-window"
+        class="absolute bottom-20 right-0 w-[380px] h-[550px] bg-slate-900/95 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden hidden scale-90 opacity-0 origin-bottom-right transition-all duration-300">
         <!-- Header -->
         <div class="p-6 bg-white/5 border-b border-white/5 flex items-center justify-between">
             <div class="flex items-center gap-4">
@@ -20,7 +22,7 @@
                         <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span> Online
                     </p>
                 </div>
-            </div>
+            </div>*
             <button id="chatbot-close" class="text-slate-400 hover:text-white transition-colors">
                 <i class="fas fa-times text-xl"></i>
             </button>
@@ -30,39 +32,56 @@
         <div id="chatbot-messages" class="flex-1 overflow-y-auto p-6 space-y-4 scroll-smooth">
             <!-- Bot Welcome -->
             <div class="bot-msg flex gap-3">
-                <div class="w-8 h-8 rounded-full bg-slate-800 flex-shrink-0 flex items-center justify-center text-xs text-red-500 border border-white/5">
+                <div
+                    class="w-8 h-8 rounded-full bg-slate-800 flex-shrink-0 flex items-center justify-center text-xs text-red-500 border border-white/5">
                     <i class="fas fa-robot"></i>
                 </div>
-                <div class="bg-white/5 border border-white/5 rounded-2xl rounded-tl-none p-4 text-sm text-slate-300 max-w-[85%]">
+                <div
+                    class="bg-white/5 border border-white/5 rounded-2xl rounded-tl-none p-4 text-sm text-slate-300 max-w-[85%]">
                     Chào bạn! Tôi là BobiBot. Bạn cần tôi tư vấn phim hay hay giải đáp thắc mắc gì không? 🍿
                 </div>
             </div>
             <!-- Mood Picker -->
             <div class="mood-picker flex justify-center gap-4 py-2 border-y border-white/5 bg-white/5 rounded-2xl">
-                <button onclick="quickAction('Tôi đang cảm thấy vui')" class="text-2xl hover:scale-125 transition-transform" title="Vui vẻ">🔥</button>
-                <button onclick="quickAction('Tôi đang thấy buồn')" class="text-2xl hover:scale-125 transition-transform" title="Buồn bã">💖</button>
-                <button onclick="quickAction('Tôi đang bị stress')" class="text-2xl hover:scale-125 transition-transform" title="Căng thẳng">😴</button>
-                <button onclick="quickAction('Tôi đang thấy chán')" class="text-2xl hover:scale-125 transition-transform" title="Chán nản">😑</button>
+                <button onclick="quickAction('Tôi đang cảm thấy vui')"
+                    class="text-2xl hover:scale-125 transition-transform" title="Vui vẻ">🔥</button>
+                <button onclick="quickAction('Tôi đang thấy buồn')"
+                    class="text-2xl hover:scale-125 transition-transform" title="Buồn bã">💖</button>
+                <button onclick="quickAction('Tôi đang bị stress')"
+                    class="text-2xl hover:scale-125 transition-transform" title="Căng thẳng">😴</button>
+                <button onclick="quickAction('Tôi đang thấy chán')"
+                    class="text-2xl hover:scale-125 transition-transform" title="Chán nản">😑</button>
             </div>
             <!-- Quick Actions -->
             <div class="flex flex-wrap gap-2 mt-2">
-                <button onclick="quickAction('Phim hot nhất')" class="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] text-slate-400 hover:bg-red-600/20 hover:text-red-500 hover:border-red-600/50 transition-all">🎬 Phim hot</button>
-                <button onclick="quickAction('Combo bắp nước')" class="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] text-slate-400 hover:bg-red-600/20 hover:text-red-500 hover:border-red-600/50 transition-all">🍿 Bắp nước</button>
-                <button onclick="quickAction('Cách đặt vé')" class="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] text-slate-400 hover:bg-red-600/20 hover:text-red-500 hover:border-red-600/50 transition-all">🎟️ Đặt vé</button>
-                <button onclick="quickAction('Hạng thành viên')" class="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] text-slate-400 hover:bg-red-600/20 hover:text-red-500 hover:border-red-600/50 transition-all">💎 Thành viên</button>
+                <button onclick="quickAction('Phim hot nhất')"
+                    class="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] text-slate-400 hover:bg-red-600/20 hover:text-red-500 hover:border-red-600/50 transition-all">🎬
+                    Phim hot</button>
+                <button onclick="quickAction('Combo bắp nước')"
+                    class="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] text-slate-400 hover:bg-red-600/20 hover:text-red-500 hover:border-red-600/50 transition-all">🍿
+                    Bắp nước</button>
+                <button onclick="quickAction('Cách đặt vé')"
+                    class="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] text-slate-400 hover:bg-red-600/20 hover:text-red-500 hover:border-red-600/50 transition-all">🎟️
+                    Đặt vé</button>
+                <button onclick="quickAction('Hạng thành viên')"
+                    class="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] text-slate-400 hover:bg-red-600/20 hover:text-red-500 hover:border-red-600/50 transition-all">💎
+                    Thành viên</button>
             </div>
         </div>
 
         <!-- Input Area -->
         <div class="p-4 bg-white/5 border-t border-white/5">
-            <div class="relative flex items-center gap-2 bg-slate-950 border border-white/10 rounded-2xl p-2 focus-within:border-red-500 transition-all">
-                <input type="text" id="chatbot-input" placeholder="Hỏi BobiBot bất cứ điều gì..." 
-                       class="flex-1 bg-transparent border-none outline-none text-white px-3 py-2 text-sm">
-                <button id="chatbot-send" class="w-10 h-10 bg-red-600 hover:bg-red-500 rounded-xl flex items-center justify-center text-white transition-all">
+            <div
+                class="relative flex items-center gap-2 bg-slate-950 border border-white/10 rounded-2xl p-2 focus-within:border-red-500 transition-all">
+                <input type="text" id="chatbot-input" placeholder="Hỏi BobiBot bất cứ điều gì..."
+                    class="flex-1 bg-transparent border-none outline-none text-white px-3 py-2 text-sm">
+                <button id="chatbot-send"
+                    class="w-10 h-10 bg-red-600 hover:bg-red-500 rounded-xl flex items-center justify-center text-white transition-all">
                     <i class="fas fa-paper-plane"></i>
                 </button>
             </div>
-            <p class="text-[10px] text-center text-slate-500 mt-3 uppercase font-bold tracking-tighter">Powered by BOBIXI Cinema AI</p>
+            <p class="text-[10px] text-center text-slate-500 mt-3 uppercase font-bold tracking-tighter">Powered by
+                BOBIXI Cinema AI</p>
         </div>
     </div>
 </div>
@@ -73,21 +92,43 @@
         transform: scale(1);
         opacity: 1;
     }
-    .user-msg { justify-content: flex-end; }
+
+    .user-msg {
+        justify-content: flex-end;
+    }
+
     .user-msg .content {
         background: linear-gradient(135deg, #ef4444 0%, #be123c 100%);
         color: white;
         border-radius: 1.25rem 1.25rem 0 1.25rem;
     }
-    #chatbot-messages::-webkit-scrollbar { width: 4px; }
-    #chatbot-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
-    
-    @keyframes typing {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-3px); }
+
+    #chatbot-messages::-webkit-scrollbar {
+        width: 4px;
     }
+
+    #chatbot-messages::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+    }
+
+    @keyframes typing {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-3px);
+        }
+    }
+
     .typing-dot {
-        width: 4px; height: 4px; background: #64748b; border-radius: 50%;
+        width: 4px;
+        height: 4px;
+        background: #64748b;
+        border-radius: 50%;
         animation: typing 1s infinite;
     }
 </style>
@@ -106,13 +147,13 @@
     function addMessage(text, isBot = true) {
         const msgDiv = document.createElement('div');
         msgDiv.className = isBot ? 'bot-msg flex gap-3' : 'user-msg flex gap-3';
-        
-        const avatar = isBot ? 
-            `<div class="w-8 h-8 rounded-full bg-slate-800 flex-shrink-0 flex items-center justify-center text-xs text-red-500 border border-white/5"><i class="fas fa-robot"></i></div>` : 
+
+        const avatar = isBot ?
+            `<div class="w-8 h-8 rounded-full bg-slate-800 flex-shrink-0 flex items-center justify-center text-xs text-red-500 border border-white/5"><i class="fas fa-robot"></i></div>` :
             '';
 
-        const contentClass = isBot ? 
-            'bg-white/5 border border-white/5 rounded-2xl rounded-tl-none p-4 text-sm text-slate-300 max-w-[85%]' : 
+        const contentClass = isBot ?
+            'bg-white/5 border border-white/5 rounded-2xl rounded-tl-none p-4 text-sm text-slate-300 max-w-[85%]' :
             'content p-4 text-sm max-w-[85%] shadow-lg shadow-red-900/20';
 
         msgDiv.innerHTML = `

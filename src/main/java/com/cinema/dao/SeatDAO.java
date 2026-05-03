@@ -14,74 +14,66 @@ import com.cinema.utils.DBConnection;
 
 public class SeatDAO {
 
-	// Lấy toàn bộ ghế theo room
-	public List<Seat> getSeatsByRoom(int roomId) {
-		List<Seat> list = new ArrayList<>();
+    public List<Seat> getSeatsByRoom(int roomId) {
+        List<Seat> list = new ArrayList<>();
+        String sql = "SELECT * FROM seats WHERE room_id = ? AND is_active = TRUE ORDER BY seat_row, seat_number";
 
-		// ✅ bảng của bạn là "seats" (không phải "seat")
-		String sql = "SELECT seat_id, room_id, seat_row, seat_number, seat_type, grid_row, grid_col "
-				+ "FROM seats WHERE room_id = ? ORDER BY seat_row, seat_number";
+        try (Connection con = DBConnection.getConnection(); 
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, roomId);
+            Set<String> seenSeats = new HashSet<>();
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String row = rs.getString("seat_row");
+                    int number = rs.getInt("seat_number");
+                    String key = row + "-" + number;
 
-		try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+                    if (seenSeats.contains(key)) continue;
+                    seenSeats.add(key);
 
-			ps.setInt(1, roomId);
-			java.util.Set<String> seenSeats = new java.util.HashSet<>();
-			try (ResultSet rs = ps.executeQuery()) {
-				while (rs.next()) {
-					String row = rs.getString("seat_row");
-					int number = rs.getInt("seat_number");
-					String key = row + "-" + number;
+                    Seat s = new Seat();
+                    s.setSeatId(rs.getInt("seat_id"));
+                    s.setRoomId(rs.getInt("room_id"));
+                    s.setSeatRow((row != null && !row.isEmpty()) ? row.charAt(0) : 'A');
+                    s.setSeatNumber(number);
 
-					// Nếu đã thấy ghế này rồi thì bỏ qua (tránh lỗi dữ liệu trùng trong DB)
-					if (seenSeats.contains(key)) continue;
-					seenSeats.add(key);
+                    String type = rs.getString("seat_type");
+                    try {
+                        s.setSeatType(SeatType.valueOf(type));
+                    } catch (Exception e) {
+                        s.setSeatType(SeatType.STANDARD);
+                    }
+                    
+                    s.setGridRow(rs.getInt("grid_row"));
+                    s.setGridCol(rs.getInt("grid_col"));
+                    list.add(s);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 
-					Seat s = new Seat();
-					s.setSeatId(rs.getInt("seat_id"));
-					s.setRoomId(rs.getInt("room_id"));
+    public Set<Integer> getBookedSeatIds(int showtimeId) {
+        Set<Integer> booked = new HashSet<>();
+        String sql = """
+            SELECT bs.seat_id 
+            FROM booking_seats bs 
+            JOIN bookings b ON bs.booking_id = b.booking_id 
+            WHERE b.showtime_id = ? AND b.status IN ('PAID', 'PENDING')
+        """;
 
-					s.setSeatRow((row != null && !row.isEmpty()) ? row.charAt(0) : 'A');
-
-					s.setSeatNumber(number);
-
-					String type = rs.getString("seat_type");
-					s.setSeatType(type != null ? SeatType.valueOf(type) : SeatType.NORMAL);
-					
-					// Đọc grid nếu có (để xử lý layout tự do)
-					int gRow = rs.getInt("grid_row");
-					if (!rs.wasNull()) s.setGridRow(gRow);
-					
-					int gCol = rs.getInt("grid_col");
-					if (!rs.wasNull()) s.setGridCol(gCol);
-
-					list.add(s);
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return list;
-	}
-
-	// Ghế đã được đặt theo showtime (nếu bạn còn dùng)
-	public Set<Integer> getBookedSeatIds(int showtimeId) {
-		Set<Integer> booked = new HashSet<>();
-
-		String sql = "SELECT bs.seat_id " + "FROM booking_seat bs " + "JOIN booking b ON bs.booking_id = b.booking_id "
-				+ "WHERE b.showtime_id = ? AND b.status = 'PAID'";
-
-		try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-
-			ps.setInt(1, showtimeId);
-			try (ResultSet rs = ps.executeQuery()) {
-				while (rs.next())
-					booked.add(rs.getInt("seat_id"));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return booked;
-	}
+        try (Connection con = DBConnection.getConnection(); 
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, showtimeId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next())
+                    booked.add(rs.getInt("seat_id"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return booked;
+    }
 }

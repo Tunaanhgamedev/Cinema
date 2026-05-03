@@ -123,4 +123,87 @@ public class BookingDAO {
             e.printStackTrace();
         }
     }
+
+    public int countTotalBookings() {
+        String sql = "SELECT COUNT(*) FROM bookings WHERE status = 'PAID'";
+        try (Connection cn = DBConnection.getConnection();
+             PreparedStatement ps = cn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public long calculateTotalRevenue() {
+        String sql = "SELECT SUM(total_price) FROM bookings WHERE status = 'PAID'";
+        try (Connection cn = DBConnection.getConnection();
+             PreparedStatement ps = cn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getBigDecimal(1) != null ? rs.getBigDecimal(1).longValue() : 0L;
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0L;
+    }
+
+    public long calculateTotalDiscount() {
+        String sql = "SELECT SUM(discount_amount) FROM bookings WHERE status = 'PAID'";
+        try (Connection cn = DBConnection.getConnection();
+             PreparedStatement ps = cn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getBigDecimal(1) != null ? rs.getBigDecimal(1).longValue() : 0L;
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0L;
+    }
+
+    public java.util.Map<String, Long> getRevenueLast7Days() {
+        java.util.Map<String, Long> map = new java.util.LinkedHashMap<>();
+        String sql = """
+            SELECT DATE(booking_date) as d, SUM(total_price) as r 
+            FROM bookings 
+            WHERE status = 'PAID' AND booking_date >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+            GROUP BY DATE(booking_date) 
+            ORDER BY d ASC
+        """;
+        try (Connection cn = DBConnection.getConnection();
+             PreparedStatement ps = cn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                map.put(rs.getString("d"), rs.getBigDecimal("r").longValue());
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return map;
+    }
+
+    public java.util.Map<String, Long> getRevenueByMovie() {
+        java.util.Map<String, Long> map = new java.util.LinkedHashMap<>();
+        String sql = """
+            SELECT m.title, SUM(b.total_price) as r 
+            FROM bookings b 
+            JOIN showtimes s ON b.showtime_id = s.showtime_id 
+            JOIN movies m ON s.movie_id = m.movie_id 
+            WHERE b.status = 'PAID'
+            GROUP BY m.title
+            ORDER BY r DESC
+        """;
+        try (Connection cn = DBConnection.getConnection();
+             PreparedStatement ps = cn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                map.put(rs.getString("title"), rs.getBigDecimal("r").longValue());
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return map;
+    }
+
+    public List<Booking> getAllBookings() {
+        List<Booking> list = new ArrayList<>();
+        String sql = "SELECT * FROM bookings ORDER BY booking_id DESC";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                list.add(mapRowToBooking(rs));
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return list;
+    }
 }

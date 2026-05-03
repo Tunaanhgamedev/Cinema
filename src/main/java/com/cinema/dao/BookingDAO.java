@@ -206,4 +206,33 @@ public class BookingDAO {
         } catch (Exception e) { e.printStackTrace(); }
         return list;
     }
+
+    public int findRoomIdByShowtime(Connection con, int showtimeId) throws Exception {
+        String sql = "SELECT room_id FROM showtimes WHERE showtime_id = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, showtimeId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt("room_id");
+            }
+        }
+        return 0;
+    }
+
+    public Integer findSeatIdByCode(Connection con, int roomId, String code) throws Exception {
+        // Code format: Row + Number (e.g., A1, B12)
+        if (code == null || code.length() < 2) return null;
+        String row = code.substring(0, 1);
+        int number = Integer.parseInt(code.substring(1));
+
+        String sql = "SELECT seat_id FROM seats WHERE room_id = ? AND seat_row = ? AND seat_number = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, roomId);
+            ps.setString(2, row);
+            ps.setInt(3, number);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt("seat_id");
+            }
+        }
+        return null;
+    }
 }

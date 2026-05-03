@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import com.cinema.dao.UserDAO;
+import com.cinema.dao.impl.UserDAOImpl;
 import com.cinema.model.User;
 import com.cinema.utils.PasswordUtil;
 
@@ -17,7 +18,7 @@ import com.cinema.utils.PasswordUtil;
 public class RegisterServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	private final UserDAO userDAO = new UserDAO();
+	private final UserDAO userDAO = new UserDAOImpl();
 
 	private static final Pattern EMAIL_RE = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
 	private static final Pattern PHONE_RE = Pattern.compile("^[0-9]{10,11}$");

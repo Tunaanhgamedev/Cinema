@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import com.cinema.dao.UserDAO;
+import com.cinema.dao.impl.UserDAOImpl;
 import com.cinema.dao.VoucherDAO;
 import com.cinema.model.User;
 import com.cinema.model.Voucher;
@@ -58,7 +59,7 @@ public class RedeemRewardServlet extends HttpServlet {
                 return;
         }
 
-        UserDAO userDAO = new UserDAO();
+        UserDAO userDAO = new UserDAOImpl();
         VoucherDAO voucherDAO = new VoucherDAO();
 
         // 1. Kiểm tra điểm

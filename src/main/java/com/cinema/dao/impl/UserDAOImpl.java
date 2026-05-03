@@ -195,4 +195,34 @@ public class UserDAOImpl implements UserDAO {
         }
         return 0;
     }
+    @Override
+    public java.util.List<User> findAll() {
+        java.util.List<User> list = new java.util.ArrayList<>();
+        String sql = "SELECT * FROM users ORDER BY created_at DESC";
+        try (Connection cn = DBConnection.getConnection(); 
+             PreparedStatement ps = cn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                User u = new User();
+                u.setUserId(rs.getInt("user_id"));
+                u.setFullName(rs.getString("full_name"));
+                u.setEmail(rs.getString("email"));
+                u.setPassword(rs.getString("password"));
+                u.setPhoneNumber(rs.getString("phone_number"));
+                u.setRole(rs.getString("role"));
+                u.setCreatedAt(rs.getTimestamp("created_at"));
+                u.setDateOfBirth(rs.getDate("date_of_birth"));
+                u.setGender(rs.getString("gender"));
+                u.setAddress(rs.getString("address"));
+                u.setSubscribeNewsletter(rs.getInt("subscribe_newsletter") == 1);
+                u.setSubscribeSMS(rs.getInt("subscribe_sms") == 1);
+                u.setLoyaltyPoints(rs.getInt("points"));
+                u.setMembershipLevel(rs.getString("membership_level"));
+                list.add(u);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("findAll users failed", e);
+        }
+        return list;
+    }
 }

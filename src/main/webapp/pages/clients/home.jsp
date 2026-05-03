@@ -17,7 +17,8 @@
             <!-- HERO WOW -->
             <section class="hero-wow">
                 <div class="hero-video-wrapper">
-                    <video autoplay muted loop playsinline class="hero-video">
+                    <video autoplay muted loop playsinline class="hero-video" 
+                           poster="${pageContext.request.contextPath}/assets/images/banners/left.jpg">
                         <source src="https://assets.mixkit.co/videos/preview/mixkit-searching-in-the-dark-22122-large.mp4" type="video/mp4">
                     </video>
                     <div class="video-overlay"></div>

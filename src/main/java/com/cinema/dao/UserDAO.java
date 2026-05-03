@@ -13,4 +13,5 @@ public interface UserDAO {
     void updatePassword(int userId, String hashedPassword);
     void updateSettings(int userId, boolean subscribeNewsletter, boolean subscribeSMS);
     int countTotalUsers();
+    java.util.List<User> findAll();
 }

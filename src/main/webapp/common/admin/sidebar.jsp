@@ -23,6 +23,11 @@
                 <i class="fas fa-grid-2"></i> <span>Bảng điều khiển</span>
             </a>
             
+            <a href="${pageContext.request.contextPath}/admin/users" 
+               class="nav-link <%= currentUri.contains("/users") || currentUri.contains("/user-manage.jsp") ? "active" : "" %>">
+                <i class="fas fa-users"></i> <span>Quản lý Người dùng</span>
+            </a>
+            
             <a href="${pageContext.request.contextPath}/admin/movies" 
                class="nav-link <%= currentUri.contains("/movies") || currentUri.contains("/movie-manage.jsp") ? "active" : "" %>">
                 <i class="fas fa-film"></i> <span>Quản lý Phim</span>

@@ -1,3 +1,4 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!-- BobiBot - AI Cinema Assistant -->
 <div id="ai-chatbot-wrapper" class="fixed bottom-8 right-8 z-[999] font-['Outfit']">
     <!-- Chat Toggle Button -->
@@ -9,7 +10,7 @@
 
     <!-- Chat Window -->
     <div id="chatbot-window"
-        class="absolute bottom-20 right-0 w-[380px] h-[550px] bg-slate-900/95 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden hidden scale-90 opacity-0 origin-bottom-right transition-all duration-300">
+        class="absolute bottom-20 right-0 w-[380px] h-[550px] bg-slate-900/95 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] shadow-2xl flex-col overflow-hidden scale-90 opacity-0 origin-bottom-right transition-all duration-300" style="display:none;">
         <!-- Header -->
         <div class="p-6 bg-white/5 border-b border-white/5 flex items-center justify-between">
             <div class="flex items-center gap-4">
@@ -22,7 +23,7 @@
                         <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span> Online
                     </p>
                 </div>
-            </div>*
+            </div>
             <button id="chatbot-close" class="text-slate-400 hover:text-white transition-colors">
                 <i class="fas fa-times text-xl"></i>
             </button>
@@ -88,7 +89,7 @@
 
 <style>
     #chatbot-window.active {
-        display: flex;
+        display: flex !important;
         transform: scale(1);
         opacity: 1;
     }
@@ -134,81 +135,91 @@
 </style>
 
 <script>
-    const chatToggle = document.getElementById('chatbot-toggle');
-    const chatWindow = document.getElementById('chatbot-window');
-    const chatClose = document.getElementById('chatbot-close');
-    const chatInput = document.getElementById('chatbot-input');
-    const chatSend = document.getElementById('chatbot-send');
-    const chatMessages = document.getElementById('chatbot-messages');
+    var chatToggle = document.getElementById('chatbot-toggle');
+    var chatWindow = document.getElementById('chatbot-window');
+    var chatClose = document.getElementById('chatbot-close');
+    var chatInput = document.getElementById('chatbot-input');
+    var chatSend = document.getElementById('chatbot-send');
+    var chatMessages = document.getElementById('chatbot-messages');
+    var contextPath = '<%= request.getContextPath() %>';
 
-    chatToggle.onclick = () => chatWindow.classList.toggle('active');
-    chatClose.onclick = () => chatWindow.classList.remove('active');
+    chatToggle.onclick = function() {
+        if (chatWindow.classList.contains('active')) {
+            chatWindow.classList.remove('active');
+            chatWindow.style.display = 'none';
+        } else {
+            chatWindow.classList.add('active');
+            chatWindow.style.display = 'flex';
+        }
+    };
+    chatClose.onclick = function() {
+        chatWindow.classList.remove('active');
+        chatWindow.style.display = 'none';
+    };
 
-    function addMessage(text, isBot = true) {
-        const msgDiv = document.createElement('div');
+    function addMessage(text, isBot) {
+        if (typeof isBot === 'undefined') isBot = true;
+        var msgDiv = document.createElement('div');
         msgDiv.className = isBot ? 'bot-msg flex gap-3' : 'user-msg flex gap-3';
 
-        const avatar = isBot ?
-            `<div class="w-8 h-8 rounded-full bg-slate-800 flex-shrink-0 flex items-center justify-center text-xs text-red-500 border border-white/5"><i class="fas fa-robot"></i></div>` :
-            '';
+        var avatarHtml = isBot
+            ? '<div class="w-8 h-8 rounded-full bg-slate-800 flex-shrink-0 flex items-center justify-center text-xs text-red-500 border border-white/5"><i class="fas fa-robot"></i></div>'
+            : '';
 
-        const contentClass = isBot ?
-            'bg-white/5 border border-white/5 rounded-2xl rounded-tl-none p-4 text-sm text-slate-300 max-w-[85%]' :
-            'content p-4 text-sm max-w-[85%] shadow-lg shadow-red-900/20';
+        var bubbleClass = isBot
+            ? 'bg-white/5 border border-white/5 rounded-2xl rounded-tl-none p-4 text-sm text-slate-300 max-w-[85%]'
+            : 'content p-4 text-sm max-w-[85%] shadow-lg shadow-red-900/20';
 
-        msgDiv.innerHTML = `
-            ${avatar}
-            <div class="${contentClass}">
-                ${text}
-            </div>
-        `;
+        msgDiv.innerHTML = avatarHtml + '<div class="' + bubbleClass + '">' + text + '</div>';
         chatMessages.appendChild(msgDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    async function sendMessage() {
-        const msg = chatInput.value.trim();
+    function sendMessage() {
+        var msg = chatInput.value.trim();
         if (!msg) return;
 
         addMessage(msg, false);
         chatInput.value = '';
 
         // Typing indicator
-        const typingId = 'typing-' + Date.now();
-        const typingDiv = document.createElement('div');
+        var typingId = 'typing-' + Date.now();
+        var typingDiv = document.createElement('div');
         typingDiv.id = typingId;
         typingDiv.className = 'bot-msg flex gap-3';
-        typingDiv.innerHTML = `
-            <div class="w-8 h-8 rounded-full bg-slate-800 flex-shrink-0 flex items-center justify-center text-xs text-red-500 border border-white/5"><i class="fas fa-robot"></i></div>
-            <div class="bg-white/5 border border-white/5 rounded-2xl rounded-tl-none p-4 flex gap-1">
-                <div class="typing-dot"></div>
-                <div class="typing-dot" style="animation-delay: 0.2s"></div>
-                <div class="typing-dot" style="animation-delay: 0.4s"></div>
-            </div>
-        `;
+        typingDiv.innerHTML =
+            '<div class="w-8 h-8 rounded-full bg-slate-800 flex-shrink-0 flex items-center justify-center text-xs text-red-500 border border-white/5"><i class="fas fa-robot"></i></div>' +
+            '<div class="bg-white/5 border border-white/5 rounded-2xl rounded-tl-none p-4 flex gap-1">' +
+            '<div class="typing-dot"></div>' +
+            '<div class="typing-dot" style="animation-delay:0.2s"></div>' +
+            '<div class="typing-dot" style="animation-delay:0.4s"></div>' +
+            '</div>';
         chatMessages.appendChild(typingDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
 
-        try {
-            const response = await fetch('${pageContext.request.contextPath}/api/ai/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: msg })
-            });
-            const data = await response.json();
-            document.getElementById(typingId).remove();
+        fetch(contextPath + '/api/ai/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+            body: JSON.stringify({ message: msg })
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            var el = document.getElementById(typingId);
+            if (el) el.remove();
             addMessage(data.reply);
-        } catch (err) {
-            document.getElementById(typingId).remove();
-            addMessage('Rất tiếc, tôi đang gặp lỗi kết nối. Hãy thử lại sau ít phút nhé! 😅');
-        }
+        })
+        .catch(function(err) {
+            var el = document.getElementById(typingId);
+            if (el) el.remove();
+            addMessage('Xin lỗi, BobiBot gặp lỗi kết nối. Vui lòng thử lại!');
+        });
     }
 
-    async function quickAction(text) {
+    function quickAction(text) {
         chatInput.value = text;
-        await sendMessage();
+        sendMessage();
     }
 
     chatSend.onclick = sendMessage;
-    chatInput.onkeypress = (e) => { if (e.key === 'Enter') sendMessage(); };
+    chatInput.onkeypress = function(e) { if (e.key === 'Enter') sendMessage(); };
 </script>

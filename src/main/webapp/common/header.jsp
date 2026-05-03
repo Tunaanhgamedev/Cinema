@@ -1,4 +1,4 @@
-<%@ page contentType="text/html; charset=UTF-8" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <!-- Global UI Requirements -->
@@ -41,21 +41,21 @@
                         <a href="${pageContext.request.contextPath}/register" class="text-slate-300 hover:text-white font-bold text-sm">Đăng ký</a>
                     </div>
                 </c:if>
-
+                
                 <c:if test="${not empty sessionScope.authUser}">
-                    <div class="relative group">
-                        <button class="flex items-center gap-3 text-slate-300 hover:text-white transition-all">
+                    <div class="relative group" id="userDropdownContainer">
+                        <button id="userDropdownButton" class="flex items-center gap-3 text-slate-300 hover:text-white transition-all focus:outline-none">
                             <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-slate-400 border border-white/10">
                                 <i class="fas fa-user text-lg"></i>
                             </div>
                             <span class="text-sm font-bold truncate max-w-[150px]">
                                 <c:out value="${sessionScope.authUser.fullName != null ? sessionScope.authUser.fullName : sessionScope.authUser.email}" />
                             </span>
-                            <i class="fas fa-chevron-down text-[10px] opacity-30 group-hover:rotate-180 transition-transform"></i>
+                            <i class="fas fa-chevron-down text-[10px] opacity-30 group-hover:rotate-180 transition-transform" id="dropdownIcon"></i>
                         </button>
 
                         <!-- Dropdown Menu -->
-                        <div class="absolute right-0 mt-3 w-64 bg-slate-800 border border-white/5 rounded-[1.5rem] shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 overflow-hidden">
+                        <div id="userDropdownMenu" class="absolute right-0 mt-3 w-64 bg-slate-800 border border-white/5 rounded-[1.5rem] shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 overflow-hidden z-[110]">
                             <div class="px-6 py-4 bg-white/5 border-b border-white/5">
                                 <p class="text-[10px] text-slate-500 font-black uppercase tracking-widest">Cá nhân</p>
                             </div>
@@ -79,6 +79,35 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const button = document.getElementById('userDropdownButton');
+                            const menu = document.getElementById('userDropdownMenu');
+                            const container = document.getElementById('userDropdownContainer');
+
+                            if (button && menu) {
+                                button.addEventListener('click', function(e) {
+                                    e.stopPropagation();
+                                    const isVisible = !menu.classList.contains('invisible');
+                                    if (isVisible) {
+                                        menu.classList.add('opacity-0', 'invisible', 'translate-y-4');
+                                        menu.classList.remove('opacity-100', 'visible', 'translate-y-0');
+                                    } else {
+                                        menu.classList.remove('opacity-0', 'invisible', 'translate-y-4');
+                                        menu.classList.add('opacity-100', 'visible', 'translate-y-0');
+                                    }
+                                });
+
+                                document.addEventListener('click', function(e) {
+                                    if (!container.contains(e.target)) {
+                                        menu.classList.add('opacity-0', 'invisible', 'translate-y-4');
+                                        menu.classList.remove('opacity-100', 'visible', 'translate-y-0');
+                                    }
+                                });
+                            }
+                        });
+                    </script>
                 </c:if>
             </div>
         </div>

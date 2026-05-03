@@ -14,6 +14,7 @@ public class Booking {
 	private long discountAmount; // Số tiền giảm giá từ voucher
 	private Timestamp bookingDate; // Thời gian đặt
 	private StatusBooking status; // "PAID" hoặc "CANCELLED"
+	private Integer voucherId; // ID voucher áp dụng
 
 	public Booking() {
 	}
@@ -90,5 +91,13 @@ public class Booking {
 
 	public void setStatus(StatusBooking status) {
 		this.status = status;
+	}
+
+	public Integer getVoucherId() {
+		return voucherId;
+	}
+
+	public void setVoucherId(Integer voucherId) {
+		this.voucherId = voucherId;
 	}
 }

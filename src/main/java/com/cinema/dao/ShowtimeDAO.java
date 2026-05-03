@@ -274,15 +274,16 @@ public class ShowtimeDAO {
         return list;
     }
 
-    public List<java.sql.Date> getDistinctDatesByMovie(int movieId) {
+    public List<String> getDistinctDatesByMovie(int movieId) {
         String sql = "SELECT DISTINCT COALESCE(show_date, DATE(start_time)) as actual_show_date FROM showtimes WHERE movie_id = ? AND start_time >= NOW() ORDER BY actual_show_date ASC";
-        List<java.sql.Date> list = new ArrayList<>();
+        List<String> list = new ArrayList<>();
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, movieId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    list.add(rs.getDate("actual_show_date"));
+                    java.sql.Date d = rs.getDate("actual_show_date");
+                    if (d != null) list.add(d.toString()); // d.toString() returns yyyy-MM-dd
                 }
             }
         } catch (SQLException e) {

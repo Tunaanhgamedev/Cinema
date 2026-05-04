@@ -79,6 +79,8 @@ public class AdminMovieServlet extends HttpServlet {
 		m.setPoster(req.getParameter("poster"));
 		m.setGenre(req.getParameter("genre"));
 		m.setTrailerUrl(req.getParameter("trailerUrl"));
+		m.setDirector(req.getParameter("director"));
+		m.setCast(req.getParameter("cast"));
 		
 		String statusStr = req.getParameter("status");
 		if (statusStr != null) {

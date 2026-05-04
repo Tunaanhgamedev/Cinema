@@ -71,6 +71,11 @@
                                             <span id="data-title-${m.movieId}" class="hidden">${m.title}</span>
                                             <span id="data-desc-${m.movieId}" class="hidden">${m.description}</span>
                                             <span id="data-genre-${m.movieId}" class="hidden">${m.genre}</span>
+                                            <span id="data-director-${m.movieId}" class="hidden">${m.director}</span>
+                                            <span id="data-cast-${m.movieId}" class="hidden">${m.cast}</span>
+                                            <span id="data-poster-${m.movieId}" class="hidden">${m.poster}</span>
+                                            <span id="data-trailer-${m.movieId}" class="hidden">${m.trailerUrl}</span>
+                                            <span id="data-date-${m.movieId}" class="hidden"><fmt:formatDate value="${m.releaseDate}" pattern="yyyy-MM-dd" /></span>
                                         </div>
                                     </div>
                                 </td>
@@ -100,7 +105,7 @@
                                     <div class="flex justify-end gap-3">
                                         <button class="w-9 h-9 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center hover:bg-indigo-500 hover:text-white transition-all" 
                                                 title="Chỉnh sửa" 
-                                                onclick="prepareEdit('${m.movieId}', '${m.duration}', '${m.poster}', '${m.trailerUrl}', '${m.status}', '<fmt:formatDate value="${m.releaseDate}" pattern="yyyy-MM-dd" />', '${m.rating}')">
+                                                onclick="prepareEdit('${m.movieId}', '${m.duration}', '${m.status}', '${m.rating}')">
                                             <i class="fas fa-edit text-xs"></i>
                                         </button>
                                         <form action="${pageContext.request.contextPath}/admin/movies" method="POST" class="inline" onsubmit="return confirm('Bạn có chắc muốn xóa phim này?')">
@@ -166,6 +171,14 @@
                         <input type="number" step="0.1" name="rating" id="inputRating" class="form-control" required>
                     </div>
                     <div class="col-md-6">
+                        <label class="form-label">Đạo diễn</label>
+                        <input type="text" name="director" id="inputDirector" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Diễn viên</label>
+                        <input type="text" name="cast" id="inputCast" class="form-control">
+                    </div>
+                    <div class="col-md-6">
                         <label class="form-label">Ngày khởi chiếu</label>
                         <input type="date" name="releaseDate" id="inputReleaseDate" class="form-control" required>
                     </div>
@@ -206,23 +219,26 @@
         document.getElementById('inputStatus').value = 'NOW_SHOWING';
         document.getElementById('inputReleaseDate').value = '';
         document.getElementById('inputRating').value = '0';
+        document.getElementById('inputDirector').value = '';
+        document.getElementById('inputCast').value = '';
     }
 
-    function prepareEdit(id, duration, poster, trailer, status, releaseDate, rating) {
+    function prepareEdit(id, duration, status, rating) {
         document.getElementById('modalTitle').innerText = 'Chỉnh sửa phim';
         document.getElementById('modalAction').value = 'update';
         document.getElementById('modalMovieId').value = id;
         
-        // Lấy dữ liệu từ các thẻ ẩn thay vì truyền trực tiếp qua tham số JS (tránh lỗi Jasper EL)
         document.getElementById('inputTitle').value = document.getElementById('data-title-' + id).innerText;
         document.getElementById('inputDescription').value = document.getElementById('data-desc-' + id).innerText;
         document.getElementById('inputGenre').value = document.getElementById('data-genre-' + id).innerText;
+        document.getElementById('inputDirector').value = document.getElementById('data-director-' + id).innerText;
+        document.getElementById('inputCast').value = document.getElementById('data-cast-' + id).innerText;
+        document.getElementById('inputPoster').value = document.getElementById('data-poster-' + id).innerText;
+        document.getElementById('inputTrailer').value = document.getElementById('data-trailer-' + id).innerText;
+        document.getElementById('inputReleaseDate').value = document.getElementById('data-date-' + id).innerText;
         
         document.getElementById('inputDuration').value = duration;
-        document.getElementById('inputPoster').value = poster;
-        document.getElementById('inputTrailer').value = trailer;
         document.getElementById('inputStatus').value = status;
-        document.getElementById('inputReleaseDate').value = releaseDate;
         document.getElementById('inputRating').value = rating;
         
         var myModal = new bootstrap.Modal(document.getElementById('movieModal'));

@@ -87,8 +87,10 @@ public class MovieDAO {
         m.setDirector(rs.getString("director"));
         m.setCast(rs.getString("cast"));
         m.setTrailerUrl(rs.getString("trailer_url"));
-        m.setRating(rs.getDouble("rating_avg"));
-        m.setReviewCount(rs.getInt("review_count"));
+        
+        // Sửa lại cho khớp với table.sql (cột rating)
+        String ratingVal = rs.getString("rating");
+        m.setRating(ratingVal != null ? Double.parseDouble(ratingVal) : 0.0);
         
         String statusStr = rs.getString("status");
         try {
@@ -147,8 +149,8 @@ public class MovieDAO {
 
     public boolean insert(Movie m) {
         String sql = """
-            INSERT INTO movies (title, description, duration, release_date, poster, genre, director, cast, trailer_url, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO movies (title, description, duration, release_date, poster, genre, director, cast, trailer_url, status, rating)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """;
         try (Connection cn = DBConnection.getConnection(); 
              PreparedStatement ps = cn.prepareStatement(sql)) {
@@ -162,6 +164,7 @@ public class MovieDAO {
             ps.setString(8, m.getCast());
             ps.setString(9, m.getTrailerUrl());
             ps.setString(10, m.getStatus() != null ? m.getStatus().name() : "NOW_SHOWING");
+            ps.setString(11, String.valueOf(m.getRating()));
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
@@ -171,7 +174,7 @@ public class MovieDAO {
 
     public boolean update(Movie m) {
         String sql = """
-            UPDATE movies SET title=?, description=?, duration=?, release_date=?, poster=?, genre=?, director=?, cast=?, trailer_url=?, status=?
+            UPDATE movies SET title=?, description=?, duration=?, release_date=?, poster=?, genre=?, director=?, cast=?, trailer_url=?, status=?, rating=?
             WHERE movie_id=?
         """;
         try (Connection cn = DBConnection.getConnection(); 
@@ -186,7 +189,8 @@ public class MovieDAO {
             ps.setString(8, m.getCast());
             ps.setString(9, m.getTrailerUrl());
             ps.setString(10, m.getStatus() != null ? m.getStatus().name() : "NOW_SHOWING");
-            ps.setInt(11, m.getMovieId());
+            ps.setString(11, String.valueOf(m.getRating()));
+            ps.setInt(12, m.getMovieId());
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();

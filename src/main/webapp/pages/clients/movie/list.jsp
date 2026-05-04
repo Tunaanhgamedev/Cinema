@@ -62,10 +62,10 @@
                       <div
                         class="group bg-white rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
                         <div class="relative aspect-[2/3] overflow-hidden">
-                          <img src="${pageContext.request.contextPath}/assets/images/movies/${m.poster}"
+                          <img src="${m.poster.startsWith('http') ? m.poster : pageContext.request.contextPath.concat('/assets/images/movies/').concat(m.poster)}"
                             alt="${m.title}"
                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                            onerror="this.src='${pageContext.request.contextPath}/assets/images/movies/movie1.jpg'">
+                            onerror="this.src='https://placehold.co/300x450?text=No+Poster'">
 
                           <div
                             class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">

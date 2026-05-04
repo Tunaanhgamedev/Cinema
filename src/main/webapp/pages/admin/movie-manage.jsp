@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -63,7 +64,9 @@
                             <tr class="hover:bg-white/5 transition-colors group">
                                 <td class="px-8 py-5">
                                     <div class="flex items-center gap-4">
-                                        <img src="${m.poster}" class="w-12 h-16 rounded-lg object-cover shadow-lg group-hover:scale-105 transition-transform" onerror="this.src='https://placehold.co/300x450?text=No+Poster'">
+                                        <c:set var="mPoster" value="${m.poster}" />
+                                        <c:set var="finalAdminPoster" value="${fn:startsWith(mPoster, 'http') ? mPoster : pageContext.request.contextPath.concat('/').concat(mPoster)}" />
+                                        <img src="${finalAdminPoster}" class="w-12 h-16 rounded-lg object-cover shadow-lg group-hover:scale-105 transition-transform" onerror="this.src='https://placehold.co/300x450?text=No+Poster'">
                                         <div>
                                             <div class="font-bold text-white text-base mb-1">${m.title}</div>
                                             <div class="text-slate-500 text-[11px] font-medium tracking-wider">MÃ: #${m.movieId}</div>

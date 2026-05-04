@@ -76,7 +76,17 @@ public class AdminMovieServlet extends HttpServlet {
 		String ratingStr = req.getParameter("rating");
 		m.setRating(ratingStr != null && !ratingStr.isEmpty() ? Double.parseDouble(ratingStr) : 0.0);
 		
-		m.setPoster(req.getParameter("poster"));
+		String poster = req.getParameter("poster");
+		if (poster != null && !poster.isEmpty()) {
+			if (poster.startsWith("/")) {
+				poster = poster.substring(1);
+			}
+			if (!poster.startsWith("http") && !poster.startsWith("assets/")) {
+				poster = "assets/images/movies/" + poster;
+			}
+		}
+		m.setPoster(poster);
+		
 		m.setGenre(req.getParameter("genre"));
 		m.setTrailerUrl(req.getParameter("trailerUrl"));
 		m.setDirector(req.getParameter("director"));

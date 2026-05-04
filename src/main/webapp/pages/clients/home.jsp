@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
     <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+    <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
         <!DOCTYPE html>
         <html lang="vi">
 
@@ -8,6 +9,20 @@
             <meta name="viewport" content="width=device-width, initial-scale=1" />
             <title>BOBIXI Cinema</title>
             <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/home.css" />
+            <style>
+                @keyframes marquee {
+                    0% { transform: translateX(0); }
+                    100% { transform: translateX(calc(-350px * 5 - 1.5rem * 5)); }
+                }
+                .animate-marquee {
+                    display: flex;
+                    width: max-content;
+                    animation: marquee 30s linear infinite;
+                }
+                .animate-marquee:hover {
+                    animation-play-state: paused;
+                }
+            </style>
         </head>
 
         <body>
@@ -70,7 +85,9 @@
                     <div class="hero-right">
                         <div class="poster-card">
                             <div class="poster-shine"></div>
-                            <img src="${pageContext.request.contextPath}/assets/images/movies/avg.jpg" alt="Poster">
+                            <img src="${pageContext.request.contextPath}/assets/images/movies/avg.jpg" 
+                                 alt="Poster" 
+                                 onerror="this.src='https://placehold.co/600x900?text=BOBIXI+Cinema'">
                             <div class="poster-info">
                                 <div class="poster-name">Movie Highlight</div>
                                 <div class="poster-meta">Trailer • Hot • Ưu đãi</div>
@@ -175,8 +192,19 @@
                     <c:forEach var="m" items="${nowShowingMovies}">
                         <div class="movie-item wow-card">
                             <div class="movie-poster">
-                                <img src="${pageContext.request.contextPath}/${m.poster}" alt="${m.title}"
-                                    loading="lazy">
+                                <c:set var="posterUrl" value="${m.poster}" />
+                                <c:if test="${fn:startsWith(posterUrl, '/')}">
+                                    <c:set var="posterUrl" value="${fn:substring(posterUrl, 1, fn:length(posterUrl))}" />
+                                </c:if>
+                                <c:if test="${not empty posterUrl && !fn:startsWith(posterUrl, 'http') && !fn:startsWith(posterUrl, 'assets/')}">
+                                    <c:set var="posterUrl" value="assets/images/movies/${posterUrl}" />
+                                </c:if>
+                                
+                                <c:set var="finalPosterUrl" value="${fn:startsWith(posterUrl, 'http') ? posterUrl : pageContext.request.contextPath.concat('/').concat(posterUrl)}" />
+                                <img src="${finalPosterUrl}" 
+                                     alt="${m.title}"
+                                     loading="lazy"
+                                     onerror="this.src='https://placehold.co/300x450?text=No+Poster'">
                                 <c:if test="${m.rating >= 9}">
                                     <span class="movie-badge">HOT</span>
                                 </c:if>
@@ -187,8 +215,8 @@
                                 <div class="movie-actions">
                                     <a href="${pageContext.request.contextPath}/booking-seat?movieId=${m.movieId}"
                                         class="btn-buy btn-wow">Mua vé</a>
-                                    <a href="${pageContext.request.contextPath}/movie?id=${m.movieId}"
-                                        class="btn-trailer">Chi tiết</a>
+                                    <button onclick="openTrailer('${m.trailerUrl}')"
+                                        class="btn-trailer">Xem Trailer</button>
                                 </div>
                             </div>
                         </div>
@@ -206,16 +234,27 @@
                     <c:forEach var="m" items="${comingSoonMovies}">
                         <div class="movie-item wow-card coming-soon-card">
                             <div class="movie-poster">
-                                <img src="${pageContext.request.contextPath}/${m.poster}" alt="${m.title}"
-                                    loading="lazy">
+                                <c:set var="posterUrlComing" value="${m.poster}" />
+                                <c:if test="${fn:startsWith(posterUrlComing, '/')}">
+                                    <c:set var="posterUrlComing" value="${fn:substring(posterUrlComing, 1, fn:length(posterUrlComing))}" />
+                                </c:if>
+                                <c:if test="${not empty posterUrlComing && !fn:startsWith(posterUrlComing, 'http') && !fn:startsWith(posterUrlComing, 'assets/')}">
+                                    <c:set var="posterUrlComing" value="assets/images/movies/${posterUrlComing}" />
+                                </c:if>
+                                
+                                <c:set var="finalPosterComing" value="${fn:startsWith(posterUrlComing, 'http') ? posterUrlComing : pageContext.request.contextPath.concat('/').concat(posterUrlComing)}" />
+                                <img src="${finalPosterComing}" 
+                                     alt="${m.title}"
+                                     loading="lazy"
+                                     onerror="this.src='https://placehold.co/300x450?text=No+Poster'">
                                 <span class="movie-badge badge-blue">COMING SOON</span>
                             </div>
                             <div class="movie-body">
                                 <h3>${m.title}</h3>
                                 <div class="movie-meta">Ngày khởi chiếu: ${m.releaseDate}</div>
                                 <div class="movie-actions">
-                                    <a href="${pageContext.request.contextPath}/movie?id=${m.movieId}"
-                                        class="btn-trailer w-full">Xem Trailer</a>
+                                    <button onclick="openTrailer('${m.trailerUrl}')"
+                                        class="btn-trailer w-full">Xem Trailer</button>
                                 </div>
                             </div>
                         </div>
@@ -223,9 +262,52 @@
                 </div>
             </section>
 
+            <!-- RECENT REVIEWS -->
+            <section class="home-section wow-section">
+                <div class="section-head">
+                    <h2 class="section-title">CẢM NHẬN KHÁN GIẢ</h2>
+                    <div class="section-line"></div>
+                </div>
+                <div class="reviews-marquee-wrapper overflow-hidden py-10">
+                    <div class="flex gap-6 animate-marquee">
+                        <c:forEach var="r" items="${recentReviews}">
+                            <div class="min-w-[350px] bg-slate-800/40 backdrop-blur-xl p-8 rounded-[2rem] border border-white/5 hover:border-white/10 transition-all group">
+                                <div class="flex items-center gap-4 mb-4">
+                                    <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-white shadow-lg">
+                                        ${fn:substring(r.userName, 0, 1).toUpperCase()}
+                                    </div>
+                                    <div>
+                                        <h4 class="text-white font-bold text-sm">${r.userName}</h4>
+                                        <p class="text-[10px] text-slate-500 italic">về ${r.movieTitle}</p>
+                                    </div>
+                                    <div class="ml-auto text-yellow-500 text-xs">
+                                        <c:forEach begin="1" end="${r.rating}">★</c:forEach>
+                                    </div>
+                                </div>
+                                <p class="text-slate-400 text-sm leading-relaxed line-clamp-3 group-hover:text-slate-200 transition-colors">
+                                    "${r.content}"
+                                </p>
+                            </div>
+                        </c:forEach>
+                    </div>
+                </div>
+            </section>
+
             <button id="backToTop" class="back-to-top-btn" type="button" aria-label="Lên đầu trang">↑</button>
 
             <jsp:include page="/common/footer.jsp" />
+
+            <!-- Trailer Modal -->
+            <div id="trailerModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-black/95 backdrop-blur-sm">
+                <div class="relative w-full max-w-5xl">
+                    <button id="closeTrailer" class="absolute -top-12 right-0 text-white text-4xl hover:text-red-500 transition-colors">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="aspect-video bg-black rounded-3xl overflow-hidden shadow-2xl ring-1 ring-white/20">
+                        <iframe id="trailerFrame" class="w-full h-full" src="" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
 
             <script>
                 // Hiện card khi scroll
@@ -273,10 +355,20 @@
                                     if (data && data.length > 0) {
                                         let html = '<div class="p-4 flex flex-col gap-2">';
                                         data.forEach(m => {
+                                            let posterSrc = m.poster;
+                                            if (posterSrc && posterSrc.startsWith('/')) {
+                                                posterSrc = posterSrc.substring(1);
+                                            }
+                                            if (posterSrc && !posterSrc.startsWith('http') && !posterSrc.startsWith('assets/')) {
+                                                posterSrc = 'assets/images/movies/' + posterSrc;
+                                            }
+                                            let finalSrc = (posterSrc && posterSrc.startsWith('http')) ? posterSrc : '${pageContext.request.contextPath}/' + posterSrc;
                                             html += `
                                                 <a href="${pageContext.request.contextPath}/booking-seat?movieId=${m.movieId}" 
                                                    class="flex items-center gap-4 p-3 hover:bg-white/5 rounded-2xl transition-all group">
-                                                    <img src="${pageContext.request.contextPath}/` + m.poster + `" class="w-12 h-16 object-cover rounded-xl shadow-lg">
+                                                    <img src="${finalSrc}" 
+                                                         class="w-12 h-16 object-cover rounded-xl shadow-lg"
+                                                         onerror="this.src='https://placehold.co/100x150?text=No+Img'">
                                                     <div class="flex-1">
                                                         <h4 class="text-white font-bold group-hover:text-indigo-400 transition-colors">` + m.title + `</h4>
                                                         <p class="text-xs text-slate-400">` + m.genre + ` • ` + m.duration + ` phút</p>
@@ -306,6 +398,43 @@
                         }
                     });
                 }
+
+                // Trailer logic
+                const modal = document.getElementById('trailerModal');
+                const frame = document.getElementById('trailerFrame');
+
+                window.openTrailer = function(url) {
+                    if (!url || url === 'null' || url === '') {
+                        alert("Trailer hiện tại không khả dụng.");
+                        return;
+                    }
+                    const embed = getEmbedUrl(url);
+                    if (!embed) {
+                        alert("Trailer hiện tại không khả dụng.");
+                        return;
+                    }
+                    frame.src = embed + "?autoplay=1";
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                };
+
+                function getEmbedUrl(url) {
+                    if (!url) return "";
+                    let id = "";
+                    if (url.includes("v=")) id = url.split("v=")[1].split("&")[0];
+                    else if (url.includes("youtu.be/")) id = url.split("youtu.be/")[1].split("?")[0];
+                    return id ? "https://www.youtube.com/embed/" + id : "";
+                }
+
+                const closeModal = () => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                    frame.src = "";
+                };
+                
+                const closeBtn = document.getElementById('closeTrailer');
+                if(closeBtn) closeBtn.addEventListener('click', closeModal);
+                if(modal) modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
             </script>
         </body>
 

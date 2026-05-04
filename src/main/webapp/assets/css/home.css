@@ -697,21 +697,29 @@ body{
 .back-to-top-btn {
     position: fixed;
     bottom: 30px;
-    right: 30px;
-    width: 50px;
-    height: 50px;
-    background: var(--red);
+    left: 30px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--red), var(--red2));
     color: #fff;
     border: none;
-    border-radius: 50%;
-    font-size: 1.2rem;
+    border-radius: 20px;
+    font-size: 1.5rem;
     cursor: pointer;
     display: none;
     align-items: center;
     justify-content: center;
-    z-index: 100;
-    box-shadow: 0 10px 20px rgba(227, 0, 27, 0.3);
-    transition: all 0.3s ease;
+    z-index: 1000;
+    box-shadow: 0 10px 30px rgba(227, 0, 27, 0.4);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.back-to-top-btn:hover {
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 15px 40px rgba(227, 0, 27, 0.6);
+    filter: brightness(1.1);
+}
 }
 
 .back-to-top-btn.show { display: flex; animation: bounceIn 0.5s; }

@@ -11,7 +11,7 @@ public class DBConnection {
 	private static final Properties props = new Properties();
 	private static HikariDataSource ds;
 
-	static {
+	public static void initPool() {
 		try {
 			Properties localProps = new Properties();
 			try (InputStream is = DBConnection.class.getClassLoader().getResourceAsStream("db.properties")) {
@@ -56,13 +56,19 @@ public class DBConnection {
 			config.setMinimumIdle(2);
 			config.setConnectionTimeout(30000);
 
+			if (ds != null) {
+				ds.close();
+			}
 			ds = new HikariDataSource(config);
 			System.out.println("✨ Connection Pool đã được khởi tạo thành công.");
 		} catch (Exception e) {
 			System.err.println("❌ Khởi tạo Connection Pool THẤT BẠI!");
 			e.printStackTrace();
-			// Lưu vết lỗi để getConnection() có thể báo cáo
 		}
+	}
+
+	static {
+		initPool();
 	}
 
 	public static Connection getConnection() throws SQLException {

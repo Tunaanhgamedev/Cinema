@@ -39,6 +39,6 @@ public class ReviewServlet extends HttpServlet {
         ReviewDAO dao = new ReviewDAO();
         dao.insert(r);
 
-        resp.sendRedirect(req.getContextPath() + "/movie/detail?id=" + movieId + "#reviews");
+        resp.sendRedirect(req.getContextPath() + "/movie?id=" + movieId + "&tab=reviews#tab-reviews");
     }
 }

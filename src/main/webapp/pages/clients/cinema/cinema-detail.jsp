@@ -96,36 +96,83 @@
                             </div>
                         </div>
                     </div>
-                    <div class="p-10 bg-white/5 rounded-[3rem] border border-white/5 group hover:bg-white/10 transition-all">
-                        <h4 class="text-primary font-black text-xs tracking-widest uppercase mb-4">QUY MÔ RẠP</h4>
-                        <div class="space-y-4">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-slate-400"><i class="fas fa-film"></i></div>
-                                <p class="text-lg font-bold text-white">${cinema.totalScreens != null ? cinema.totalScreens : "10"} Phòng chiếu đạt chuẩn</p>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-slate-400"><i class="fas fa-users"></i></div>
-                                <p class="text-lg font-bold text-white">Sức chứa 2,000+ chỗ ngồi</p>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
             
-            <div class="space-y-8">
-                <div class="relative rounded-[4rem] overflow-hidden border-2 border-primary/20 aspect-square group">
-                    <img src="https://images.unsplash.com/photo-1517604401157-538a9663ec02?q=80&w=2070&auto=format&fit=crop" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                    <div class="absolute inset-0 bg-gradient-to-t from-primary/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-10">
-                        <p class="text-white font-black text-xl italic uppercase">Premium Lounge Area</p>
+            <div class="space-y-8 flex flex-col justify-center">
+                <div class="p-8 bg-gradient-to-br from-primary/10 to-transparent rounded-[3rem] border border-white/5">
+                    <h4 class="text-white font-black text-sm uppercase tracking-widest mb-4 italic">Tiêu chuẩn quốc tế</h4>
+                    <p class="text-slate-400 text-sm font-medium leading-relaxed">BOBIXI Premium tự hào là hệ thống rạp chiếu phim đạt chuẩn quốc tế đầu tiên tại khu vực, mang đến không gian giải trí đẳng cấp cho mọi lứa tuổi.</p>
+                </div>
+            </div>
+        </section>
+ 
+        <!-- Cinema Facilities Showcase -->
+        <section id="facilities" class="scroll-mt-40 space-y-20">
+            <div class="text-center space-y-4">
+                <p class="text-primary font-black tracking-[0.4em] uppercase text-xs">ULTIMATE EXPERIENCE</p>
+                <h2 class="text-5xl md:text-7xl font-black text-white italic tracking-tighter uppercase leading-none">Tiện ích<br/><span class="text-slate-600">vượt trội</span></h2>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                <!-- Left: Facility Cards Grid -->
+                <div class="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="group p-8 bg-white/5 rounded-[2.5rem] border border-white/5 hover:border-primary/30 transition-all hover:-translate-y-2 duration-500">
+                        <div class="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-couch text-2xl text-primary"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-3">Ghế ngồi Premium</h4>
+                        <p class="text-slate-400 text-sm leading-relaxed">Hệ thống ghế da cao cấp, có khả năng điều chỉnh độ ngả lưng hoàn hảo, mang lại sự thoải mái tuyệt đối.</p>
+                    </div>
+
+                    <div class="group p-8 bg-white/5 rounded-[2.5rem] border border-white/5 hover:border-blue-500/30 transition-all hover:-translate-y-2 duration-500">
+                        <div class="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-volume-high text-2xl text-blue-500"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-3">Âm thanh Dolby Atmos</h4>
+                        <p class="text-slate-400 text-sm leading-relaxed">Công nghệ âm thanh vòm 360 độ sống động, chân thực đến từng tiếng động nhỏ nhất.</p>
+                    </div>
+
+                    <div class="group p-8 bg-white/5 rounded-[2.5rem] border border-white/5 hover:border-yellow-500/30 transition-all hover:-translate-y-2 duration-500">
+                        <div class="w-14 h-14 bg-yellow-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-tv text-2xl text-yellow-500"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-3">Màn hình 4K HDR</h4>
+                        <p class="text-slate-400 text-sm leading-relaxed">Độ phân giải cực cao cùng độ tương phản tuyệt vời, tái hiện màu sắc rực rỡ và sắc nét.</p>
+                    </div>
+
+                    <div class="group p-8 bg-white/5 rounded-[2.5rem] border border-white/5 hover:border-green-500/30 transition-all hover:-translate-y-2 duration-500">
+                        <div class="w-14 h-14 bg-green-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-burger text-2xl text-green-500"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-3">Dịch vụ F&B VIP</h4>
+                        <p class="text-slate-400 text-sm leading-relaxed">Thực đơn bắp nước đa dạng, phục vụ tận chỗ cho khách hàng tại các phòng chiếu Premium.</p>
                     </div>
                 </div>
-                <div class="p-8 bg-white/5 rounded-[3rem] border border-white/5">
-                    <h4 class="text-white font-black text-sm uppercase tracking-widest mb-4 italic">Dịch vụ đi kèm</h4>
-                    <ul class="space-y-3">
-                        <li class="flex items-center gap-3 text-slate-400 text-sm font-bold"><i class="fas fa-circle-check text-primary"></i> Đặt vé Online nhanh chóng</li>
-                        <li class="flex items-center gap-3 text-slate-400 text-sm font-bold"><i class="fas fa-circle-check text-primary"></i> Combo Bắp Nước đa dạng</li>
-                        <li class="flex items-center gap-3 text-slate-400 text-sm font-bold"><i class="fas fa-circle-check text-primary"></i> Tích điểm đổi quà hấp dẫn</li>
-                    </ul>
+
+                <!-- Right: Large Image / Feature Highlight -->
+                <div class="lg:col-span-5 flex flex-col gap-6">
+                    <div class="flex-1 relative rounded-[3rem] overflow-hidden border border-white/10 group">
+                        <img src="https://images.unsplash.com/photo-1517604401157-538a9663ec02?q=80&w=2070&auto=format&fit=crop" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 brightness-75">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-10">
+                            <span class="text-primary font-black text-xs tracking-widest uppercase mb-2">Space Design</span>
+                            <h3 class="text-3xl font-black text-white italic uppercase leading-none">Kiến trúc sang trọng</h3>
+                        </div>
+                    </div>
+                    
+                    <div class="p-8 bg-gradient-to-br from-primary/20 to-transparent rounded-[2.5rem] border border-primary/20">
+                        <div class="flex items-center gap-6">
+                            <div class="flex -space-x-4">
+                                <div class="w-12 h-12 rounded-full border-2 border-[#0a0f1a] bg-slate-800 flex items-center justify-center font-bold text-xs">J</div>
+                                <div class="w-12 h-12 rounded-full border-2 border-[#0a0f1a] bg-slate-700 flex items-center justify-center font-bold text-xs">M</div>
+                                <div class="w-12 h-12 rounded-full border-2 border-[#0a0f1a] bg-primary flex items-center justify-center font-bold text-xs">+99</div>
+                            </div>
+                            <div>
+                                <p class="text-white font-bold text-sm">Hàng ngàn khán giả đã trải nghiệm</p>
+                                <p class="text-slate-500 text-xs font-medium italic">"Chất lượng rạp tốt nhất tôi từng đi!"</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>

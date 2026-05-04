@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -27,7 +28,12 @@
     <div class="relative w-full py-16 lg:py-24 overflow-hidden">
       <!-- Background Image with Blur -->
       <div class="absolute inset-0 z-0">
-        <img src="${pageContext.request.contextPath}/assets/images/movies/${movie.poster}" 
+        <c:set var="pUrl" value="${movie.poster}" />
+        <c:if test="${not empty pUrl && !fn:startsWith(pUrl, 'http') && !fn:startsWith(pUrl, 'assets/')}">
+            <c:set var="pUrl" value="assets/images/movies/${pUrl}" />
+        </c:if>
+        <c:set var="fPUrl" value="${fn:startsWith(pUrl, 'http') ? pUrl : pageContext.request.contextPath.concat('/').concat(pUrl)}" />
+        <img src="${fPUrl}" 
              class="w-full h-full object-cover blur-3xl opacity-20" alt="backdrop">
         <div class="absolute inset-0 bg-gradient-to-b from-slate-900/50 via-slate-900 to-slate-900"></div>
       </div>
@@ -41,10 +47,10 @@
         <div class="flex flex-col lg:flex-row gap-12">
           <!-- Poster -->
           <div class="w-full lg:w-80 flex-shrink-0">
-            <div class="rounded-3xl overflow-hidden shadow-2xl shadow-black/50 border border-white/10">
-              <img src="${pageContext.request.contextPath}/assets/images/movies/${movie.poster}" 
-                   alt="${movie.title}" class="w-full h-auto"
-                   onerror="this.src='${pageContext.request.contextPath}/assets/images/movies/movie1.jpg'">
+            <div class="rounded-3xl overflow-hidden shadow-2xl shadow-black/50 border border-white/10 group">
+              <img src="${fPUrl}" 
+                   alt="${movie.title}" class="w-full h-auto group-hover:scale-105 transition-transform duration-700"
+                   onerror="this.src='https://placehold.co/600x900?text=${movie.title}'">
             </div>
           </div>
 
@@ -172,8 +178,11 @@
                           </div>
                         </div>
 
-                        <label class="block text-slate-400 text-sm font-bold mb-3">Nội dung bình luận</label>
-                        <textarea name="content" rows="4" required
+                        <label class="block text-slate-400 text-sm font-bold mb-3 flex justify-between">
+                          Nội dung bình luận
+                          <span id="charCount" class="text-[10px] text-slate-600 font-normal">0/500</span>
+                        </label>
+                        <textarea name="content" id="reviewContent" rows="4" required maxlength="500"
                                   class="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-white placeholder-slate-600 focus:outline-none focus:border-red-500 transition-all mb-6"
                                   placeholder="Cảm nhận của bạn về phim..."></textarea>
                         
@@ -281,14 +290,46 @@
 
   <script>
     // Tabs logic
-    document.querySelectorAll('.tab-item').forEach(item => {
-      item.addEventListener('click', () => {
-        document.querySelectorAll('.tab-item').forEach(i => i.classList.remove('active'));
-        item.classList.add('active');
-        document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
-        document.getElementById('tab-' + item.dataset.tab).classList.remove('hidden');
+    const tabItems = document.querySelectorAll('.tab-item');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+    
+    function switchTab(tabId) {
+      tabItems.forEach(i => {
+        if(i.dataset.tab === tabId) i.classList.add('active');
+        else i.classList.remove('active');
       });
+      tabPanes.forEach(p => {
+        if(p.id === 'tab-' + tabId) p.classList.remove('hidden');
+        else p.classList.add('hidden');
+      });
+    }
+
+    tabItems.forEach(item => {
+      item.addEventListener('click', () => switchTab(item.dataset.tab));
     });
+
+    // Check URL for tab parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const activeTab = urlParams.get('tab');
+    if (activeTab) {
+      switchTab(activeTab);
+      // Smooth scroll to tab container after a short delay
+      setTimeout(() => {
+        document.getElementById('tab-' + activeTab).scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 300);
+    }
+
+    // Character counter logic
+    const textarea = document.getElementById('reviewContent');
+    const charCount = document.getElementById('charCount');
+    if(textarea) {
+      textarea.addEventListener('input', () => {
+        const length = textarea.value.length;
+        charCount.textContent = length + '/500';
+        if(length >= 450) charCount.classList.add('text-red-500');
+        else charCount.classList.remove('text-red-500');
+      });
+    }
 
     // Trailer logic
     const modal = document.getElementById('trailerModal');

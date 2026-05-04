@@ -27,26 +27,31 @@ public class HomeServlet extends HttpServlet {
 		Object comingSoon = com.cinema.utils.CacheManager.get("comingSoonMovies");
 		Object leftBanner = com.cinema.utils.CacheManager.get("leftBanner");
 		Object rightBanner = com.cinema.utils.CacheManager.get("rightBanner");
+		Object recentReviews = com.cinema.utils.CacheManager.get("recentReviews");
 
-		if (movies == null || comingSoon == null || leftBanner == null || rightBanner == null) {
+		if (movies == null || comingSoon == null || leftBanner == null || rightBanner == null || recentReviews == null) {
 			BannerDAO bannerDAO = new BannerDAO();
 			com.cinema.dao.MovieDAO movieDAO = new com.cinema.dao.MovieDAO();
+			com.cinema.dao.ReviewDAO reviewDAO = new com.cinema.dao.ReviewDAO();
 
 			leftBanner = bannerDAO.getActiveBannerByPosition("LEFT");
 			rightBanner = bannerDAO.getActiveBannerByPosition("RIGHT");
 			movies = movieDAO.findNowShowing();
 			comingSoon = movieDAO.findComingSoon();
+			recentReviews = reviewDAO.findRecentReviews(10);
 
 			com.cinema.utils.CacheManager.put("leftBanner", leftBanner);
 			com.cinema.utils.CacheManager.put("rightBanner", rightBanner);
 			com.cinema.utils.CacheManager.put("nowShowingMovies", movies);
 			com.cinema.utils.CacheManager.put("comingSoonMovies", comingSoon);
+			com.cinema.utils.CacheManager.put("recentReviews", recentReviews);
 		}
 
 		request.setAttribute("leftBanner", leftBanner);
 		request.setAttribute("rightBanner", rightBanner);
 		request.setAttribute("nowShowingMovies", movies);
 		request.setAttribute("comingSoonMovies", comingSoon);
+		request.setAttribute("recentReviews", recentReviews);
 
 		request.getRequestDispatcher("/pages/clients/home.jsp").forward(request, response);
 	}

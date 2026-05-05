@@ -54,7 +54,29 @@
         color: white;
     }
     .seat-box.NORMAL .seat-icon { border-bottom: 3px solid #475569; }
-    .seat-box.VIP .seat-icon { border-bottom: 3px solid #fbbf24; background: rgba(251, 191, 36, 0.1); color: #fbbf24; }
+    /* Ghế VIP: Màu vàng, hiệu ứng phát sáng nhẹ */
+    .seat-box.VIP .seat-icon { 
+        border-bottom: 3px solid #fbbf24; 
+        background: rgba(251, 191, 36, 0.1); 
+        color: #fbbf24; 
+    }
+    .seat-box.VIP:hover:not(.BOOKED) .seat-icon {
+        box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
+        background: rgba(251, 191, 36, 0.2);
+    }
+    
+    /* Ghế Couple: Thiết kế bo tròn đặc biệt, màu đỏ hồng lãng mạn */
+    .seat-box.COUPLE .seat-icon { 
+        border-bottom: 3px solid #f43f5e; 
+        background: rgba(244, 63, 94, 0.15); 
+        color: #f43f5e; 
+        border-radius: 14px; /* Bo tròn hơn ghế thường */
+    }
+    .seat-box.COUPLE:hover:not(.BOOKED) .seat-icon {
+        box-shadow: 0 0 15px rgba(244, 63, 94, 0.4);
+        background: rgba(244, 63, 94, 0.3);
+    }
+    
     .seat-box.BOOKED { cursor: not-allowed; opacity: 0.3; }
     .seat-box.BOOKED .seat-icon { background: #1e293b; color: transparent; border: none; }
     .seat-box.SELECTED .seat-icon { 
@@ -126,6 +148,7 @@
         <div class="flex flex-wrap justify-center gap-8 mb-16 px-8 py-4 bg-white/5 rounded-2xl border border-white/5">
             <div class="legend-item"><div class="legend-box bg-[#334155]"></div> Ghế thường</div>
             <div class="legend-item"><div class="legend-box bg-[#fbbf24]/20 border border-[#fbbf24]"></div> Ghế VIP</div>
+            <div class="legend-item"><div class="legend-box bg-[#f43f5e]/20 border border-[#f43f5e]"></div> Ghế Couple</div>
             <div class="legend-item"><div class="legend-box bg-[#6366f1]"></div> Đang chọn</div>
             <div class="legend-item"><div class="legend-box bg-[#1e293b] opacity-30"></div> Đã bán</div>
         </div>
@@ -133,8 +156,12 @@
         <form action="${pageContext.request.contextPath}/booking" method="post" class="w-full">
             <input type="hidden" name="showtimeId" value="${showtimeId}" />
             
+            <c:set var="totalSeats" value="${seats.size()}" />
+            <c:set var="cols" value="${totalSeats > 100 ? 12 : 10}" />
+            
             <div class="flex justify-center mb-16">
-                <div class="grid gap-x-3 gap-y-4" style="grid-template-columns: repeat(12, 1fr);">
+                <div class="grid gap-x-3 gap-y-4 justify-items-center" 
+                     style="grid-template-columns: repeat(${cols}, 1fr); width: fit-content;">
                     <c:forEach var="s" items="${seats}">
                         <c:set var="isBooked" value="${bookedSeats.contains(s.seatId)}" />
                         
@@ -213,7 +240,9 @@
         'E': { img: 'https://images.unsplash.com/photo-1517604401157-538a9663ecf3?q=80&w=500&auto=format&fit=crop', desc: 'Tầm nhìn đẹp nhất trong phòng chiếu' },
         'F': { img: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=500&auto=format&fit=crop', desc: 'Góc nhìn bao quát từ phía sau' },
         'G': { img: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=500&auto=format&fit=crop', desc: 'Tầm nhìn từ xa, không gây mỏi mắt' },
-        'H': { img: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=500&auto=format&fit=crop', desc: 'Hàng ghế sau cùng, không gian riêng tư' }
+        'H': { img: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=500&auto=format&fit=crop', desc: 'Vị trí cao, tầm nhìn thoáng đãng' },
+        'I': { img: 'https://images.unsplash.com/photo-1595769816263-9b910be24d5f?q=80&w=500&auto=format&fit=crop', desc: 'Ghế đôi Sweetbox, không gian riêng tư tuyệt đối' },
+        'J': { img: 'https://images.unsplash.com/photo-1595769816263-9b910be24d5f?q=80&w=500&auto=format&fit=crop', desc: 'Hàng ghế cuối cùng, thoải mái và riêng tư' }
     };
 
     function showPreview(e, row) {

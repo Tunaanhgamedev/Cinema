@@ -173,7 +173,7 @@ public class ShowtimeDAO {
             FROM showtimes s
             JOIN movies m ON s.movie_id = m.movie_id
             JOIN rooms r ON s.room_id = r.room_id
-            WHERE s.movie_id = ? AND COALESCE(s.show_date, DATE(s.start_time)) = ?
+            WHERE s.movie_id = ? AND (s.show_date = ? OR (s.show_date IS NULL AND DATE(s.start_time) = ?))
             ORDER BY s.start_time ASC
         """;
         List<ShowtimeView> list = new ArrayList<>();
@@ -181,6 +181,7 @@ public class ShowtimeDAO {
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, movieId);
             ps.setString(2, showDate);
+            ps.setString(3, showDate);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     list.add(mapRowToView(rs));
@@ -223,32 +224,26 @@ public class ShowtimeDAO {
 
     public List<com.cinema.model.Movie> getMoviesWithShowtimes(String date, String keyword, String sort) {
         StringBuilder sql = new StringBuilder("""
-            SELECT m.movie_id, m.title, m.poster, m.duration, m.genre, m.rating_avg, m.release_date, m.status, 
-                   COUNT(b.booking_id) as booking_count
+            SELECT DISTINCT m.* 
             FROM movies m
             JOIN showtimes s ON m.movie_id = s.movie_id
-            LEFT JOIN bookings b ON s.showtime_id = b.showtime_id
-            WHERE COALESCE(s.show_date, DATE(s.start_time)) = ?
+            WHERE (s.show_date = ? OR (s.show_date IS NULL AND DATE(s.start_time) = ?))
         """);
 
         if (keyword != null && !keyword.trim().isEmpty()) {
             sql.append(" AND m.title LIKE ? ");
         }
         
-        sql.append(" GROUP BY m.movie_id, m.title, m.poster, m.duration, m.genre, m.rating_avg, m.release_date, m.status ");
-
-        if ("newest".equals(sort)) sql.append(" ORDER BY m.release_date DESC ");
-        else if ("oldest".equals(sort)) sql.append(" ORDER BY m.release_date ASC ");
-        else if ("alphabetical".equals(sort)) sql.append(" ORDER BY m.title ASC ");
-        else if ("hot".equals(sort)) sql.append(" ORDER BY booking_count DESC ");
+        if ("alphabetical".equals(sort)) sql.append(" ORDER BY m.title ASC ");
         else sql.append(" ORDER BY m.release_date DESC ");
 
         List<com.cinema.model.Movie> list = new ArrayList<>();
         try (Connection con = DBConnection.getConnection(); 
              PreparedStatement ps = con.prepareStatement(sql.toString())) {
             ps.setString(1, date);
+            ps.setString(2, date);
             if (keyword != null && !keyword.trim().isEmpty()) {
-                ps.setString(2, "%" + keyword + "%");
+                ps.setString(3, "%" + keyword + "%");
             }
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -258,11 +253,18 @@ public class ShowtimeDAO {
                     m.setPoster(rs.getString("poster"));
                     m.setDuration(rs.getInt("duration"));
                     m.setGenre(rs.getString("genre"));
-                    m.setRating(rs.getDouble("rating_avg"));
+                    String ratingVal = rs.getString("rating");
+                    m.setRating(ratingVal != null ? Double.parseDouble(ratingVal) : 0.0);
                     m.setReleaseDate(rs.getDate("release_date"));
-                    try {
-                        m.setStatus(com.cinema.enums.StatusMovie.valueOf(rs.getString("status")));
-                    } catch (Exception e) {
+                    
+                    String statusStr = rs.getString("status");
+                    if (statusStr != null) {
+                        try {
+                            m.setStatus(com.cinema.enums.StatusMovie.valueOf(statusStr.trim().toUpperCase()));
+                        } catch (Exception e) {
+                            m.setStatus(com.cinema.enums.StatusMovie.NOW_SHOWING);
+                        }
+                    } else {
                         m.setStatus(com.cinema.enums.StatusMovie.NOW_SHOWING);
                     }
                     list.add(m);

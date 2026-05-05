@@ -485,16 +485,22 @@ public class BookingSeatServlet extends HttpServlet {
 		if (seatList != null) {
 			for (int i = 0; i < seatList.size(); i++) {
 				Seat s = seatList.get(i);
+				String typeName = (s.getSeatType() != null) ? s.getSeatType().name() : "NORMAL";
 				json.append("{")
 					.append("\"code\":\"").append(s.getSeatRow()).append(s.getSeatNumber()).append("\",")
-					.append("\"type\":\"").append(s.getSeatType().name()).append("\",")
+					.append("\"type\":\"").append(typeName).append("\",")
 					.append("\"r\":").append(s.getGridRow() != null ? s.getGridRow() : "null").append(",")
 					.append("\"c\":").append(s.getGridCol() != null ? s.getGridCol() : "null")
 					.append("}");
 				if (i < seatList.size() - 1) json.append(",");
 			}
 		}
-		json.append("]");
+		json.append("],");
+		
+		// roomInfo
+		json.append("\"roomInfo\":{")
+			.append("\"total\":").append(seatList != null ? seatList.size() : 0)
+			.append("}");
 
 		json.append("}");
 		resp.getWriter().write(json.toString());

@@ -9,126 +9,115 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 </head>
 <body class="bg-[#0f172a] text-slate-200">
 
-<jsp:include page="/common/admin-sidebar.jsp">
-    <jsp:param name="activeTab" value="bookings" />
-</jsp:include>
+<div class="admin-layout">
+    <jsp:include page="/common/admin/sidebar.jsp">
+        <jsp:param name="activeTab" value="bookings" />
+    </jsp:include>
 
-<div class="main-content min-h-screen">
-    <!-- Header Section -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
-        <div>
-            <h1 class="text-3xl font-black text-white tracking-tight">Trung tâm Giao dịch</h1>
-            <p class="text-slate-400 mt-1">Quản lý đặt vé, doanh thu và xác nhận thanh toán.</p>
-        </div>
-        <div class="flex items-center gap-4 w-full md:w-auto">
-            <div class="relative flex-1 md:w-80">
-                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
-                <input type="text" placeholder="Tìm mã đơn, khách hàng..." 
-                       class="w-full bg-slate-800/50 border border-slate-700 rounded-2xl pl-12 pr-4 py-3 text-sm focus:border-indigo-600 focus:outline-none transition-all">
+    <div class="main-content min-h-screen">
+        <div class="flex justify-between items-center mb-12">
+            <div>
+                <h1 class="text-4xl font-extrabold tracking-tight text-white mb-2">Quản lý Đơn hàng</h1>
+                <p class="text-slate-400">Theo dõi trạng thái thanh toán và thông tin đặt vé của khách hàng.</p>
             </div>
-            <button class="bg-slate-800 p-3 rounded-2xl border border-slate-700 text-slate-400 hover:text-white transition-all">
-                <i class="fas fa-filter"></i>
-            </button>
+            <div class="flex gap-4">
+                <div class="card-glass px-6 py-3 flex items-center gap-3">
+                    <i class="fas fa-filter text-indigo-400"></i>
+                    <span class="text-sm font-bold text-slate-300">Lọc đơn hàng</span>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <!-- Data Table Card -->
-    <div class="glass-effect rounded-[2.5rem] overflow-hidden border border-slate-800 shadow-2xl">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-slate-900/50">
-                        <th class="p-6 text-[11px] font-black text-slate-500 uppercase tracking-widest">Đơn hàng</th>
-                        <th class="p-6 text-[11px] font-black text-slate-500 uppercase tracking-widest">Khách hàng</th>
-                        <th class="p-6 text-[11px] font-black text-slate-500 uppercase tracking-widest">Chi tiết phim</th>
-                        <th class="p-6 text-[11px] font-black text-slate-500 uppercase tracking-widest">Thanh toán</th>
-                        <th class="p-6 text-[11px] font-black text-slate-500 uppercase tracking-widest">Trạng thái</th>
-                        <th class="p-6 text-[11px] font-black text-slate-500 uppercase tracking-widest text-right">Quản lý</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-800/50">
-                    <c:forEach var="b" items="${bookingList}">
-                        <tr class="hover:bg-slate-800/30 transition-all group">
-                            <td class="p-6">
-                                <span class="font-black text-white bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 text-xs">
-                                    #${b.bookingId}
-                                </span>
-                            </td>
-                            <td class="p-6">
-                                <div class="flex flex-col">
-                                    <span class="text-white font-bold text-sm">${b.fullName}</span>
-                                    <span class="text-slate-500 text-[11px] font-medium mt-1">${b.email}</span>
-                                </div>
-                            </td>
-                            <td class="p-6">
-                                <div class="flex flex-col">
-                                    <span class="text-indigo-400 font-bold text-sm">${b.movieTitle}</span>
-                                    <span class="text-slate-500 text-[11px] mt-1">
-                                        <i class="far fa-clock mr-1"></i>
-                                        <fmt:formatDate value="${b.startTime}" pattern="dd/MM HH:mm" /> • ${b.roomName}
-                                    </span>
-                                </div>
-                            </td>
-                            <td class="p-6">
-                                <div class="flex flex-col">
-                                    <span class="text-white font-black text-sm">
-                                        <fmt:formatNumber value="${b.grandTotal}" type="currency" currencySymbol="₫" maxFractionDigits="0" />
-                                    </span>
-                                    <span class="text-slate-500 text-[10px] font-bold uppercase mt-1">${b.seatCount} VÉ ĐÃ ĐẶT</span>
-                                </div>
-                            </td>
-                            <td class="p-6">
-                                <c:choose>
-                                    <c:when test="${b.status == 'PAID'}">
-                                        <span class="bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase px-3 py-1.5 rounded-full border border-emerald-500/20">PAID</span>
-                                    </c:when>
-                                    <c:when test="${b.status == 'REFUNDED'}">
-                                        <span class="bg-rose-500/10 text-rose-500 text-[10px] font-black uppercase px-3 py-1.5 rounded-full border border-rose-500/20">REFUNDED</span>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <span class="bg-amber-500/10 text-amber-500 text-[10px] font-black uppercase px-3 py-1.5 rounded-full border border-amber-500/20">${b.status}</span>
-                                    </c:otherwise>
-                                </c:choose>
-                            </td>
-                            <td class="p-6">
-                                <div class="flex justify-end gap-3">
-                                    <a href="${pageContext.request.contextPath}/admin/bookings?bookingId=${b.bookingId}" 
-                                       class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 hover:bg-indigo-600 hover:text-white transition-all flex items-center justify-center border border-indigo-500/20"
-                                       title="Xem chi tiết">
-                                        <i class="fas fa-eye text-xs"></i>
-                                    </a>
-                                    
-                                    <form action="${pageContext.request.contextPath}/admin/bookings" method="POST" class="flex items-center gap-2">
-                                        <input type="hidden" name="action" value="status">
-                                        <input type="hidden" name="bookingId" value="${b.bookingId}">
-                                        <select name="status" class="bg-slate-900 border-none rounded-xl text-[10px] font-black px-3 py-2 text-slate-400 focus:ring-2 ring-indigo-500 appearance-none cursor-pointer">
-                                            <option value="PENDING" ${b.status == 'PENDING' ? 'selected' : ''}>PENDING</option>
-                                            <option value="PAID" ${b.status == 'PAID' ? 'selected' : ''}>PAID</option>
-                                            <option value="CANCELLED" ${b.status == 'CANCELLED' ? 'selected' : ''}>CANCELLED</option>
-                                        </select>
-                                        <button type="submit" class="w-8 h-8 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-white transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center">
-                                            <i class="fas fa-check text-[10px]"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
+        <div class="card-glass overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="text-slate-500 text-[10px] font-black uppercase tracking-[2px] border-b border-white/5 bg-white/5">
+                            <th class="px-8 py-5">MÃ ĐƠN</th>
+                            <th class="px-8 py-5">KHÁCH HÀNG</th>
+                            <th class="px-8 py-5">PHIM / SUẤT CHIẾU</th>
+                            <th class="px-8 py-5">TỔNG TIỀN</th>
+                            <th class="px-8 py-5">TRẠNG THÁI</th>
+                            <th class="px-8 py-5 text-right">THAO TÁC</th>
                         </tr>
-                    </c:forEach>
-                    <c:if test="${empty bookingList}">
-                        <tr>
-                            <td colspan="6" class="p-20 text-center flex flex-col items-center">
-                                <div class="w-20 h-20 bg-slate-800/50 rounded-full flex items-center justify-center text-slate-600 text-3xl mb-4">
-                                    <i class="fas fa-receipt"></i>
-                                </div>
-                                <p class="text-slate-500 font-bold">Chưa có giao dịch nào phát sinh.</p>
-                            </td>
-                        </tr>
-                    </c:if>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="divide-y divide-white/5">
+                        <c:forEach var="b" items="${bookingList}">
+                            <tr class="hover:bg-white/5 transition-colors group">
+                                <td class="px-8 py-5"><span class="font-mono text-indigo-400 font-bold">#BK${b.bookingId}</span></td>
+                                <td class="px-8 py-5">
+                                    <div class="font-bold text-white text-sm mb-1">${b.fullName}</div>
+                                    <div class="text-slate-500 text-[11px] font-medium tracking-wider uppercase">${b.email}</div>
+                                </td>
+                                <td class="px-8 py-5">
+                                    <div class="text-white text-sm font-bold mb-1">${b.movieTitle}</div>
+                                    <div class="text-slate-500 text-[11px] font-medium tracking-wider uppercase">${b.roomName} • <fmt:formatDate value="${b.startTime}" pattern="dd/MM/yyyy HH:mm" /></div>
+                                </td>
+                                <td class="px-8 py-5">
+                                    <div class="font-black text-white"><fmt:formatNumber value="${b.grandTotal}" type="currency" currencySymbol="₫" maxFractionDigits="0" /></div>
+                                    <div class="text-slate-500 text-[10px] uppercase font-bold">${b.seatCount} ghế</div>
+                                </td>
+                                <td class="px-8 py-5">
+                                    <c:choose>
+                                        <c:when test="${b.status == 'PAID'}">
+                                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 text-[10px] font-black uppercase tracking-wider">
+                                                <i class="fas fa-check-circle text-[8px]"></i> Đã thanh toán
+                                            </span>
+                                        </c:when>
+                                        <c:when test="${b.status == 'PENDING'}">
+                                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20 text-[10px] font-black uppercase tracking-wider">
+                                                <i class="fas fa-clock text-[8px]"></i> Chờ xử lý
+                                            </span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/10 text-rose-500 border border-rose-500/20 text-[10px] font-black uppercase tracking-wider">
+                                                <i class="fas fa-times-circle text-[8px]"></i> Đã hủy
+                                            </span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </td>
+                                <td class="px-8 py-5 text-right">
+                                    <div class="flex justify-end gap-4 items-center">
+                                        <a href="${pageContext.request.contextPath}/admin/bookings?bookingId=${b.bookingId}" 
+                                           class="w-9 h-9 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center hover:bg-indigo-500 hover:text-white transition-all" 
+                                           title="Xem chi tiết">
+                                             <i class="fas fa-eye text-xs"></i>
+                                         </a>
+                                         
+                                         <form action="${pageContext.request.contextPath}/admin/bookings" method="POST" class="flex gap-2">
+                                             <input type="hidden" name="action" value="status">
+                                             <input type="hidden" name="bookingId" value="${b.bookingId}">
+                                             <select name="status" class="bg-white/5 border border-white/10 rounded-lg text-white text-[10px] font-black uppercase px-3 py-2 focus:ring-2 focus:ring-indigo-500 outline-none cursor-pointer">
+                                                 <option value="PENDING" ${b.status == 'PENDING' ? 'selected' : ''}>CHỜ XỬ LÝ</option>
+                                                 <option value="PAID" ${b.status == 'PAID' ? 'selected' : ''}>ĐÃ THANH TOÁN</option>
+                                                 <option value="CANCELLED" ${b.status == 'CANCELLED' ? 'selected' : ''}>HỦY ĐƠN</option>
+                                             </select>
+                                             <button type="submit" class="w-9 h-9 rounded-lg bg-emerald-500 text-white flex items-center justify-center hover:bg-emerald-400 shadow-lg shadow-emerald-500/20 transition-all">
+                                                 <i class="fas fa-check text-xs"></i>
+                                             </button>
+                                         </form>
+                                     </div>
+                                </td>
+                            </tr>
+                        </c:forEach>
+                        <c:if test="${empty bookingList}">
+                            <tr>
+                                <td colspan="6" class="p-20 text-center flex flex-col items-center">
+                                    <div class="w-20 h-20 bg-slate-800/50 rounded-full flex items-center justify-center text-slate-600 text-3xl mb-4">
+                                        <i class="fas fa-receipt"></i>
+                                    </div>
+                                    <p class="text-slate-500 font-bold">Chưa có giao dịch nào phát sinh.</p>
+                                </td>
+                            </tr>
+                        </c:if>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

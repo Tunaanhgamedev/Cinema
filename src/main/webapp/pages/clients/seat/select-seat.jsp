@@ -1,56 +1,268 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
 
+<!-- Link Google Fonts & FontAwesome -->
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+
 <style>
-    .seat {
-        width: 40px;
-        height: 40px;
-        margin: 4px;
-        display: inline-flex;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-        border-radius: 6px;
-        font-size: 14px;
+    body { font-family: 'Outfit', sans-serif; background-color: #0f172a; color: #f8fafc; }
+    .cinema-screen {
+        height: 60px;
+        width: 100%;
+        background: linear-gradient(to bottom, rgba(99, 102, 241, 0.4), transparent);
+        border-top: 3px solid #6366f1;
+        border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+        margin-bottom: 60px;
+        filter: drop-shadow(0 -10px 15px rgba(99, 102, 241, 0.3));
     }
-    .NORMAL { background: #e0e0e0; }
-    .VIP { background: gold; }
-    .BOOKED { background: #999; cursor: not-allowed; }
-    .SELECTED { background: #e50914; color: white; }
-    .COUPLE { background: pink; }
+    .seat-container {
+        display: inline-grid;
+        grid-template-columns: repeat(auto-fit, minmax(36px, 1fr));
+        gap: 12px;
+        padding: 40px;
+        background: rgba(30, 41, 59, 0.5);
+        border-radius: 32px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+    }
+    .seat-box {
+        position: relative;
+        width: 38px;
+        height: 38px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .seat-box .seat-icon {
+        width: 100%;
+        height: 100%;
+        background: #334155;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 800;
+        color: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .seat-box:hover:not(.BOOKED) .seat-icon {
+        background: #475569;
+        transform: translateY(-4px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        color: white;
+    }
+    .seat-box.NORMAL .seat-icon { border-bottom: 3px solid #475569; }
+    /* Ghế VIP: Màu vàng, hiệu ứng phát sáng nhẹ */
+    .seat-box.VIP .seat-icon { 
+        border-bottom: 3px solid #fbbf24; 
+        background: rgba(251, 191, 36, 0.1); 
+        color: #fbbf24; 
+    }
+    .seat-box.VIP:hover:not(.BOOKED) .seat-icon {
+        box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
+        background: rgba(251, 191, 36, 0.2);
+    }
+    
+    /* Ghế Couple: Thiết kế bo tròn đặc biệt, màu đỏ hồng lãng mạn */
+    .seat-box.COUPLE .seat-icon { 
+        border-bottom: 3px solid #f43f5e; 
+        background: rgba(244, 63, 94, 0.15); 
+        color: #f43f5e; 
+        border-radius: 14px; /* Bo tròn hơn ghế thường */
+    }
+    .seat-box.COUPLE:hover:not(.BOOKED) .seat-icon {
+        box-shadow: 0 0 15px rgba(244, 63, 94, 0.4);
+        background: rgba(244, 63, 94, 0.3);
+    }
+    
+    .seat-box.BOOKED { cursor: not-allowed; opacity: 0.3; }
+    .seat-box.BOOKED .seat-icon { background: #1e293b; color: transparent; border: none; }
+    .seat-box.SELECTED .seat-icon { 
+        background: #6366f1 !important; 
+        color: white !important; 
+        border-bottom: 3px solid #4f46e5 !important;
+        box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+    }
+    .legend-item { display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 600; color: #94a3b8; }
+    .legend-box { width: 16px; height: 16px; border-radius: 4px; }
+
+    /* SEAT VIEW PREVIEW */
+    .view-preview-popup {
+        position: fixed;
+        pointer-events: none;
+        width: 280px;
+        background: rgba(15, 23, 42, 0.9);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 12px;
+        z-index: 1000;
+        opacity: 0;
+        transform: translateY(10px) scale(0.95);
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    .view-preview-popup.active {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    .preview-img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 12px;
+        margin-bottom: 10px;
+    }
+    .preview-info {
+        text-align: center;
+    }
+    .preview-info h4 { font-size: 14px; font-weight: 800; color: white; margin-bottom: 2px; }
+    .preview-info p { font-size: 11px; color: #94a3b8; }
 </style>
 
-<h2>Chọn ghế</h2>
+<div class="max-w-6xl mx-auto py-12 px-4">
+    <div class="text-center mb-16">
+        <h2 class="text-5xl font-black text-white mb-4 tracking-tighter">Chọn vị trí ngồi</h2>
+        <p class="text-slate-400">Vui lòng chọn chỗ ngồi bạn yêu thích để tận hưởng bộ phim.</p>
+    </div>
 
-<form action="${pageContext.request.contextPath}/booking" method="post">
-    <input type="hidden" name="showtimeId" value="${showtimeId}" />
+    <!-- View Preview Popup -->
+    <div id="view-preview" class="view-preview-popup">
+        <img id="preview-img" src="" class="preview-img" alt="Seat View">
+        <div class="preview-info">
+            <h4 id="preview-row">Tầm nhìn hàng A</h4>
+            <p id="preview-desc">Góc nhìn cận cảnh màn hình</p>
+        </div>
+    </div>
 
-    <c:set var="currentRow" value="" />
+    <div class="flex flex-col items-center">
+        <!-- Screen -->
+        <div class="w-full max-w-3xl">
+            <div class="cinema-screen"></div>
+            <p class="text-center text-[10px] font-black tracking-[0.3em] uppercase text-indigo-400 -mt-10 mb-20">MÀN HÌNH CHÍNH</p>
+        </div>
 
-    <c:forEach var="s" items="${seats}">
-        <c:if test="${currentRow != s.seatRow}">
-            <br/>
-            <strong>Hàng ${s.seatRow}</strong><br/>
-            <c:set var="currentRow" value="${s.seatRow}" />
-        </c:if>
+        <!-- Legend -->
+        <div class="flex flex-wrap justify-center gap-8 mb-16 px-8 py-4 bg-white/5 rounded-2xl border border-white/5">
+            <div class="legend-item"><div class="legend-box bg-[#334155]"></div> Ghế thường</div>
+            <div class="legend-item"><div class="legend-box bg-[#fbbf24]/20 border border-[#fbbf24]"></div> Ghế VIP</div>
+            <div class="legend-item"><div class="legend-box bg-[#f43f5e]/20 border border-[#f43f5e]"></div> Ghế Couple</div>
+            <div class="legend-item"><div class="legend-box bg-[#6366f1]"></div> Đang chọn</div>
+            <div class="legend-item"><div class="legend-box bg-[#1e293b] opacity-30"></div> Đã bán</div>
+        </div>
 
-        <c:set var="isBooked" value="${bookedSeats.contains(s.seatId)}" />
-
-        <label class="seat
-            ${s.seatType}
-            ${isBooked ? 'BOOKED' : ''}">
+        <form action="${pageContext.request.contextPath}/booking" method="post" class="w-full">
+            <input type="hidden" name="showtimeId" value="${showtimeId}" />
             
-            <c:if test="${!isBooked}">
-                <input type="checkbox" name="seatIds"
-                       value="${s.seatId}"
-                       hidden
-                       onclick="this.parentElement.classList.toggle('SELECTED')" />
-            </c:if>
+            <c:set var="totalSeats" value="${seats.size()}" />
+            <c:set var="cols" value="${totalSeats > 100 ? 12 : 10}" />
+            
+            <div class="flex justify-center mb-16">
+                <div class="grid gap-x-3 gap-y-4 justify-items-center" 
+                     style="grid-template-columns: repeat(${cols}, 1fr); width: fit-content;">
+                    <c:forEach var="s" items="${seats}">
+                        <c:set var="isBooked" value="${bookedSeats.contains(s.seatId)}" />
+                        
+                        <div class="seat-box ${s.seatType} ${isBooked ? 'BOOKED' : ''}" 
+                             id="seat-${s.seatId}"
+                             data-row="${s.seatRow}"
+                             onmouseover="showPreview(event, '${s.seatRow}')"
+                             onmousemove="movePreview(event)"
+                             onmouseleave="hidePreview()"
+                             onclick="toggleSeat(this, '${s.seatId}')">
+                             <div class="seat-icon">
+                                 ${s.seatRow}${s.seatNumber}
+                             </div>
+                             <c:if test="${!isBooked}">
+                                 <input type="checkbox" name="seatIds" value="${s.seatId}" id="check-${s.seatId}" class="hidden">
+                             </c:if>
+                        </div>
+                    </c:forEach>
+                </div>
+            </div>
 
-            ${s.seatRow}${s.seatNumber}
-        </label>
-    </c:forEach>
+            <div class="flex justify-between items-center p-8 bg-slate-900 border border-white/5 rounded-3xl sticky bottom-8 shadow-2xl backdrop-blur-xl">
+                <div>
+                    <p class="text-slate-500 text-xs font-black uppercase tracking-widest mb-1">Ghế đã chọn</p>
+                    <div id="selected-list" class="text-white font-bold text-xl flex gap-2">
+                        <span class="text-slate-600 italic font-normal text-sm">Chưa chọn ghế</span>
+                    </div>
+                </div>
+                <button type="submit" id="btn-submit" disabled 
+                        class="bg-indigo-600 opacity-50 cursor-not-allowed hover:bg-indigo-500 text-white font-black py-4 px-12 rounded-2xl transition-all shadow-lg shadow-indigo-600/20 flex items-center gap-3">
+                    Tiếp tục đặt vé <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
-    <br/><br/>
-    <button type="submit">Tiếp tục đặt vé</button>
-</form>
+<script>
+    function toggleSeat(el, id) {
+        if (el.classList.contains('BOOKED')) return;
+        
+        const checkbox = document.getElementById('check-' + id);
+        checkbox.checked = !checkbox.checked;
+        el.classList.toggle('SELECTED');
+        
+        updateSummary();
+    }
+
+    function updateSummary() {
+        const selected = document.querySelectorAll('.seat-box.SELECTED');
+        const listDiv = document.getElementById('selected-list');
+        const btn = document.getElementById('btn-submit');
+        
+        if (selected.length > 0) {
+            const names = Array.from(selected).map(el => el.innerText.trim());
+            listDiv.innerHTML = names.join(', ');
+            btn.disabled = false;
+            btn.classList.remove('opacity-50', 'cursor-not-allowed');
+        } else {
+            listDiv.innerHTML = '<span class="text-slate-600 italic font-normal text-sm">Chưa chọn ghế</span>';
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+    }
+
+    const previewPopup = document.getElementById('view-preview');
+    const previewImg = document.getElementById('preview-img');
+    const previewRowText = document.getElementById('preview-row');
+    const previewDesc = document.getElementById('preview-desc');
+
+    const viewAssets = {
+        'A': { img: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=500&auto=format&fit=crop', desc: 'Góc nhìn cực gần, sống động từng chi tiết' },
+        'B': { img: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=500&auto=format&fit=crop', desc: 'Góc nhìn cận cảnh màn hình' },
+        'C': { img: 'https://images.unsplash.com/photo-1517604401157-538a9663ecf3?q=80&w=500&auto=format&fit=crop', desc: 'Vị trí lý tưởng, bao quát màn hình' },
+        'D': { img: 'https://images.unsplash.com/photo-1517604401157-538a9663ecf3?q=80&w=500&auto=format&fit=crop', desc: 'Góc nhìn tiêu chuẩn từ trung tâm' },
+        'E': { img: 'https://images.unsplash.com/photo-1517604401157-538a9663ecf3?q=80&w=500&auto=format&fit=crop', desc: 'Tầm nhìn đẹp nhất trong phòng chiếu' },
+        'F': { img: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=500&auto=format&fit=crop', desc: 'Góc nhìn bao quát từ phía sau' },
+        'G': { img: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=500&auto=format&fit=crop', desc: 'Tầm nhìn từ xa, không gây mỏi mắt' },
+        'H': { img: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=500&auto=format&fit=crop', desc: 'Vị trí cao, tầm nhìn thoáng đãng' },
+        'I': { img: 'https://images.unsplash.com/photo-1595769816263-9b910be24d5f?q=80&w=500&auto=format&fit=crop', desc: 'Ghế đôi Sweetbox, không gian riêng tư tuyệt đối' },
+        'J': { img: 'https://images.unsplash.com/photo-1595769816263-9b910be24d5f?q=80&w=500&auto=format&fit=crop', desc: 'Hàng ghế cuối cùng, thoải mái và riêng tư' }
+    };
+
+    function showPreview(e, row) {
+        const asset = viewAssets[row] || viewAssets['D'];
+        previewImg.src = asset.img;
+        previewRowText.innerText = 'Tầm nhìn từ hàng ' + row;
+        previewDesc.innerText = asset.desc;
+        
+        previewPopup.classList.add('active');
+        movePreview(e);
+    }
+
+    function movePreview(e) {
+        const x = e.clientX + 20;
+        const y = e.clientY - 220;
+        previewPopup.style.left = x + 'px';
+        previewPopup.style.top = y + 'px';
+    }
+
+    function hidePreview() {
+        previewPopup.classList.remove('active');
+    }
+</script>

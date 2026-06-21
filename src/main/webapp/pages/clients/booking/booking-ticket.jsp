@@ -1,523 +1,569 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib uri="jakarta.tags.core" prefix="c"%>
-<%@ taglib uri="jakarta.tags.fmt" prefix="fmt"%>
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>Đặt vé: ${movie.title} | BOBIXI Cinema</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #f59e0b;
-            --secondary: #6366f1;
-            --bg: #070a12;
-            --card-bg: rgba(15, 23, 42, 0.8);
-            --seat-free: #1e293b;
-            --seat-selected: #f59e0b;
-            --seat-booked: #0f172a;
-        }
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+    <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+        <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
-        body {
-            background: var(--bg);
-            color: #fff;
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            overflow-x: hidden;
-        }
+            <jsp:include page="/common/header.jsp" />
 
-        /* Movie Theme Background */
-        .movie-backdrop {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, rgba(7, 10, 18, 0.8), #070a12),
-                        url('${pageContext.request.contextPath}/${movie.poster}');
-            background-size: cover;
-            background-position: center;
-            filter: blur(40px);
-            z-index: -1;
-            transform: scale(1.1);
-        }
+            <!DOCTYPE html>
+            <html lang="vi">
 
-        .booking-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
+            <head>
+                <meta charset="UTF-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <title>Đặt vé & Chọn ghế | BOBIXI</title>
 
-        .booking-header {
-            display: flex;
-            gap: 30px;
-            margin-bottom: 40px;
-            align-items: center;
-        }
+                <!-- Nếu bạn có bootstrap thì giữ -->
+                <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/booking-ticket.css" />
+                <style>
+                    :root {
+                        --bg: #0b0f19;
+                        --card: #111827;
+                        --line: #253047;
+                        --txt: #e5e7eb;
+                        --muted: #9ca3af;
+                        --brand: #e71a0f;
+                    }
 
-        .movie-mini-poster {
-            width: 120px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-        }
+                    body {
+                        background: var(--bg);
+                        color: var(--txt);
+                    }
 
-        .movie-info h1 {
-            margin: 0;
-            font-size: 2.5rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: -1px;
-        }
+                    .wrap {
+                        max-width: 1100px;
+                        margin: 24px auto;
+                        padding: 0 14px;
+                    }
 
-        .movie-meta-chips {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
+                    .card {
+                        background: linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .03));
+                        border: 1px solid var(--line);
+                        border-radius: 18px;
+                        padding: 18px;
+                        box-shadow: 0 10px 30px rgba(0, 0, 0, .25);
+                    }
 
-        .meta-chip {
-            background: rgba(255,255,255,0.1);
-            padding: 4px 12px;
-            border-radius: 999px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
+                    .title {
+                        font-weight: 900;
+                        letter-spacing: .2px;
+                    }
 
-        .main-grid {
-            display: grid;
-            grid-template-columns: 1fr 350px;
-            gap: 30px;
-        }
+                    .muted {
+                        color: var(--muted);
+                    }
 
-        @media (max-width: 1024px) {
-            .main-grid { grid-template-columns: 1fr; }
-        }
+                    .row {
+                        display: flex;
+                        gap: 14px;
+                        flex-wrap: wrap;
+                    }
 
-        .glass-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 24px;
-            padding: 30px;
-        }
+                    .col {
+                        flex: 1;
+                        min-width: 240px;
+                    }
 
-        /* Screen & Seats */
-        .screen-container {
-            perspective: 500px;
-            margin-bottom: 50px;
-            text-align: center;
-        }
+                    label {
+                        font-weight: 800;
+                        margin-bottom: 6px;
+                        display: block;
+                    }
 
-        .screen-curve {
-            height: 10px;
-            width: 80%;
-            margin: 0 auto;
-            background: #fff;
-            box-shadow: 0 10px 30px rgba(255,255,255,0.5);
-            transform: rotateX(-30deg);
-            border-radius: 50%;
-        }
+                    .input,
+                    .select {
+                        width: 100%;
+                        padding: 12px 12px;
+                        border-radius: 14px;
+                        border: 1px solid var(--line);
+                        background: #0f1627;
+                        color: var(--txt);
+                        outline: none;
+                    }
 
-        .screen-label {
-            margin-top: 20px;
-            font-weight: 800;
-            color: #64748b;
-            letter-spacing: 5px;
-            font-size: 0.75rem;
-        }
+                    .btn {
+                        border: none;
+                        border-radius: 999px;
+                        padding: 12px 16px;
+                        font-weight: 900;
+                        cursor: pointer;
+                    }
 
-        .seats-layout {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            align-items: center;
-        }
+                    .btn-outline {
+                        background: transparent;
+                        color: var(--txt);
+                        border: 1px solid var(--line);
+                    }
 
-        .seat-row {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
+                    .btn-brand {
+                        background: var(--brand);
+                        color: #fff;
+                    }
 
-        .row-label {
-            width: 30px;
-            font-weight: 800;
-            color: #475569;
-            font-size: 0.9rem;
-        }
+                    .btn:disabled {
+                        opacity: .5;
+                        cursor: not-allowed;
+                    }
 
-        .seat {
-            width: 36px;
-            height: 36px;
-            background: var(--seat-free);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.2s;
-        }
+                    .hr {
+                        height: 1px;
+                        background: var(--line);
+                        margin: 18px 0;
+                    }
 
-        .seat:hover:not(.booked):not(.other-selected) {
-            background: #334155;
-            transform: scale(1.1);
-        }
+                    /* Seats */
+                    .screen {
+                        text-align: center;
+                        padding: 10px;
+                        border-radius: 12px;
+                        background: rgba(255, 255, 255, .08);
+                        border: 1px dashed rgba(255, 255, 255, .25);
+                        font-weight: 900;
+                        margin: 12px 0 14px;
+                    }
 
-        .seat.selected {
-            background: var(--seat-selected);
-            color: #000;
-            box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
-        }
+                    .seat-grid {
+                        display: grid;
+                        grid-template-columns: repeat(10, 1fr);
+                        gap: 10px;
+                    }
 
-        .seat.booked {
-            background: var(--seat-booked);
-            color: #475569;
-            cursor: not-allowed;
-            border-color: transparent;
-        }
+                    .seat-item {
+                        display: flex;
+                        justify-content: center;
+                    }
 
-        .seat.other-selected {
-            background: rgba(255, 165, 0, 0.2);
-            border-color: #f59e0b;
-            cursor: not-allowed;
-            position: relative;
-        }
+                    .seat-check {
+                        display: none;
+                    }
 
-        .seat.other-selected::after {
-            content: "\f007";
-            font-family: "Font Awesome 5 Free";
-            font-weight: 900;
-            font-size: 8px;
-            position: absolute;
-            top: 2px;
-            right: 2px;
-        }
+                    .seat-label {
+                        width: 100%;
+                        padding: 10px 0;
+                        text-align: center;
+                        border-radius: 12px;
+                        border: 1px solid var(--line);
+                        background: #0f1627;
+                        font-weight: 900;
+                        user-select: none;
+                        transition: transform .12s, filter .12s, background .12s;
+                    }
 
-        /* Summary Sidebar */
-        .summary-title {
-            font-weight: 800;
-            font-size: 1.2rem;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+                    .seat-label:hover {
+                        transform: translateY(-1px);
+                        filter: brightness(1.08);
+                    }
 
-        .summary-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-            font-size: 0.95rem;
-        }
+                    .seat-label.booked {
+                        background: #2b2b2b;
+                        color: #888;
+                        text-decoration: line-through;
+                        cursor: not-allowed;
+                    }
 
-        .summary-label { color: #94a3b8; }
-        .summary-value { font-weight: 700; }
+                    .seat-label.selected {
+                        background: rgba(231, 26, 15, .18);
+                        border-color: rgba(231, 26, 15, .55);
+                    }
 
-        .btn-confirm {
-            width: 100%;
-            background: linear-gradient(90deg, #f59e0b, #ef4444);
-            color: #fff;
-            border: none;
-            padding: 18px;
-            border-radius: 16px;
-            font-weight: 900;
-            font-size: 1.1rem;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: 0.3s;
-            box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.4);
-        }
+                    .seat-check:checked+.seat-label {
+                        background: rgba(231, 26, 15, .18);
+                        border-color: rgba(231, 26, 15, .55);
+                    }
 
-        .btn-confirm:hover:not(:disabled) {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 30px -5px rgba(239, 68, 68, 0.5);
-        }
+                    .legend {
+                        display: flex;
+                        gap: 12px;
+                        flex-wrap: wrap;
+                        margin-top: 12px;
+                    }
 
-        .btn-confirm:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
+                    .badge {
+                        display: inline-flex;
+                        gap: 8px;
+                        align-items: center;
+                        padding: 8px 12px;
+                        border-radius: 999px;
+                        border: 1px solid var(--line);
+                        background: rgba(255, 255, 255, .04);
+                        font-weight: 800;
+                    }
 
-        .legend {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            margin-top: 40px;
-            flex-wrap: wrap;
-        }
+                    .dot {
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 999px;
+                        display: inline-block;
+                    }
 
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.85rem;
-            color: #94a3b8;
-            font-weight: 600;
-        }
+                    .dot.free {
+                        background: #0f1627;
+                        border: 1px solid rgba(255, 255, 255, .25);
+                    }
 
-        .legend-box {
-            width: 18px;
-            height: 18px;
-            border-radius: 4px;
-        }
+                    .dot.sel {
+                        background: rgba(231, 26, 15, .65);
+                    }
 
-        .alert-error {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            color: #fca5a5;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-        
-        .selection-panel {
-            margin-bottom: 30px;
-        }
-        
-        .form-select-custom {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: #fff;
-            padding: 10px 15px;
-            border-radius: 12px;
-            width: 100%;
-            outline: none;
-        }
-    </style>
-</head>
-<body>
+                    .dot.bok {
+                        background: #444;
+                    }
 
-    <jsp:include page="/common/header.jsp"/>
-    
-    <div class="movie-backdrop"></div>
+                    .dot.other {
+                        background: #ffa500;
+                    }
 
-    <div class="booking-container">
-        <c:if test="${not empty error}">
-            <div class="alert-error"><i class="fas fa-exclamation-circle me-2"></i> ${error}</div>
-        </c:if>
+                    /* Orange for others */
 
-        <div class="booking-header">
-            <img src="${pageContext.request.contextPath}/${movie.poster}" class="movie-mini-poster" alt="${movie.title}">
-            <div class="movie-info">
-                <h1>${movie.title}</h1>
-                <div class="movie-meta-chips">
-                    <span class="meta-chip"><i class="fas fa-star text-warning me-1"></i> ${movie.rating}</span>
-                    <span class="meta-chip"><i class="far fa-clock me-1"></i> ${movie.duration} phút</span>
-                    <span class="meta-chip"><i class="fas fa-couch me-1"></i> Đà Nẵng</span>
-                </div>
-            </div>
-        </div>
+                    .seat-label.other-selected {
+                        background: rgba(255, 165, 0, 0.2);
+                        border-color: rgba(255, 165, 0, 0.5);
+                        cursor: not-allowed;
+                        position: relative;
+                    }
 
-        <div class="main-grid">
-            <div class="glass-card">
-                <!-- Showtime Selection (Collapsible if showtimeId exists) -->
-                <div class="selection-panel" <c:if test="${not empty showtimeId}">style="display:none;"</c:if> id="showtimeCollapse">
-                    <h5 class="mb-3 fw-bold">Chọn suất chiếu</h5>
-                    <form id="filterForm" method="get">
-                        <input type="hidden" name="movieId" value="${movieId}">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="small text-muted mb-2 fw-bold">Ngày chiếu</label>
-                                <input type="date" name="showDate" id="showDateInput" class="form-select-custom" value="${showDate}">
+                    .seat-label.other-selected::after {
+                        content: "👤";
+                        font-size: 10px;
+                        position: absolute;
+                        top: 2px;
+                        right: 2px;
+                    }
+
+                    .alert {
+                        padding: 12px 14px;
+                        border-radius: 14px;
+                        border: 1px solid rgba(231, 26, 15, .5);
+                        background: rgba(231, 26, 15, .12);
+                        font-weight: 800;
+                    }
+
+                    .top-actions {
+                        display: flex;
+                        gap: 10px;
+                        flex-wrap: wrap;
+                        align-items: center;
+                        justify-content: space-between;
+                    }
+
+                    .counter {
+                        font-weight: 900;
+                    }
+                </style>
+            </head>
+
+            <body>
+                <div class="wrap">
+
+                    <div class="top-actions">
+                        <div>
+                            <div class="title" style="font-size:22px;">Đặt vé & Chọn ghế</div>
+                            <div class="muted">Bước 1 chọn suất chiếu → Bước 2 chọn ghế → Tiếp tục chọn combo</div>
+                        </div>
+                        <c:if test="${not empty error}">
+                            <div class="alert">${error}</div>
+                        </c:if>
+                    </div>
+
+                    <!-- FORM GET: tải showtimes + tải ghế -->
+                    <div class="card" style="margin-top:14px;">
+                        <form id="filterForm" method="get" action="${pageContext.request.contextPath}/booking-seat">
+                            <div class="title" style="font-size:18px; margin-bottom:10px;">1) Chọn suất chiếu</div>
+
+                            <div class="row">
+                                <div class="col">
+                                    <label>Phim</label>
+                                    <select class="select" name="movieId" id="movieSelect" required>
+                                        <option value="">-- Chọn phim --</option>
+                                        <c:forEach var="m" items="${movies}">
+                                            <option value="${m.movieId}" <c:if test="${movieId == m.movieId}">selected
+                                                </c:if>>
+                                                ${m.title}
+                                            </option>
+                                        </c:forEach>
+                                    </select>
+                                </div>
+
+                                <div class="col">
+                                    <label>Rạp</label>
+                                    <input class="input" value="BOBIXI" readonly />
+                                    <input type="hidden" name="cinemaId" value="1" />
+                                </div>
+
+                                <div class="col">
+                                    <label>Ngày chiếu</label>
+                                    <input class="input" type="date" name="showDate" id="showDateInput"
+                                        value="${showDate}" required />
+                                </div>
+
+                                <div class="col">
+                                    <label>Suất chiếu</label>
+                                    <select class="select" name="showtimeId" id="showtimeSelect" required>
+                                        <option value="">-- Chọn suất chiếu --</option>
+                                        <c:forEach var="st" items="${showtimes}">
+                                            <option value="${st.showtimeId}" <c:if
+                                                test="${showtimeId == st.showtimeId}">selected</c:if>>
+                                                <fmt:formatDate value="${st.startTime}" pattern="HH:mm" /> -
+                                                <fmt:formatDate value="${st.endTime}" pattern="HH:mm" />
+                                                (Phòng: ${st.roomName})
+                                            </option>
+                                        </c:forEach>
+                                    </select>
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <label class="small text-muted mb-2 fw-bold">Suất chiếu</label>
-                                <select name="showtimeId" id="showtimeSelect" class="form-select-custom">
-                                    <option value="">-- Chọn giờ --</option>
-                                    <c:forEach var="st" items="${showtimes}">
-                                        <option value="${st.showtimeId}" <c:if test="${showtimeId == st.showtimeId}">selected</c:if>>
-                                            <fmt:formatDate value="${st.startTime}" pattern="HH:mm" /> (${st.roomName})
-                                        </option>
+                        </form>
+                    </div>
+
+                    <div class="hr"></div>
+
+                    <!-- FORM POST: tạo booking PENDING + giữ ghế + redirect qua combo -->
+                    <div class="card">
+                        <form id="bookingForm" method="post" action="${pageContext.request.contextPath}/booking-seat">
+                            <input type="hidden" name="movieId" value="${movieId}" />
+                            <input type="hidden" name="showDate" value="${showDate}" />
+                            <input type="hidden" name="cinemaId" value="1" />
+                            <input type="hidden" name="showtimeId" value="${showtimeId}" />
+
+                            <div class="row">
+                                <div class="col">
+                                    <label>Loại vé</label>
+                                    <select class="select" name="ticketType" required>
+                                        <option value="ADULT">Người lớn</option>
+                                        <option value="STUDENT">Học sinh/SV</option>
+                                        <option value="CHILD">Trẻ em</option>
+                                    </select>
+                                </div>
+
+                                <div class="col">
+                                    <label>Số vé</label>
+                                    <input id="ticketQty" class="input" type="number" name="ticketQty" min="1" max="10"
+                                        value="${empty ticketQty ? 2 : ticketQty}" required />
+                                    <div class="muted" style="margin-top:6px;">Chọn đúng số ghế = số vé.</div>
+                                </div>
+
+                                <div class="col">
+                                    <label>Suất chiếu đang chọn</label>
+                                    <input class="input" value="${showtimeId}" readonly />
+                                    <div class="muted" style="margin-top:6px;">Muốn đổi suất chiếu: đổi ở form trên rồi
+                                        bấm tải.</div>
+                                </div>
+                            </div>
+
+                            <div class="hr"></div>
+
+                            <div class="title" style="font-size:18px; margin-bottom:10px;">2) Chọn ghế</div>
+
+                            <c:if test="${empty showtimeId}">
+                                <div class="alert">Bạn chưa chọn suất chiếu. Hãy chọn ở bước 1 và bấm “Tải suất chiếu /
+                                    tải ghế”.</div>
+                            </c:if>
+
+                            <div class="screen">MÀN HÌNH</div>
+
+                            <div class="seat-grid" id="seatGrid">
+                                <c:forEach var="r" items="${rows}">
+                                    <c:forEach var="i" begin="1" end="10">
+                                        <c:set var="code" value="${r}${i}" />
+                                        <c:set var="sid" value="s_${code}" />
+
+                                        <c:choose>
+                                            <c:when test="${bookedMap[code]}">
+                                                <div class="seat-item">
+                                                    <span class="seat-label booked">${code}</span>
+                                                </div>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <div class="seat-item">
+                                                    <input class="seat-check seat" type="checkbox" id="${sid}"
+                                                        name="seats" value="${code}" <c:if
+                                                        test="${selectedMap[code]}">checked</c:if>
+                                                    <c:if test="${empty showtimeId}">disabled</c:if>
+                                                    />
+                                                    <label
+                                                        class="seat-label <c:if test='${selectedMap[code]}'>selected</c:if>"
+                                                        for="${sid}">${code}</label>
+                                                </div>
+                                            </c:otherwise>
+                                        </c:choose>
+
                                     </c:forEach>
-                                </select>
+                                </c:forEach>
                             </div>
-                        </div>
-                    </form>
+
+                            <div class="legend">
+                                <span class="badge"><span class="dot free"></span>Trống</span>
+                                <span class="badge"><span class="dot sel"></span>Đang chọn</span>
+                                <span class="badge"><span class="dot bok"></span>Đã đặt/đang giữ</span>
+                                <span class="badge"><span class="dot other"></span>Người khác đang chọn</span>
+                                <span class="badge counter">Đã chọn: <span id="pickedCount">0</span>/<span
+                                        id="maxCount">0</span></span>
+                            </div>
+
+                            <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
+                                <button type="submit" class="btn btn-brand" <c:if test="${empty showtimeId}">disabled
+                                    </c:if>>
+                                    Tiếp tục chọn combo →
+                                </button>
+                                <a class="btn btn-outline" href="${pageContext.request.contextPath}/home"
+                                    style="text-decoration:none; display:inline-flex; align-items:center;">
+                                    Về trang chủ
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+
                 </div>
 
-                <c:if test="${not empty showtimeId}">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <div class="badge bg-secondary px-3 py-2 rounded-pill">
-                            <i class="far fa-clock me-2"></i> 
-                            <c:forEach var="st" items="${showtimes}">
-                                <c:if test="${st.showtimeId == showtimeId}">
-                                    <fmt:formatDate value="${st.startTime}" pattern="HH:mm" /> - ${st.roomName}
-                                </c:if>
-                            </c:forEach>
-                        </div>
-                        <button class="btn btn-link text-white text-decoration-none small" onclick="document.getElementById('showtimeCollapse').style.display='block'">
-                            Đổi suất chiếu <i class="fas fa-chevron-down ms-1"></i>
-                        </button>
-                    </div>
-                </c:if>
+                <script>
+                    // ✅ Không auto-submit khi đổi ngày => tránh “reset trang”
+                    // ✅ Khóa chọn ghế theo ticketQty
+                    (function () {
+                        const movieSelect = document.getElementById('movieSelect');
+                        const dateInput = document.getElementById('showDateInput');
+                        const showtimeSelect = document.getElementById('showtimeSelect');
+                        const seatGrid = document.getElementById('seatGrid');
+                        const qtyEl = document.getElementById('ticketQty');
+                        const pickedCount = document.getElementById('pickedCount');
+                        const maxCount = document.getElementById('maxCount');
+                        const submitBtn = document.querySelector('#bookingForm button[type="submit"]');
 
-                <div class="screen-container">
-                    <div class="screen-curve"></div>
-                    <div class="screen-label">MÀN HÌNH</div>
-                </div>
+                        let socket = null;
 
-                <div class="seats-layout" id="seatGrid">
-                    <c:forEach var="r" items="${rows}">
-                        <div class="seat-row">
-                            <div class="row-label">${r}</div>
-                            <c:forEach var="i" begin="1" end="10">
-                                <c:set var="code" value="${r}${i}"/>
-                                <c:choose>
-                                    <c:when test="${bookedMap[code]}">
-                                        <div class="seat booked" title="Đã đặt">${code}</div>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <div class="seat <c:if test='${selectedMap[code]}'>selected</c:if>" 
-                                             data-code="${code}" 
-                                             onclick="toggleSeat(this)">${code}</div>
-                                    </c:otherwise>
-                                </c:choose>
-                            </c:forEach>
-                            <div class="row-label">${r}</div>
-                        </div>
-                    </c:forEach>
-                    <c:if test="${empty showtimeId}">
-                        <div class="py-5 text-center text-muted">
-                            <i class="fas fa-couch fa-3x mb-3"></i>
-                            <p>Vui lòng chọn suất chiếu để xem sơ đồ ghế</p>
-                        </div>
-                    </c:if>
-                </div>
+                        function getMax() {
+                            return parseInt(qtyEl?.value || "0", 10) || 0;
+                        }
 
-                <div class="legend">
-                    <div class="legend-item"><div class="legend-box" style="background: var(--seat-free)"></div> Ghế trống</div>
-                    <div class="legend-item"><div class="legend-box" style="background: var(--seat-selected)"></div> Ghế đang chọn</div>
-                    <div class="legend-item"><div class="legend-box" style="background: var(--seat-booked)"></div> Đã đặt</div>
-                    <div class="legend-item"><div class="legend-box" style="background: rgba(255, 165, 0, 0.4); border: 1px solid orange;"></div> Người khác đang chọn</div>
-                </div>
-            </div>
+                        function updateCounters() {
+                            const seats = Array.from(document.querySelectorAll('input.seat'));
+                            const max = getMax();
+                            const picked = seats.filter(s => s.checked).length;
+                            maxCount.textContent = max;
+                            pickedCount.textContent = picked;
 
-            <div class="glass-card h-fit">
-                <div class="summary-title">
-                    <i class="fas fa-receipt text-primary"></i> TỔNG KẾT ĐẶT VÉ
-                </div>
-                <form id="bookingForm" method="post" action="${pageContext.request.contextPath}/booking-seat">
-                    <input type="hidden" name="showtimeId" value="${showtimeId}">
-                    <input type="hidden" name="movieId" value="${movieId}">
-                    <input type="hidden" name="showDate" value="${showDate}">
-                    
-                    <div class="summary-item">
-                        <span class="summary-label">Số vé</span>
-                        <div class="d-flex align-items-center gap-2">
-                            <input type="number" name="ticketQty" id="ticketQty" class="form-select-custom text-center" 
-                                   style="width: 60px; padding: 5px;" min="1" max="10" value="${empty ticketQty ? 1 : ticketQty}">
-                        </div>
-                    </div>
-                    
-                    <div class="summary-item">
-                        <span class="summary-label">Ghế chọn</span>
-                        <span class="summary-value text-primary" id="pickedSeatsDisplay">Chưa chọn</span>
-                        <div id="seatsInputsContainer"></div>
-                    </div>
-                    
-                    <div class="hr" style="background: rgba(255,255,255,0.1); height: 1px; margin: 20px 0;"></div>
-                    
-                    <div class="summary-item">
-                        <span class="summary-label">Giá mỗi vé</span>
-                        <span class="summary-value">
-                            <c:forEach var="st" items="${showtimes}">
-                                <c:if test="${st.showtimeId == showtimeId}">
-                                    <fmt:formatNumber value="${st.price}" type="currency" currencySymbol="₫" maxFractionDigits="0" />
-                                </c:if>
-                            </c:forEach>
-                        </span>
-                    </div>
+                            seats.forEach(s => {
+                                if (!s.checked) s.disabled = (picked >= max) || s.dataset.booked === 'true' || s.dataset.otherSelected === 'true';
+                            });
+                        }
 
-                    <input type="hidden" name="goto" id="gotoAction" value="payment">
-                    <div class="summary-item mt-4">
-                        <span class="fw-bold fs-5">TỔNG CỘNG</span>
-                        <span class="fw-bold fs-4 text-primary" id="totalPriceDisplay">0 ₫</span>
-                    </div>
+                        // --- AJAX SHOWTIMES ---
+                        async function loadShowtimes() {
+                            const mId = movieSelect.value;
+                            const date = dateInput.value;
+                            if (!mId || !date) return;
 
-                    <div class="d-flex flex-column gap-2 mt-4">
-                        <button type="submit" class="btn-confirm" id="btnPayment" onclick="document.getElementById('gotoAction').value='payment'" <c:if test="${empty showtimeId}">disabled</c:if>>
-                            THANH TOÁN NGAY <i class="fas fa-credit-card ms-2"></i>
-                        </button>
-                        <button type="submit" class="btn-confirm" id="btnCombo" onclick="document.getElementById('gotoAction').value='combo'" 
-                                style="background: rgba(99, 102, 241, 0.2); border: 1px solid var(--secondary); margin-top: 0;" <c:if test="${empty showtimeId}">disabled</c:if>>
-                            MUA THÊM COMBO <i class="fas fa-popcorn ms-2"></i>
-                        </button>
-                    </div>
-                    
-                    <p class="text-muted small text-center mt-3">
-                        <i class="fas fa-info-circle me-1"></i> Chỗ ngồi sẽ được giữ trong 10 phút
-                    </p>
-                </form>
-            </div>
-        </div>
-    </div>
+                            const res = await fetch(`${pageContext.request.contextPath}/booking-seat?ajax=showtimes&movieId=${mId}&showDate=${date}`);
+                            const data = await res.json();
 
-    <jsp:include page="/common/footer.jsp" />
+                            showtimeSelect.innerHTML = '<option value="">-- Chọn suất chiếu --</option>';
+                            data.forEach(st => {
+                                showtimeSelect.innerHTML += `<option value="${st.id}">${st.time} (Phòng: ${st.room})</option>`;
+                            });
 
-    <script>
-        const ticketQtyInput = document.getElementById('ticketQty');
-        const pickedDisplay = document.getElementById('pickedSeatsDisplay');
-        const totalPriceDisplay = document.getElementById('totalPriceDisplay');
-        const seatsContainer = document.getElementById('seatsInputsContainer');
-        const ticketPrice = ${not empty showtimeId ? showtimes[0].price : 0}; // Demo, nên lấy từ st cụ thể
-        
-        let selectedSeats = [];
+                            // Clear seats when showtimes change
+                            seatGrid.innerHTML = '';
+                            submitBtn.disabled = true;
+                        }
 
-        function toggleSeat(el) {
-            const code = el.dataset.code;
-            const max = parseInt(ticketQtyInput.value);
+                        // --- AJAX SEATS ---
+                        async function loadSeats() {
+                            const stId = showtimeSelect.value;
+                            if (!stId) {
+                                seatGrid.innerHTML = '';
+                                submitBtn.disabled = true;
+                                return;
+                            }
 
-            if (selectedSeats.includes(code)) {
-                selectedSeats = selectedSeats.filter(s => s !== code);
-                el.classList.remove('selected');
-            } else {
-                if (selectedSeats.length >= max) {
-                    alert('Bạn chỉ có thể chọn tối đa ' + max + ' ghế.');
-                    return;
-                }
-                selectedSeats.push(code);
-                el.classList.add('selected');
-            }
-            updateSummary();
-        }
+                            const res = await fetch(`${pageContext.request.contextPath}/booking-seat?ajax=seats&showtimeId=${stId}`);
+                            const data = await res.json();
 
-        function updateSummary() {
-            pickedDisplay.innerText = selectedSeats.length > 0 ? selectedSeats.join(', ') : 'Chưa chọn';
-            
-            // Cập nhật hidden inputs cho form post
-            seatsContainer.innerHTML = '';
-            selectedSeats.forEach(s => {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'seats';
-                input.value = s;
-                seatsContainer.appendChild(input);
-            });
+                            renderSeats(data);
+                            initWebSocket(stId);
+                            submitBtn.disabled = false;
 
-            // Cập nhật giá (tạm tính)
-            const total = selectedSeats.length * ticketPrice;
-            totalPriceDisplay.innerText = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total);
-        }
+                            // Sync hidden showtimeId
+                            document.querySelector('input[name="showtimeId"]').value = stId;
+                        }
 
-        // Tự động tải showtimes khi đổi ngày
-        document.getElementById('showDateInput').addEventListener('change', () => {
-            document.getElementById('filterForm').submit();
-        });
-        
-        document.getElementById('showtimeSelect').addEventListener('change', () => {
-            document.getElementById('filterForm').submit();
-        });
+                        function renderSeats(data) {
+                            let html = '';
+                            data.rows.forEach(r => {
+                                for (let i = 1; i <= 10; i++) {
+                                    const code = r + i;
+                                    const isBooked = data.booked.includes(code);
+                                    const sid = 's_' + code;
 
-        // Khởi tạo các ghế đã chọn từ session nếu có
-        window.onload = () => {
-            <c:forEach var="s" items="${selectedSeats}">
-                selectedSeats.push('${s}');
-            </c:forEach>
-            updateSummary();
-        };
-    </script>
-</body>
-</html>
+                                    html += `<div class="seat-item">`;
+                                    if (isBooked) {
+                                        html += `<span class="seat-label booked">${code}</span>`;
+                                    } else {
+                                        html += `
+              <input class="seat-check seat" type="checkbox" id="${sid}" name="seats" value="${code}" data-booked="false">
+              <label class="seat-label" for="${sid}">${code}</label>
+            `;
+                                    }
+                                    html += `</div>`;
+                                }
+                            });
+                            seatGrid.innerHTML = html;
+
+                            // Add listeners to new seats
+                            document.querySelectorAll('input.seat').forEach(s => {
+                                s.addEventListener('change', updateCounters);
+                                s.addEventListener('change', function () {
+                                    if (socket && socket.readyState === WebSocket.OPEN) {
+                                        const action = this.checked ? 'select' : 'deselect';
+                                        socket.send(showtimeSelect.value + ':' + this.value + ':' + action);
+                                    }
+                                });
+                            });
+                            updateCounters();
+                        }
+
+                        // --- WEBSOCKET ---
+                        function initWebSocket(stId) {
+                            if (socket) socket.close();
+
+                            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                            const wsUrl = protocol + '//' + window.location.host + '${pageContext.request.contextPath}/ws/seat?showtimeId=' + stId;
+                            socket = new WebSocket(wsUrl);
+
+                            socket.onmessage = (event) => {
+                                const [msgStId, seatCode, action] = event.data.split(':');
+                                if (msgStId === stId) {
+                                    const seatInput = document.getElementById('s_' + seatCode);
+                                    const seatLabel = document.querySelector('label[for="s_' + seatCode + '"]');
+
+                                    if (seatInput && seatLabel) {
+                                        if (action === 'select') {
+                                            seatInput.disabled = true;
+                                            seatInput.dataset.otherSelected = 'true';
+                                            seatLabel.classList.add('other-selected');
+                                        } else if (action === 'deselect') {
+                                            if (seatInput.dataset.booked !== 'true' && !seatInput.checked) {
+                                                seatInput.disabled = false;
+                                                delete seatInput.dataset.otherSelected;
+                                                seatLabel.classList.remove('other-selected');
+                                                updateCounters();
+                                            }
+                                        }
+                                    }
+                                }
+                            };
+                        }
+
+                        movieSelect.addEventListener('change', loadShowtimes);
+                        dateInput.addEventListener('change', loadShowtimes);
+                        showtimeSelect.addEventListener('change', loadSeats);
+                        qtyEl.addEventListener('input', updateCounters);
+
+                        // Initial load if already selected (e.g. redirected back with error)
+                        if (showtimeSelect.value) loadSeats();
+                        else if (movieSelect.value && dateInput.value) loadShowtimes();
+
+                    })();
+                </script>
+
+            </body>
+
+            </html>
+
+            <jsp:include page="/common/footer.jsp" />

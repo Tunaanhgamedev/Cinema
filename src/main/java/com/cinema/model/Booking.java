@@ -11,7 +11,10 @@ public class Booking {
 	private int showtimeId; // FK -> showtime
 	private Timestamp bookingTime;
 	private long totalPrice; // DECIMAL(14,0) dùng long là chuẩn
+	private long discountAmount; // Số tiền giảm giá từ voucher
+	private Timestamp bookingDate; // Thời gian đặt
 	private StatusBooking status; // "PAID" hoặc "CANCELLED"
+	private Integer voucherId; // ID voucher áp dụng
 
 	public Booking() {
 	}
@@ -66,11 +69,35 @@ public class Booking {
 		this.totalPrice = totalPrice;
 	}
 
+	public long getDiscountAmount() {
+		return discountAmount;
+	}
+
+	public void setDiscountAmount(long discountAmount) {
+		this.discountAmount = discountAmount;
+	}
+
+	public Timestamp getBookingDate() {
+		return bookingDate;
+	}
+
+	public void setBookingDate(Timestamp bookingDate) {
+		this.bookingDate = bookingDate;
+	}
+
 	public StatusBooking getStatus() {
 		return status;
 	}
 
 	public void setStatus(StatusBooking status) {
 		this.status = status;
+	}
+
+	public Integer getVoucherId() {
+		return voucherId;
+	}
+
+	public void setVoucherId(Integer voucherId) {
+		this.voucherId = voucherId;
 	}
 }

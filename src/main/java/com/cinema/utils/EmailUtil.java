@@ -1,0 +1,153 @@
+package com.cinema.utils;
+
+import java.util.Properties;
+
+import jakarta.mail.Authenticator;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Multipart;
+import jakarta.mail.PasswordAuthentication;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
+
+public class EmailUtil {
+
+    private static String FROM_EMAIL;
+    private static String APP_PASSWORD;
+
+    static {
+        try (java.io.InputStream is = EmailUtil.class.getClassLoader().getResourceAsStream("db.properties")) {
+            Properties props = new Properties();
+            if (is != null) {
+                props.load(is);
+                FROM_EMAIL = props.getProperty("mail.user");
+                APP_PASSWORD = props.getProperty("mail.pass");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static final java.util.concurrent.ExecutorService emailExecutor = 
+        java.util.concurrent.Executors.newFixedThreadPool(5);
+
+    public static void sendEmail(String toEmail, String subject, String bodyHtml) {
+        Properties props = new Properties();
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+
+        Session session = Session.getInstance(props, new Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(FROM_EMAIL, APP_PASSWORD);
+            }
+        });
+
+        try {
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(FROM_EMAIL, "BOBIXI Cinema"));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
+            message.setSubject(subject);
+            
+            // Nội dung HTML
+            MimeBodyPart mimeBodyPart = new MimeBodyPart();
+            mimeBodyPart.setContent(bodyHtml, "text/html; charset=utf-8");
+
+            Multipart multipart = new MimeMultipart();
+            multipart.addBodyPart(mimeBodyPart);
+
+            message.setContent(multipart);
+
+            // Sử dụng Thread Pool để gửi email
+            emailExecutor.submit(() -> {
+                try {
+                    Transport.send(message);
+                    System.out.println("Email sent successfully to: " + toEmail);
+                } catch (MessagingException e) {
+                    System.err.println("Failed to send email to " + toEmail + ": " + e.getMessage());
+                }
+            });
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String getBookingConfirmationTemplate(String userName, String movieTitle, String seats, String time, String total) {
+        return """
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h1 style="color: #6366f1; margin: 0;">BOBIXI CINEMA</h1>
+                    <p style="color: #666;">Cảm ơn bạn đã đặt vé tại rạp chúng tôi!</p>
+                </div>
+                
+                <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <h2 style="font-size: 18px; color: #1e293b; margin-top: 0;">Xác nhận đặt vé thành công</h2>
+                    <p>Chào <strong>%s</strong>,</p>
+                    <p>Đơn hàng của bạn đã được thanh toán thành công. Dưới đây là thông tin vé của bạn:</p>
+                    
+                    <table style="width: 100%%; border-collapse: collapse; margin-top: 15px;">
+                        <tr>
+                            <td style="padding: 8px 0; color: #64748b;">Phim:</td>
+                            <td style="padding: 8px 0; font-weight: bold; text-align: right;">%s</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 0; color: #64748b;">Ghế:</td>
+                            <td style="padding: 8px 0; font-weight: bold; text-align: right;">%s</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 0; color: #64748b;">Suất chiếu:</td>
+                            <td style="padding: 8px 0; font-weight: bold; text-align: right;">%s</td>
+                        </tr>
+                        <tr style="border-top: 2px solid #e2e8f0;">
+                            <td style="padding: 15px 0; color: #1e293b; font-weight: bold;">TỔNG TIỀN:</td>
+                            <td style="padding: 15px 0; color: #6366f1; font-weight: bold; font-size: 20px; text-align: right;">%s đ</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div style="text-align: center; color: #94a3b8; font-size: 12px;">
+                    <p>Đây là email tự động, vui lòng không trả lời email này.</p>
+                    <p>&copy; 2026 BOBIXI Cinema. All rights reserved.</p>
+                </div>
+            </div>
+        """.formatted(userName, movieTitle, seats, time, total);
+    }
+
+    public static String getVoucherTemplate(String userName, String voucherCode, String discount, String expiryDate) {
+        return """
+            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f8fafc; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                <div style="background: linear-gradient(135deg, #6366f1, #a855f7); padding: 40px 20px; text-align: center; color: #fff;">
+                    <h1 style="margin: 0; font-size: 28px; letter-spacing: 2px;">BOBIXI GIFT VOUCHER</h1>
+                    <p style="opacity: 0.8; margin-top: 10px;">Món quà đặc biệt dành riêng cho bạn!</p>
+                </div>
+                
+                <div style="padding: 40px; text-align: center;">
+                    <p style="font-size: 18px; color: #1e293b;">Chào <strong>%s</strong>,</p>
+                    <p style="color: #64748b; line-height: 1.6;">Để cảm ơn bạn đã luôn đồng hành cùng BOBIXI Cinema, chúng tôi xin tặng bạn mã giảm giá ưu đãi dưới đây:</p>
+                    
+                    <div style="margin: 30px 0; padding: 30px; background-color: #fff; border: 2px dashed #e2e8f0; border-radius: 15px; position: relative;">
+                        <div style="font-size: 48px; font-weight: 900; color: #6366f1; margin-bottom: 10px;">%s</div>
+                        <div style="font-size: 18px; color: #1e293b; font-weight: bold; text-transform: uppercase;">GIẢM NGAY %s</div>
+                    </div>
+                    
+                    <div style="background-color: #eff6ff; padding: 15px; border-radius: 10px; color: #2563eb; font-size: 14px; font-weight: 600;">
+                        Hạn sử dụng đến ngày: %s
+                    </div>
+                    
+                    <a href="https://bobixi.vn/booking" style="display: inline-block; margin-top: 40px; padding: 18px 35px; background-color: #6366f1; color: #fff; text-decoration: none; border-radius: 12px; font-weight: bold; box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);">SỬ DỤNG NGAY</a>
+                </div>
+                
+                <div style="padding: 20px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0;">
+                    <p>Mã voucher chỉ áp dụng cho đặt vé trực tuyến tại website BOBIXI Cinema.</p>
+                    <p>&copy; 2026 BOBIXI Cinema. All rights reserved.</p>
+                </div>
+            </div>
+        """.formatted(userName, discount, voucherCode, expiryDate);
+    }
+}

@@ -28,7 +28,7 @@ public class MyBookingServlet extends HttpServlet {
 		}
 		
 		User user = (User) session.getAttribute("authUser");
-		List<BookingDAO.BookingView> bookings = bookingDAO.findByUserId(user.getUserId());
+		List<BookingDAO.BookingView> bookings = bookingDAO.findBookingViewsByUserId(user.getUserId());
 		
 		request.setAttribute("bookings", bookings);
 		request.setAttribute("now", new java.util.Date());

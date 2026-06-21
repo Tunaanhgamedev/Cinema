@@ -434,6 +434,79 @@ public class BookingAdminDAO {
 		return BigDecimal.ZERO;
 	}
 
+	// ===== DTO cho thống kê =====
+	public static class StatisticDTO {
+		private String label;
+		private BigDecimal value;
+
+		public StatisticDTO(String label, BigDecimal value) {
+			this.label = label;
+			this.value = value;
+		}
+
+		public String getLabel() { return label; }
+		public BigDecimal getValue() { return value; }
+	}
+
+	public List<StatisticDTO> getRevenueLast7Days() {
+		String sql = """
+				SELECT DATE(IFNULL(booking_date, booking_time)) as date, SUM(total_price) as revenue 
+				FROM bookings 
+				WHERE status = 'PAID' 
+				GROUP BY DATE(IFNULL(booking_date, booking_time))
+				ORDER BY date DESC
+				LIMIT 7
+				""";
+		List<StatisticDTO> list = new ArrayList<>();
+		try (Connection con = DBConnection.getConnection();
+				PreparedStatement ps = con.prepareStatement(sql);
+				ResultSet rs = ps.executeQuery()) {
+			while (rs.next()) {
+				list.add(0, new StatisticDTO(rs.getString("date"), nvl(rs.getBigDecimal("revenue"))));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+
+	public List<StatisticDTO> getRevenueByMovie() {
+		String sql = """
+				SELECT m.title, SUM(b.total_price) as revenue
+				FROM bookings b
+				JOIN showtimes st ON b.showtime_id = st.showtime_id
+				JOIN movies m ON st.movie_id = m.movie_id
+				WHERE b.status = 'PAID'
+				GROUP BY m.movie_id, m.title
+				ORDER BY revenue DESC
+				LIMIT 5
+				""";
+		List<StatisticDTO> list = new ArrayList<>();
+		try (Connection con = DBConnection.getConnection();
+				PreparedStatement ps = con.prepareStatement(sql);
+				ResultSet rs = ps.executeQuery()) {
+			while (rs.next()) {
+				list.add(new StatisticDTO(rs.getString("title"), nvl(rs.getBigDecimal("revenue"))));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+
+	public BigDecimal calculateTotalDiscount() {
+		String sql = "SELECT SUM(discount_amount) FROM bookings WHERE status = 'PAID'";
+		try (Connection con = DBConnection.getConnection();
+				PreparedStatement ps = con.prepareStatement(sql);
+				ResultSet rs = ps.executeQuery()) {
+			if (rs.next())
+				return nvl(rs.getBigDecimal(1));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return BigDecimal.ZERO;
+	}
+
 	private static BigDecimal nvl(BigDecimal v) {
 		return v == null ? BigDecimal.ZERO : v;
 	}

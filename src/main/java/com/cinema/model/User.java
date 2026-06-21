@@ -18,6 +18,8 @@ public class User {
 	private String address; // address
 	private boolean subscribeNewsletter; // subscribe_newsletter
 	private boolean subscribeSMS; // subscribe_sms
+	private int loyaltyPoints; // points
+	private String membershipLevel; // membership_level (Bronze, Silver, Gold, Platinum)
 
 	public User() {
 	}
@@ -137,6 +139,22 @@ public class User {
 
 	public void setSubscribeSMS(boolean subscribeSMS) {
 		this.subscribeSMS = subscribeSMS;
+	}
+
+	public int getLoyaltyPoints() {
+		return loyaltyPoints;
+	}
+
+	public void setLoyaltyPoints(int loyaltyPoints) {
+		this.loyaltyPoints = loyaltyPoints;
+	}
+
+	public String getMembershipLevel() {
+		return membershipLevel;
+	}
+
+	public void setMembershipLevel(String membershipLevel) {
+		this.membershipLevel = membershipLevel;
 	}
 
 	@Override

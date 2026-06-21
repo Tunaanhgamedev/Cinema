@@ -19,7 +19,6 @@ public class AdminComboServlet extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		// Mặc định list
 		req.setAttribute("comboList", comboDAO.findAll());
 		req.getRequestDispatcher("/pages/admin/combo-manage.jsp").forward(req, resp);
 	}
@@ -36,17 +35,19 @@ public class AdminComboServlet extends HttpServlet {
 			if ("add".equals(action)) {
 				String name = req.getParameter("name");
 				String description = req.getParameter("description");
-				String priceStr = req.getParameter("price");
-				BigDecimal price = new BigDecimal(priceStr);
+				BigDecimal price = new BigDecimal(req.getParameter("price"));
+				String imageUrl = req.getParameter("imageUrl");
 
-				comboDAO.insertCombo(name, description, price);
+				comboDAO.insertCombo(name, description, price, imageUrl);
 
 			} else if ("update".equals(action)) {
 				int comboId = Integer.parseInt(req.getParameter("comboId"));
 				String name = req.getParameter("name");
 				String description = req.getParameter("description");
 				BigDecimal price = new BigDecimal(req.getParameter("price"));
-				comboDAO.updateCombo(comboId, name, description, price);
+				String imageUrl = req.getParameter("imageUrl");
+
+				comboDAO.updateCombo(comboId, name, description, price, imageUrl);
 			} else if ("delete".equals(action)) {
 				int comboId = Integer.parseInt(req.getParameter("comboId"));
 				comboDAO.deleteCombo(comboId);
@@ -58,7 +59,6 @@ public class AdminComboServlet extends HttpServlet {
 			return;
 		}
 
-		// redirect để tránh submit lại khi F5
 		resp.sendRedirect(req.getContextPath() + "/admin/combos");
 	}
 }

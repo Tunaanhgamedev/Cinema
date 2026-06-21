@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,253 +14,362 @@ import com.cinema.utils.DBConnection;
 
 public class ShowtimeDAO {
 
-	// DTO để hiển thị ở admin (có thêm tên movie/room)
-	public static class ShowtimeView extends Showtime {
-		private String movieName;
-		private String roomName;
+    public static class ShowtimeView extends Showtime {
+        private String movieName;
+        private String roomName;
 
-		public String getMovieName() {
-			return movieName;
-		}
+        public String getMovieName() { return movieName; }
+        public void setMovieName(String movieName) { this.movieName = movieName; }
+        public String getRoomName() { return roomName; }
+        public void setRoomName(String roomName) { this.roomName = roomName; }
+    }
 
-		public void setMovieName(String movieName) {
-			this.movieName = movieName;
-		}
+    public static class MovieWithShowtimes extends com.cinema.model.Movie {
+        private List<ShowtimeView> showtimes;
 
-		public String getRoomName() {
-			return roomName;
-		}
+        public List<ShowtimeView> getShowtimes() {
+            return showtimes;
+        }
 
-		public void setRoomName(String roomName) {
-			this.roomName = roomName;
-		}
-	}
+        public void setShowtimes(List<ShowtimeView> showtimes) {
+            this.showtimes = showtimes;
+        }
+    }
 
-	// Lấy danh sách showtime (join movies, rooms để lấy tên)
-	public List<ShowtimeView> getAll() {
-		String sql = "SELECT s.showtime_id, s.movie_id, s.room_id, s.start_time, s.end_time, s.price, "
-				+ "       m.title AS movie_name, r.room_name AS room_name " + "FROM showtimes s "
-				+ "JOIN movies m ON s.movie_id = m.movie_id " + "JOIN rooms r ON s.room_id = r.room_id "
-				+ "ORDER BY s.start_time DESC";
+    public List<ShowtimeView> getAll() {
+        String sql = """
+            SELECT s.showtime_id, s.movie_id, s.room_id, 
+                   COALESCE(s.show_date, DATE(s.start_time)) as show_date, 
+                   s.start_time, s.end_time, s.price,
+                   m.title AS movie_name, r.room_name AS room_name
+            FROM showtimes s
+            JOIN movies m ON s.movie_id = m.movie_id
+            JOIN rooms r ON s.room_id = r.room_id
+            ORDER BY s.show_date DESC, s.start_time ASC
+        """;
+        List<ShowtimeView> list = new ArrayList<>();
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                ShowtimeView st = mapRowToView(rs);
+                list.add(st);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 
-		List<ShowtimeView> list = new ArrayList<>();
+    public Showtime findShowtimeById(int showtimeId) {
+        String sql = "SELECT *, COALESCE(show_date, DATE(start_time)) as actual_show_date FROM showtimes WHERE showtime_id = ?";
+        try (Connection con = DBConnection.getConnection(); 
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, showtimeId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Showtime st = new Showtime();
+                    st.setShowtimeId(rs.getInt("showtime_id"));
+                    st.setMovieId(rs.getInt("movie_id"));
+                    st.setRoomId(rs.getInt("room_id"));
+                    st.setShowDate(rs.getDate("actual_show_date"));
+                    st.setStartTime(rs.getTimestamp("start_time"));
+                    st.setEndTime(rs.getTimestamp("end_time"));
+                    st.setPrice(rs.getBigDecimal("price"));
+                    return st;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-		try (Connection con = DBConnection.getConnection();
-				PreparedStatement ps = con.prepareStatement(sql);
-				ResultSet rs = ps.executeQuery()) {
+    public ShowtimeView findShowtimeViewById(int showtimeId) {
+        String sql = """
+            SELECT s.*, COALESCE(s.show_date, DATE(s.start_time)) as actual_show_date, 
+                   m.title AS movie_name, r.room_name AS room_name
+            FROM showtimes s
+            JOIN movies m ON s.movie_id = m.movie_id
+            JOIN rooms r ON s.room_id = r.room_id
+            WHERE s.showtime_id = ?
+        """;
+        try (Connection con = DBConnection.getConnection(); 
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, showtimeId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapRowToView(rs);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-			while (rs.next()) {
-				ShowtimeView st = new ShowtimeView();
-				st.setShowtimeId(rs.getInt("showtime_id"));
-				st.setMovieId(rs.getInt("movie_id"));
-				st.setRoomId(rs.getInt("room_id"));
-				st.setStartTime(rs.getTimestamp("start_time"));
-				st.setEndTime(rs.getTimestamp("end_time"));
-				st.setPrice(rs.getBigDecimal("price"));
+    private ShowtimeView mapRowToView(ResultSet rs) throws SQLException {
+        ShowtimeView st = new ShowtimeView();
+        st.setShowtimeId(rs.getInt("showtime_id"));
+        st.setMovieId(rs.getInt("movie_id"));
+        st.setRoomId(rs.getInt("room_id"));
+        
+        // Handle potential naming difference for the actual date
+        java.sql.Date d = null;
+        try { d = rs.getDate("actual_show_date"); } catch (Exception e) { d = rs.getDate("show_date"); }
+        st.setShowDate(d);
+        
+        st.setStartTime(rs.getTimestamp("start_time"));
+        st.setEndTime(rs.getTimestamp("end_time"));
+        st.setPrice(rs.getBigDecimal("price"));
+        st.setMovieName(rs.getString("movie_name"));
+        st.setRoomName(rs.getString("room_name"));
+        return st;
+    }
 
-				st.setMovieName(rs.getString("movie_name"));
-				st.setRoomName(rs.getString("room_name"));
+    public boolean insert(Showtime st) {
+        String sql = "INSERT INTO showtimes(movie_id, room_id, show_date, start_time, end_time, price) VALUES (?,?,?,?,?,?)";
+        try (Connection con = DBConnection.getConnection(); 
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, st.getMovieId());
+            ps.setInt(2, st.getRoomId());
+            java.sql.Date sqlDate = (st.getShowDate() != null) ? st.getShowDate() : 
+                                    ((st.getStartTime() != null) ? new java.sql.Date(st.getStartTime().getTime()) : null);
+            ps.setDate(3, sqlDate);
+            ps.setTimestamp(4, st.getStartTime());
+            ps.setTimestamp(5, st.getEndTime());
+            ps.setBigDecimal(6, st.getPrice() != null ? st.getPrice() : BigDecimal.ZERO);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
-				list.add(st);
-			}
-		} catch (SQLException e) {
-			throw new RuntimeException("ShowtimeDAO.getAll error", e);
-		}
+    public boolean update(Showtime st) {
+        String sql = "UPDATE showtimes SET movie_id=?, room_id=?, show_date=?, start_time=?, end_time=?, price=? WHERE showtime_id=?";
+        try (Connection con = DBConnection.getConnection(); 
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, st.getMovieId());
+            ps.setInt(2, st.getRoomId());
+            java.sql.Date sqlDate = (st.getShowDate() != null) ? st.getShowDate() : 
+                                    ((st.getStartTime() != null) ? new java.sql.Date(st.getStartTime().getTime()) : null);
+            ps.setDate(3, sqlDate);
+            ps.setTimestamp(4, st.getStartTime());
+            ps.setTimestamp(5, st.getEndTime());
+            ps.setBigDecimal(6, st.getPrice() != null ? st.getPrice() : BigDecimal.ZERO);
+            ps.setInt(7, st.getShowtimeId());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
-		return list;
-	}
+    public boolean delete(int showtimeId) {
+        String sql = "DELETE FROM showtimes WHERE showtime_id=?";
+        try (Connection con = DBConnection.getConnection(); 
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, showtimeId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
-	public boolean insert(Showtime st) {
-		String sql = "INSERT INTO showtimes(movie_id, room_id, start_time, end_time, price) VALUES (?,?,?,?,?)";
+    public List<ShowtimeView> findByMovieAndDate(int movieId, String showDate) {
+        String sql = """
+            SELECT s.*, COALESCE(s.show_date, DATE(s.start_time)) as actual_show_date,
+                   m.title AS movie_name, r.room_name AS room_name
+            FROM showtimes s
+            JOIN movies m ON s.movie_id = m.movie_id
+            JOIN rooms r ON s.room_id = r.room_id
+            WHERE s.movie_id = ? AND (s.show_date = ? OR (s.show_date IS NULL AND DATE(s.start_time) = ?))
+            ORDER BY s.start_time ASC
+        """;
+        List<ShowtimeView> list = new ArrayList<>();
+        try (Connection con = DBConnection.getConnection(); 
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, movieId);
+            ps.setString(2, showDate);
+            ps.setString(3, showDate);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRowToView(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 
-		try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+    public int findRoomIdByShowtime(int showtimeId) {
+        String sql = "SELECT room_id FROM showtimes WHERE showtime_id = ?";
+        try (Connection con = DBConnection.getConnection(); 
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, showtimeId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt("room_id");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 
-			ps.setInt(1, st.getMovieId());
-			ps.setInt(2, st.getRoomId());
-			ps.setTimestamp(3, st.getStartTime());
-			ps.setTimestamp(4, st.getEndTime());
-			ps.setBigDecimal(5, st.getPrice() == null ? BigDecimal.ZERO : st.getPrice());
+    public List<java.sql.Date> getAvailableDates() {
+        List<java.sql.Date> list = new ArrayList<>();
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.set(java.util.Calendar.HOUR_OF_DAY, 0);
+        cal.set(java.util.Calendar.MINUTE, 0);
+        cal.set(java.util.Calendar.SECOND, 0);
+        cal.set(java.util.Calendar.MILLISECOND, 0);
 
-			return ps.executeUpdate() > 0;
-		} catch (SQLException e) {
-			throw new RuntimeException("ShowtimeDAO.insert error", e);
-		}
-	}
+        for (int i = 0; i < 7; i++) {
+            list.add(new java.sql.Date(cal.getTimeInMillis()));
+            cal.add(java.util.Calendar.DAY_OF_MONTH, 1);
+        }
+        return list;
+    }
 
-	public boolean update(Showtime st) {
-		String sql = "UPDATE showtimes SET movie_id=?, room_id=?, start_time=?, end_time=?, price=? WHERE showtime_id=?";
+    public List<com.cinema.model.Movie> getMoviesWithShowtimes(String date, String keyword, String sort) {
+        StringBuilder sql = new StringBuilder("""
+            SELECT DISTINCT m.* 
+            FROM movies m
+            JOIN showtimes s ON m.movie_id = s.movie_id
+            WHERE (s.show_date = ? OR (s.show_date IS NULL AND DATE(s.start_time) = ?))
+        """);
 
-		try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(" AND m.title LIKE ? ");
+        }
+        
+        if ("alphabetical".equals(sort)) sql.append(" ORDER BY m.title ASC ");
+        else sql.append(" ORDER BY m.release_date DESC ");
 
-			ps.setInt(1, st.getMovieId());
-			ps.setInt(2, st.getRoomId());
-			ps.setTimestamp(3, st.getStartTime());
-			ps.setTimestamp(4, st.getEndTime());
-			ps.setBigDecimal(5, st.getPrice() == null ? BigDecimal.ZERO : st.getPrice());
-			ps.setInt(6, st.getShowtimeId());
+        List<com.cinema.model.Movie> list = new ArrayList<>();
+        try (Connection con = DBConnection.getConnection(); 
+             PreparedStatement ps = con.prepareStatement(sql.toString())) {
+            ps.setString(1, date);
+            ps.setString(2, date);
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                ps.setString(3, "%" + keyword + "%");
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    com.cinema.model.Movie m = new com.cinema.model.Movie();
+                    m.setMovieId(rs.getInt("movie_id"));
+                    m.setTitle(rs.getString("title"));
+                    m.setPoster(rs.getString("poster"));
+                    m.setDuration(rs.getInt("duration"));
+                    m.setGenre(rs.getString("genre"));
+                    String ratingVal = rs.getString("rating");
+                    m.setRating(ratingVal != null ? Double.parseDouble(ratingVal) : 0.0);
+                    m.setReleaseDate(rs.getDate("release_date"));
+                    
+                    String statusStr = rs.getString("status");
+                    if (statusStr != null) {
+                        try {
+                            m.setStatus(com.cinema.enums.StatusMovie.valueOf(statusStr.trim().toUpperCase()));
+                        } catch (Exception e) {
+                            m.setStatus(com.cinema.enums.StatusMovie.NOW_SHOWING);
+                        }
+                    } else {
+                        m.setStatus(com.cinema.enums.StatusMovie.NOW_SHOWING);
+                    }
+                    list.add(m);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 
-			return ps.executeUpdate() > 0;
-		} catch (SQLException e) {
-			throw new RuntimeException("ShowtimeDAO.update error", e);
-		}
-	}
+    public List<MovieWithShowtimes> getMoviesWithShowtimesByDate(String showDate) {
+        String sql = """
+            SELECT m.movie_id, m.title, m.poster, m.duration, m.rating,
+                   s.showtime_id, s.start_time, s.price, r.room_name
+            FROM movies m
+            JOIN showtimes s ON m.movie_id = s.movie_id
+            JOIN rooms r ON s.room_id = r.room_id
+            WHERE (s.show_date = ? OR (s.show_date IS NULL AND DATE(s.start_time) = ?))
+            ORDER BY m.movie_id, s.start_time ASC
+        """;
 
-	public boolean delete(int showtimeId) {
-		String sql = "DELETE FROM showtimes WHERE showtime_id=?";
+        List<MovieWithShowtimes> result = new ArrayList<>();
+        try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, showDate);
+            ps.setString(2, showDate);
 
-		try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                int lastMovieId = -1;
+                MovieWithShowtimes currentMovie = null;
 
-			ps.setInt(1, showtimeId);
-			return ps.executeUpdate() > 0;
-		} catch (SQLException e) {
-			throw new RuntimeException("ShowtimeDAO.delete error", e);
-		}
-	}
+                while (rs.next()) {
+                    int mid = rs.getInt("movie_id");
+                    if (mid != lastMovieId) {
+                        currentMovie = new MovieWithShowtimes();
+                        currentMovie.setMovieId(mid);
+                        currentMovie.setTitle(rs.getString("title"));
+                        currentMovie.setPoster(rs.getString("poster"));
+                        currentMovie.setDuration(rs.getInt("duration"));
+                        currentMovie.setRating(rs.getDouble("rating"));
+                        currentMovie.setShowtimes(new ArrayList<>());
+                        result.add(currentMovie);
+                        lastMovieId = mid;
+                    }
 
-	// USER: lấy suất chiếu theo movie + ngày (yyyy-MM-dd)
-	public List<ShowtimeView> findByMovieAndDate(int movieId, String showDate) {
-		String sql = """
-				    SELECT s.showtime_id, s.movie_id, s.room_id, s.start_time, s.end_time, s.price,
-				           m.title AS movie_name, r.room_name AS room_name
-				    FROM showtimes s
-				    JOIN movies m ON s.movie_id = m.movie_id
-				    JOIN rooms  r ON s.room_id  = r.room_id
-				    WHERE s.movie_id = ?
-				      AND DATE(s.start_time) = ?
-				    ORDER BY s.start_time ASC
-				""";
+                    ShowtimeView st = new ShowtimeView();
+                    st.setShowtimeId(rs.getInt("showtime_id"));
+                    st.setStartTime(rs.getTimestamp("start_time"));
+                    st.setPrice(rs.getBigDecimal("price"));
+                    st.setRoomName(rs.getString("room_name"));
+                    currentMovie.getShowtimes().add(st);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("getMoviesWithShowtimesByDate error", e);
+        }
+        return result;
+    }
 
-		List<ShowtimeView> list = new ArrayList<>();
+    public List<String> getDistinctDatesByMovie(int movieId) {
+        String sql = "SELECT DISTINCT COALESCE(show_date, DATE(start_time)) as actual_show_date FROM showtimes WHERE movie_id = ? AND start_time >= NOW() ORDER BY actual_show_date ASC";
+        List<String> list = new ArrayList<>();
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, movieId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    java.sql.Date d = rs.getDate("actual_show_date");
+                    if (d != null) list.add(d.toString());
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 
-		try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-
-			ps.setInt(1, movieId);
-			java.sql.Date d = java.sql.Date.valueOf(showDate);
-			ps.setDate(2, d);
-
-			try (ResultSet rs = ps.executeQuery()) {
-				while (rs.next()) {
-					ShowtimeView st = new ShowtimeView();
-					st.setShowtimeId(rs.getInt("showtime_id"));
-					st.setMovieId(rs.getInt("movie_id"));
-					st.setRoomId(rs.getInt("room_id"));
-					st.setStartTime(rs.getTimestamp("start_time"));
-					st.setEndTime(rs.getTimestamp("end_time"));
-					st.setPrice(rs.getBigDecimal("price"));
-
-					st.setMovieName(rs.getString("movie_name"));
-					st.setRoomName(rs.getString("room_name"));
-					list.add(st);
-				}
-			}
-
-		} catch (SQLException e) {
-			throw new RuntimeException("ShowtimeDAO.findByMovieAndDate error", e);
-		}
-		return list;
-	}
-
-	public int findRoomIdByShowtime(int showtimeId) {
-		String sql = "SELECT room_id FROM showtimes WHERE showtime_id = ?";
-		try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-			ps.setInt(1, showtimeId);
-			ResultSet rs = ps.executeQuery();
-			if (rs.next())
-				return rs.getInt("room_id");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return 0;
-	}
-
-	public ShowtimeView findById(int id) {
-		String sql = """
-				    SELECT s.showtime_id, s.movie_id, s.room_id, s.start_time, s.end_time, s.price,
-				           m.title AS movie_name, r.room_name AS room_name
-				    FROM showtimes s
-				    JOIN movies m ON s.movie_id = m.movie_id
-				    JOIN rooms  r ON s.room_id  = r.room_id
-				    WHERE s.showtime_id = ?
-				""";
-		try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-			ps.setInt(1, id);
-			try (ResultSet rs = ps.executeQuery()) {
-				if (rs.next()) {
-					ShowtimeView st = new ShowtimeView();
-					st.setShowtimeId(rs.getInt("showtime_id"));
-					st.setMovieId(rs.getInt("movie_id"));
-					st.setRoomId(rs.getInt("room_id"));
-					st.setStartTime(rs.getTimestamp("start_time"));
-					st.setEndTime(rs.getTimestamp("end_time"));
-					st.setPrice(rs.getBigDecimal("price"));
-					st.setMovieName(rs.getString("movie_name"));
-					st.setRoomName(rs.getString("room_name"));
-					return st;
-				}
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	public List<MovieWithShowtimes> getMoviesWithShowtimesByDate(String showDate) {
-		String sql = """
-				    SELECT m.movie_id, m.title, m.poster, m.duration, m.rating,
-				           s.showtime_id, s.start_time, s.price, r.room_name
-				    FROM movies m
-				    JOIN showtimes s ON m.movie_id = s.movie_id
-				    JOIN rooms r ON s.room_id = r.room_id
-				    WHERE DATE(s.start_time) = ?
-				    ORDER BY m.movie_id, s.start_time ASC
-				""";
-
-		List<MovieWithShowtimes> result = new ArrayList<>();
-		try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-
-			ps.setDate(1, java.sql.Date.valueOf(showDate));
-
-			try (ResultSet rs = ps.executeQuery()) {
-				int lastMovieId = -1;
-				MovieWithShowtimes currentMovie = null;
-
-				while (rs.next()) {
-					int mid = rs.getInt("movie_id");
-					if (mid != lastMovieId) {
-						currentMovie = new MovieWithShowtimes();
-						currentMovie.setMovieId(mid);
-						currentMovie.setTitle(rs.getString("title"));
-						currentMovie.setPoster(rs.getString("poster"));
-						currentMovie.setDuration(rs.getInt("duration"));
-						currentMovie.setRating(rs.getDouble("rating"));
-						currentMovie.setShowtimes(new ArrayList<>());
-						result.add(currentMovie);
-						lastMovieId = mid;
-					}
-
-					ShowtimeView st = new ShowtimeView();
-					st.setShowtimeId(rs.getInt("showtime_id"));
-					st.setStartTime(rs.getTimestamp("start_time"));
-					st.setPrice(rs.getBigDecimal("price"));
-					st.setRoomName(rs.getString("room_name"));
-					currentMovie.getShowtimes().add(st);
-				}
-			}
-		} catch (SQLException e) {
-			throw new RuntimeException("getMoviesWithShowtimesByDate error", e);
-		}
-		return result;
-	}
-
-	public static class MovieWithShowtimes extends com.cinema.model.Movie {
-		private List<ShowtimeView> showtimes;
-
-		public List<ShowtimeView> getShowtimes() {
-			return showtimes;
-		}
-
-		public void setShowtimes(List<ShowtimeView> showtimes) {
-			this.showtimes = showtimes;
-		}
-	}
+    public boolean isOverlap(int roomId, java.sql.Timestamp start, java.sql.Timestamp end, Integer excludeId) {
+        String sql = "SELECT COUNT(*) FROM showtimes WHERE room_id = ? AND ((start_time < ? AND end_time > ?))";
+        if (excludeId != null) {
+            sql += " AND showtime_id <> " + excludeId;
+        }
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, roomId);
+            ps.setTimestamp(2, end);
+            ps.setTimestamp(3, start);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

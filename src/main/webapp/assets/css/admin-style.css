@@ -1,0 +1,113 @@
+:root {
+    --bg-dark: #0f172a;
+    --sidebar-bg: #1e293b;
+    --accent-color: #6366f1;
+    --accent-hover: #818cf8;
+    --text-primary: #f8fafc;
+    --text-muted: #94a3b8;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --sidebar-width: 280px;
+}
+
+body {
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    font-family: 'Outfit', sans-serif;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+.admin-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: var(--sidebar-width);
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border-color);
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 100;
+}
+
+.main-content {
+    flex: 1;
+    margin-left: var(--sidebar-width);
+    padding: 40px;
+    min-width: 0;
+}
+
+.card-glass {
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    transition: all 0.3s ease;
+}
+
+.card-glass:hover {
+    border-color: var(--accent-color);
+    transform: translateY(-4px);
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    transition: all 0.2s;
+}
+
+.nav-link i { margin-right: 12px; font-size: 1.1rem; }
+
+.nav-link:hover, .nav-link.active {
+    background: var(--accent-color);
+    color: white;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.btn-primary {
+    background: var(--accent-color);
+    border: none;
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background: var(--accent-hover);
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    font-size: 1.25rem;
+}
+
+.table {
+    color: var(--text-primary);
+}
+
+.table th {
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 20px;
+}
+
+.table td {
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}

@@ -9,10 +9,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 </head>
 <body class="bg-[#0f172a] text-slate-200">
 
-<jsp:include page="/common/admin-sidebar.jsp">
+<jsp:include page="/common/admin/sidebar.jsp">
     <jsp:param name="activeTab" value="bookings" />
 </jsp:include>
 

@@ -34,30 +34,34 @@ body{
 /* ===== HERO (CGV-like banner) ===== */
 .hero-wow{
   position: relative;
-  padding: 68px 0 42px;
+  padding: 120px 0 80px;
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
   overflow:hidden;
+  background: #000;
 }
 
-/* overlay tối */
-.hero-wow::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:
-    linear-gradient(90deg, rgba(0,0,0,.78) 0%, rgba(0,0,0,.55) 45%, rgba(0,0,0,.30) 100%),
-    radial-gradient(1200px 520px at 30% 30%, rgba(227,0,27,.18), transparent 60%);
-  pointer-events:none;
-  z-index: 1;
-}
-
-/* background image/video lớp dưới (nếu bạn có .hero-bg) */
-.hero-bg{
-  position:absolute;
-  inset:0;
-  background: url("../img/hero-cinema.jpg") center/cover no-repeat; /* đổi đường dẫn theo bạn */
-  filter: saturate(1.05) contrast(1.05) brightness(.78);
-  transform: scale(1.02);
+.hero-video-wrapper {
+  position: absolute;
+  inset: 0;
   z-index: 0;
+}
+
+.hero-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.4) saturate(1.2);
+}
+
+.video-overlay {
+  position: absolute;
+  inset: 0;
+  background: 
+    linear-gradient(90deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.8) 100%),
+    linear-gradient(0deg, rgba(0,0,0,1) 0%, transparent 40%);
+  pointer-events: none;
 }
 
 /* tắt animation gradient cũ */
@@ -123,6 +127,61 @@ body{
 }
 
 /* actions */
+.search-hero-wrapper {
+  max-width: 580px;
+  position: relative;
+  z-index: 5;
+}
+.search-hero-form {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 6px;
+  border-radius: 14px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 14px 40px rgba(0,0,0,0.35);
+  transition: all 0.3s ease;
+}
+.search-hero-form:focus-within {
+  border-color: var(--red);
+  box-shadow: 0 14px 40px rgba(227, 0, 27, 0.2);
+  background: rgba(255, 255, 255, 0.12);
+}
+.search-hero-form i {
+  color: var(--muted);
+  font-size: 1.1rem;
+  margin-left: 14px;
+  margin-right: 10px;
+}
+.search-hero-input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-weight: 600;
+  padding: 10px 0;
+  font-size: 1rem;
+}
+.search-hero-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+.btn-search-hero {
+  background: linear-gradient(180deg, var(--red), var(--red2));
+  color: #fff;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-search-hero:hover {
+  filter: brightness(1.1);
+  transform: scale(1.03);
+}
+
 .hero-actions{
   display:flex;
   gap: 12px;
@@ -357,32 +416,316 @@ body{
 }
 .btn-trailer:hover{ transform: translateY(-2px); border-color: rgba(255,255,255,.28); color:#fff; }
 
-/* ===== Back to top (tối, đỏ) ===== */
-.back-to-top-btn{
-  position: fixed;
-  right: 18px;
-  bottom: 18px;
-  width: 50px;
-  height: 50px;
-  border: none;
-  border-radius: 14px;
-  display: grid;
-  place-items: center;
-  color: #fff;
-  font-size: 18px;
-  font-weight: 900;
-  background: linear-gradient(180deg, var(--red), var(--red2));
-  box-shadow: 0 16px 34px rgba(0,0,0,.55);
-  cursor: pointer;
-  z-index: 999999;
-  opacity: 0;
-  transform: translateY(12px) scale(.95);
-  pointer-events: none;
-  transition: .2s ease;
+/* ===== PROMO SECTION ===== */
+.promo-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 24px;
+    margin-top: 20px;
 }
-.back-to-top-btn.show{
-  opacity: .95;
-  transform: translateY(0) scale(1);
-  pointer-events: auto;
+
+@media (max-width: 992px) {
+    .promo-grid { grid-template-columns: 1fr; }
 }
-.back-to-top-btn:hover{ transform: translateY(-3px) scale(1.03); opacity: 1; }
+
+.promo-card {
+    position: relative;
+    border-radius: 24px;
+    overflow: hidden;
+    background: var(--card);
+    border: 1px solid var(--line);
+    display: flex;
+    min-height: 280px;
+    transition: all 0.3s ease;
+}
+
+.promo-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(255,255,255,0.2);
+    box-shadow: var(--shadow);
+}
+
+.promo-content {
+    flex: 1;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    z-index: 2;
+}
+
+.promo-tag {
+    display: inline-block;
+    padding: 4px 12px;
+    background: var(--red);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    border-radius: 8px;
+    width: fit-content;
+    margin-bottom: 12px;
+}
+
+.promo-card h3 {
+    font-size: 1.6rem;
+    font-weight: 900;
+    margin-bottom: 10px;
+    line-height: 1.2;
+}
+
+.promo-card p {
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+}
+
+.price {
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+.promo-img {
+    flex: 0.8;
+    position: relative;
+}
+
+.promo-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.promo-img::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, var(--card) 0%, transparent 40%);
+}
+
+.loyalty-card-promo {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border: 1px solid rgba(215, 177, 96, 0.3);
+}
+
+.loyalty-card-promo::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(215, 177, 96, 0.15) 0%, transparent 70%);
+    z-index: 1;
+}
+
+.loyalty-perks {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.loyalty-perks span {
+    font-size: 0.9rem;
+    color: var(--gold);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-promo {
+    display: inline-block;
+    padding: 12px 32px;
+    background: #fff;
+    color: #000;
+    text-decoration: none;
+    font-weight: 900;
+    border-radius: 12px;
+    width: fit-content;
+    transition: all 0.3s ease;
+}
+
+.btn-promo:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(255,255,255,0.1);
+}
+
+.btn-gold {
+    background: linear-gradient(180deg, #d7b160, #b5892e);
+    color: #fff;
+    box-shadow: 0 10px 20px rgba(215, 177, 96, 0.2);
+}
+
+.btn-gold:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 10px 30px rgba(215, 177, 96, 0.4);
+}
+
+/* Coming Soon Special */
+.coming-soon-card .movie-poster img {
+    filter: grayscale(0.4) brightness(0.7);
+}
+
+.coming-soon-card:hover .movie-poster img {
+    filter: grayscale(0) brightness(0.9);
+}
+
+.w-full { width: 100%; }
+
+/* ===== MEMBERSHIP TIERS ===== */
+.tiers-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 20px;
+}
+
+@media (max-width: 992px) {
+    .tiers-grid { grid-template-columns: 1fr; }
+}
+
+.tier-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 32px;
+    padding: 40px;
+    text-align: center;
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.tier-card:hover {
+    transform: translateY(-12px);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+}
+
+.tier-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    font-size: 2rem;
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+.tier-card:hover .tier-icon {
+    transform: rotate(10deg) scale(1.1);
+}
+
+.tier-card h3 {
+    font-size: 1.8rem;
+    font-weight: 900;
+    margin-bottom: 12px;
+    letter-spacing: 2px;
+}
+
+.tier-desc {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-bottom: 30px;
+    min-height: 48px;
+}
+
+.tier-list {
+    list-style: none;
+    padding: 0;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.tier-list li {
+    font-size: 0.9rem;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+}
+
+.tier-list li i {
+    color: var(--red);
+    font-size: 0.8rem;
+}
+
+/* Specific Tier Colors */
+.tier-silver .tier-icon { color: #cbd5e1; box-shadow: 0 0 20px rgba(203, 213, 225, 0.1); }
+.tier-silver h3 { color: #cbd5e1; }
+
+.tier-gold {
+    border-color: rgba(215, 177, 96, 0.3);
+    background: linear-gradient(180deg, rgba(215, 177, 96, 0.05) 0%, transparent 100%);
+}
+.tier-gold .tier-icon { color: #fbbf24; box-shadow: 0 0 20px rgba(251, 191, 36, 0.2); }
+.tier-gold h3 { color: #fbbf24; }
+
+.tier-platinum {
+    border-color: rgba(147, 197, 253, 0.3);
+}
+.tier-platinum .tier-icon { color: #60a5fa; box-shadow: 0 0 20px rgba(96, 165, 250, 0.2); }
+.tier-platinum h3 { color: #60a5fa; }
+
+.tier-badge-popular {
+    position: absolute;
+    top: 20px;
+    right: -35px;
+    background: var(--red);
+    color: #fff;
+    padding: 6px 40px;
+    font-size: 0.7rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    transform: rotate(45deg);
+    box-shadow: 0 4px 10px rgba(227, 0, 27, 0.3);
+}
+
+/* Back to top button */
+.back-to-top-btn {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--red), var(--red2));
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    box-shadow: 0 10px 30px rgba(227, 0, 27, 0.4);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.back-to-top-btn:hover {
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 15px 40px rgba(227, 0, 27, 0.6);
+    filter: brightness(1.1);
+}
+}
+
+.back-to-top-btn.show { display: flex; animation: bounceIn 0.5s; }
+
+@keyframes bounceIn {
+    0% { transform: scale(0); opacity: 0; }
+    60% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+}

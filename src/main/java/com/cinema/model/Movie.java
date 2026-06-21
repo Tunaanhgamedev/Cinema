@@ -18,12 +18,13 @@ public class Movie {
 	private Date releaseDate; // ngày khởi chiếu
 	private double rating;
 	private StatusMovie status; // NOW_SHOWING / COMING_SOON
+	private int reviewCount; // số lượng nhận xét
 
 	public Movie() {
 	}
 
 	public Movie(int movieId, String title, String description, String director, String cast, String genre,
-			int duration, String poster, String trailerUrl, Date releaseDate, double rating, StatusMovie status) {
+			int duration, String poster, String trailerUrl, Date releaseDate, double rating, StatusMovie status, int reviewCount) {
 
 		this.movieId = movieId;
 		this.title = title;
@@ -37,6 +38,7 @@ public class Movie {
 		this.releaseDate = releaseDate;
 		this.rating = rating;
 		this.status = status;
+		this.reviewCount = reviewCount;
 	}
 
 	public int getMovieId() {
@@ -133,5 +135,13 @@ public class Movie {
 
 	public void setStatus(StatusMovie status) {
 		this.status = status;
+	}
+
+	public int getReviewCount() {
+		return reviewCount;
+	}
+
+	public void setReviewCount(int reviewCount) {
+		this.reviewCount = reviewCount;
 	}
 }

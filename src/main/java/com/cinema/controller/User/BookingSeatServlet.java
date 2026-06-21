@@ -21,12 +21,18 @@ import jakarta.servlet.http.HttpSession;
 
 import com.cinema.dao.BookingDAO;
 import com.cinema.dao.BookingSeatDAO;
+import com.cinema.dao.ComboDAO;
 import com.cinema.dao.MovieDAO;
 import com.cinema.dao.SeatDAO;
 import com.cinema.dao.ShowtimeDAO;
+import com.cinema.dao.ShowtimeDAO.ShowtimeView;
 import com.cinema.dao.impl.BookingSeatDAOImpl;
+import com.cinema.dao.impl.ComboDAOImpl;
+import com.cinema.model.Movie;
 import com.cinema.model.Seat;
+import com.cinema.model.Showtime;
 import com.cinema.model.User;
+import com.cinema.model.Combo;
 import com.cinema.utils.DBConnection;
 
 @WebServlet("/booking-seat")
@@ -40,6 +46,8 @@ public class BookingSeatServlet extends HttpServlet {
 	private ShowtimeDAO showtimeDAO;
 	private MovieDAO movieDAO;
 	private SeatDAO seatDAO;
+	private ComboDAO comboDAO;
+	private com.cinema.dao.SeatPriceDAO seatPriceDAO;
 
 	@Override
 	public void init() {
@@ -48,6 +56,8 @@ public class BookingSeatServlet extends HttpServlet {
 		showtimeDAO = new ShowtimeDAO();
 		movieDAO = new MovieDAO();
 		seatDAO = new SeatDAO();
+		comboDAO = new ComboDAOImpl();
+		seatPriceDAO = new com.cinema.dao.SeatPriceDAO();
 	}
 
 	@Override
@@ -56,6 +66,10 @@ public class BookingSeatServlet extends HttpServlet {
 		String ajax = trim(req.getParameter("ajax"));
 		if ("showtimes".equals(ajax)) {
 			handleAjaxShowtimes(req, resp);
+			return;
+		}
+		if ("dates".equals(ajax)) {
+			handleAjaxDates(req, resp);
 			return;
 		}
 		if ("seats".equals(ajax)) {
@@ -82,7 +96,7 @@ public class BookingSeatServlet extends HttpServlet {
 		}
 
 		String showDate = normalizeToSqlDate(showDateRaw);
-
+		
 		req.setAttribute("movieId", movieId);
 		req.setAttribute("showDate", showDate);
 		req.setAttribute("showtimeId", showtimeId);
@@ -93,8 +107,45 @@ public class BookingSeatServlet extends HttpServlet {
 		if (!err.isEmpty())
 			req.setAttribute("error", err);
 
-		// movies dropdown
-		req.setAttribute("movies", movieDAO.findNowShowing());
+		Integer movieIdInt = parseIntOrNull(movieId);
+		Movie currentMovie = null;
+
+		// movies dropdown (luôn lấy danh sách phim để đảm bảo có dữ liệu)
+		List<Movie> movies = movieDAO.findAll();
+		req.setAttribute("movies", movies);
+		
+		// Load Combos for Step 2
+		req.setAttribute("combos", comboDAO.findAll());
+		
+		if (movieIdInt != null) {
+			// Kiểm tra xem phim đang chọn có trong danh sách đang chiếu không
+			boolean exists = false;
+			for(Movie m : movies) {
+				if(m.getMovieId() == movieIdInt) { 
+					exists = true; 
+					currentMovie = m;
+					break; 
+				}
+			}
+			
+			// Nếu phim không nằm trong list đang chiếu (ví dụ xem lại phim cũ), lấy riêng nó
+			if(!exists) {
+				currentMovie = movieDAO.findById(movieIdInt);
+				if(currentMovie != null) req.setAttribute("selectedMovie", currentMovie);
+			} else {
+				req.setAttribute("selectedMovie", currentMovie);
+			}
+			
+			// ✅ Chuẩn bị danh sách ngày từ DB cho phim này
+			List<String> availableDates = showtimeDAO.getDistinctDatesByMovie(movieIdInt);
+			req.setAttribute("availableDates", availableDates);
+			
+			// ✅ Nếu chưa chọn ngày nhưng có danh sách ngày, tự động lấy ngày đầu tiên
+			if (showDate.isEmpty() && !availableDates.isEmpty()) {
+				showDate = availableDates.get(0);
+				req.setAttribute("showDate", showDate);
+			}
+		}
 
 		// cleanup holds hết hạn
 		try (Connection con = DBConnection.getConnection()) {
@@ -105,7 +156,6 @@ public class BookingSeatServlet extends HttpServlet {
 		}
 
 		// load showtimes theo movie + date
-		Integer movieIdInt = parseIntOrNull(movieId);
 		if (movieIdInt != null) {
 			Movie movie = movieDAO.findById(movieIdInt);
 			req.setAttribute("movie", movie);
@@ -113,6 +163,7 @@ public class BookingSeatServlet extends HttpServlet {
 			if (!showDate.isEmpty()) {
 				req.setAttribute("showtimes", showtimeDAO.findByMovieAndDate(movieIdInt, showDate));
 			}
+		}
 		}
 
 		// ===== bookedSeats + seatList theo showtime =====
@@ -155,6 +206,7 @@ public class BookingSeatServlet extends HttpServlet {
 		req.setAttribute("bookedMap", toMap(bookedSeats));
 		req.setAttribute("selectedMap", toMap(selectedSeats));
 		req.setAttribute("selectedSeats", selectedSeats);
+		req.setAttribute("seatPrices", seatPriceDAO.getAllSeatPrices());
 
 		req.getRequestDispatcher("/pages/clients/booking/booking-ticket.jsp").forward(req, resp);
 	}
@@ -190,13 +242,15 @@ public class BookingSeatServlet extends HttpServlet {
 			return;
 		}
 
-		// seats có thể NULL
-		if (seats != null && seats.length > 0) {
-			if (seats.length != qty) {
-				redirectBack(resp, req, movieId, showDate, showtimeIdStr, ticketQtyStr,
-						"Số ghế phải bằng số vé đã chọn.");
-				return;
-			}
+		if (seats == null || seats.length == 0) {
+			redirectBack(resp, req, movieId, showDate, showtimeIdStr, ticketQtyStr, "Vui lòng chọn ghế.");
+			return;
+		}
+
+		if (seats.length != qty) {
+			redirectBack(resp, req, movieId, showDate, showtimeIdStr, ticketQtyStr,
+					"Số ghế phải bằng số vé đã chọn.");
+			return;
 		}
 
 		// lưu selectedSeats để refresh không mất
@@ -227,7 +281,8 @@ public class BookingSeatServlet extends HttpServlet {
 			session.removeAttribute("selectedSeats");
 
 			String gotoAction = trim(req.getParameter("goto"));
-			if ("payment".equals(gotoAction)) {
+			String actionType = trim(req.getParameter("actionType"));
+			if ("payment".equals(gotoAction) || "checkout".equals(actionType)) {
 				resp.sendRedirect(req.getContextPath() + "/booking/payment?bookingId=" + bookingId);
 			} else {
 				resp.sendRedirect(req.getContextPath() + "/booking/combo?bookingId=" + bookingId);
@@ -328,16 +383,43 @@ public class BookingSeatServlet extends HttpServlet {
 		s = trim(s);
 		if (s.isEmpty())
 			return "";
+		// yyyy-MM-dd (chuẩn)
 		if (s.matches("\\d{4}-\\d{2}-\\d{2}"))
-			return s; // yyyy-MM-dd
-		if (s.matches("\\d{2}/\\d{2}/\\d{4}")) { // dd/MM/yyyy
+			return s; 
+		// dd/MM/yyyy hoặc d/m/yyyy
+		if (s.matches("\\d{1,2}/\\d{1,2}/\\d{4}")) { 
 			String[] p = s.split("/");
-			return p[2] + "-" + p[1] + "-" + p[0];
+			String d = p[0].length() == 1 ? "0" + p[0] : p[0];
+			String m = p[1].length() == 1 ? "0" + p[1] : p[1];
+			return p[2] + "-" + m + "-" + d;
 		}
-		if (s.matches("\\d{4}/\\d{2}/\\d{2}"))
-			return s.replace('/', '-'); // yyyy/MM/dd
+		// yyyy/MM/dd
+		if (s.matches("\\d{4}/\\d{1,2}/\\d{1,2}"))
+			return s.replace('/', '-'); 
 		return s;
 	}
+	private void handleAjaxDates(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		resp.setContentType("application/json");
+		resp.setCharacterEncoding("UTF-8");
+
+		Integer movieId = parseIntOrNull(req.getParameter("movieId"));
+		if (movieId == null) {
+			resp.getWriter().write("[]");
+			return;
+		}
+
+		List<String> dates = showtimeDAO.getDistinctDatesByMovie(movieId);
+		System.out.println("AJAX getDistinctDatesByMovie: movieId=" + movieId + " -> found " + dates.size() + " dates");
+		StringBuilder json = new StringBuilder("[");
+		for (int i = 0; i < dates.size(); i++) {
+			json.append("\"").append(dates.get(i)).append("\"");
+			if (i < dates.size() - 1)
+				json.append(",");
+		}
+		json.append("]");
+		resp.getWriter().write(json.toString());
+	}
+
 	private void handleAjaxShowtimes(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		resp.setContentType("application/json");
 		resp.setCharacterEncoding("UTF-8");
@@ -350,15 +432,17 @@ public class BookingSeatServlet extends HttpServlet {
 			return;
 		}
 
-		List<com.cinema.dao.ShowtimeDAO.ShowtimeView> list = showtimeDAO.findByMovieAndDate(movieId, showDate);
+		List<ShowtimeView> list = showtimeDAO.findByMovieAndDate(movieId, showDate);
+		System.out.println("AJAX findByMovieAndDate: movieId=" + movieId + ", date=" + showDate + " -> found " + list.size() + " showtimes");
 		StringBuilder json = new StringBuilder("[");
 		for (int i = 0; i < list.size(); i++) {
-			com.cinema.dao.ShowtimeDAO.ShowtimeView st = list.get(i);
+			ShowtimeView st = list.get(i);
 			java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm");
 			String timeRange = sdf.format(st.getStartTime()) + " - " + sdf.format(st.getEndTime());
 
 			json.append("{").append("\"id\":").append(st.getShowtimeId()).append(",").append("\"time\":\"")
-					.append(timeRange).append("\",").append("\"room\":\"").append(st.getRoomName()).append("\"")
+					.append(timeRange).append("\",").append("\"room\":\"").append(st.getRoomName()).append("\",")
+					.append("\"price\":").append(st.getPrice())
 					.append("}");
 			if (i < list.size() - 1)
 				json.append(",");
@@ -380,9 +464,10 @@ public class BookingSeatServlet extends HttpServlet {
 		Set<String> booked = bookingSeatDAO.findBookedSeatCodesByShowtime(showtimeId, HOLD_MINUTES);
 		Set<String> rowSet = new TreeSet<>();
 
+		List<Seat> seatList = null;
 		try (Connection con = DBConnection.getConnection()) {
 			int roomId = bookingDAO.findRoomIdByShowtime(con, showtimeId);
-			List<Seat> seatList = seatDAO.getSeatsByRoom(roomId);
+			seatList = seatDAO.getSeatsByRoom(roomId);
 			if (seatList != null) {
 				for (Seat s : seatList) {
 					rowSet.add(String.valueOf(s.getSeatRow()));
@@ -412,7 +497,29 @@ public class BookingSeatServlet extends HttpServlet {
 			if (++idx < booked.size())
 				json.append(",");
 		}
-		json.append("]");
+		json.append("],");
+
+		// seats (full info for layout & pricing)
+		json.append("\"seats\":[");
+		if (seatList != null) {
+			for (int i = 0; i < seatList.size(); i++) {
+				Seat s = seatList.get(i);
+				String typeName = (s.getSeatType() != null) ? s.getSeatType().name() : "NORMAL";
+				json.append("{")
+					.append("\"code\":\"").append(s.getSeatRow()).append(s.getSeatNumber()).append("\",")
+					.append("\"type\":\"").append(typeName).append("\",")
+					.append("\"r\":").append(s.getGridRow() != null ? s.getGridRow() : "null").append(",")
+					.append("\"c\":").append(s.getGridCol() != null ? s.getGridCol() : "null")
+					.append("}");
+				if (i < seatList.size() - 1) json.append(",");
+			}
+		}
+		json.append("],");
+		
+		// roomInfo
+		json.append("\"roomInfo\":{")
+			.append("\"total\":").append(seatList != null ? seatList.size() : 0)
+			.append("}");
 
 		json.append("}");
 		resp.getWriter().write(json.toString());

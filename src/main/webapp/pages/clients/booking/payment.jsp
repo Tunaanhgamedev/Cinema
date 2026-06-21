@@ -256,20 +256,41 @@
         </div>
       </div>
 
+      <!-- Voucher Section -->
+      <div class="voucher-card animate-fade-in">
+        <div class="voucher-head">
+          <i class="fas fa-ticket-alt"></i>
+          <span>Bạn có mã giảm giá?</span>
+        </div>
+        <div class="voucher-body">
+          <div class="input-group">
+            <input type="text" id="voucherCode" class="form-control shadow-none" placeholder="Nhập mã (VD: BOBIXI50)">
+            <button class="btn btn-apply" id="btnApplyVoucher" type="button">Áp dụng</button>
+          </div>
+          <div id="voucherMessage" class="mt-2 small" style="display: none;"></div>
+        </div>
+      </div>
+
       <!-- Total + actions -->
       <div class="total-card">
         <div class="total-left">
           <div class="total-title">Tổng thanh toán</div>
           <div class="total-sub">Bao gồm tiền vé và combo</div>
+          <div id="discountInfo" class="discount-text" style="display: none;">
+            Giảm giá: -<span id="discountValueDisplay">0</span>đ
+          </div>
         </div>
         <div class="total-right">
-          <div class="total-value"><%= df.format(grandTotal) %> VNĐ</div>
+          <div class="total-value" id="finalTotalDisplay" data-original="<%= grandTotal %>">
+            <%= df.format(grandTotal) %> VNĐ
+          </div>
         </div>
       </div>
 
       <div class="cta-row">
-        <form action="<%= ctx %>/booking/payment/confirm" method="post" class="cta-form">
+        <form action="<%= ctx %>/booking/payment" method="post" class="cta-form" id="paymentForm">
           <input type="hidden" name="bookingId" value="<%= bookingIdStr %>">
+          <input type="hidden" name="voucherCode" id="appliedVoucherCode" value="">
           <button type="submit" class="btn-confirm">Xác nhận thanh toán</button>
         </form>
 
@@ -716,6 +737,40 @@
   .security-item h4{ font-size: 20px; margin-bottom: 12px; color:#333; }
   .security-item p{ color:#666; line-height: 1.6; }
 
+  /* Voucher Styles */
+  .voucher-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 5px 20px rgba(0,0,0,.08);
+    border: 1px solid #eee;
+  }
+  .voucher-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    font-weight: 700;
+    color: #333;
+  }
+  .voucher-head i { color: #e71a0f; }
+  .btn-apply {
+    background: #333;
+    color: #fff;
+    font-weight: 700;
+    padding: 0 25px;
+    border-radius: 0 10px 10px 0;
+  }
+  .btn-apply:hover { background: #000; color: #fff; }
+  #voucherCode { border-radius: 10px 0 0 10px; }
+  .discount-text {
+    margin-top: 5px;
+    font-weight: 800;
+    color: #ffd43b;
+    font-size: 1.1rem;
+  }
+
   @media (max-width: 1024px){
     .summary-grid{ grid-template-columns: 1fr; }
     .process-steps{ flex-direction: column; }
@@ -731,6 +786,74 @@
     .security-item{ padding: 26px 16px; }
   }
 </style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const btnApply = document.getElementById("btnApplyVoucher");
+    const inputCode = document.getElementById("voucherCode");
+    const msgBox = document.getElementById("voucherMessage");
+    const discountInfo = document.getElementById("discountInfo");
+    const discountValueDisplay = document.getElementById("discountValueDisplay");
+    const finalTotalDisplay = document.getElementById("finalTotalDisplay");
+    const appliedVoucherInput = document.getElementById("appliedVoucherCode");
+    
+    const originalTotal = parseFloat(finalTotalDisplay.getAttribute("data-original"));
+
+    btnApply.addEventListener("click", async function() {
+        const code = inputCode.value.trim();
+        if (!code) {
+            msgBox.textContent = "Vui lòng nhập mã giảm giá.";
+            msgBox.className = "mt-2 small text-danger";
+            msgBox.style.display = "block";
+            return;
+        }
+
+        btnApply.disabled = true;
+        btnApply.textContent = "...";
+
+        try {
+            const res = await fetch(`<%= ctx %>/api/voucher?code=${code}&total=${originalTotal}`);
+            const data = await res.json();
+
+            msgBox.style.display = "block";
+            if (data.isValid) {
+                msgBox.textContent = data.message;
+                msgBox.className = "mt-2 small text-success";
+                
+                // Tính toán giảm giá
+                let discount = 0;
+                if (data.type === 'PERCENT') {
+                    discount = originalTotal * (data.discountAmount / 100);
+                } else {
+                    discount = data.discountAmount;
+                }
+
+                const newTotal = Math.max(0, originalTotal - discount);
+                
+                // Cập nhật UI
+                discountValueDisplay.textContent = new Intl.NumberFormat('vi-VN').format(discount);
+                discountInfo.style.display = "block";
+                finalTotalDisplay.textContent = new Intl.NumberFormat('vi-VN').format(newTotal) + " VNĐ";
+                appliedVoucherInput.value = code;
+                
+            } else {
+                msgBox.textContent = data.message;
+                msgBox.className = "mt-2 small text-danger";
+                discountInfo.style.display = "none";
+                finalTotalDisplay.textContent = new Intl.NumberFormat('vi-VN').format(originalTotal) + " VNĐ";
+                appliedVoucherInput.value = "";
+            }
+        } catch (err) {
+            console.error(err);
+            msgBox.textContent = "Có lỗi xảy ra, vui lòng thử lại sau.";
+            msgBox.className = "mt-2 small text-danger";
+        } finally {
+            btnApply.disabled = false;
+            btnApply.textContent = "Áp dụng";
+        }
+    });
+});
+</script>
 </body>
 </html>
 <jsp:include page="/common/footer.jsp" />

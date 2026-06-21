@@ -74,7 +74,7 @@ public class BookingSeatDAOImpl implements BookingSeatDAO {
 				    WHERE b.showtime_id = ?
 				      AND (
 				            b.status = 'PAID'
-				         OR (b.status = 'PENDING' AND b.booking_time >= (NOW() - INTERVAL ? MINUTE))
+				         OR (b.status = 'PENDING' AND b.booking_date >= (NOW() - INTERVAL ? MINUTE))
 				      )
 				""";
 
@@ -127,14 +127,14 @@ public class BookingSeatDAOImpl implements BookingSeatDAO {
 				    FROM booking_seat bs
 				    JOIN bookings b ON b.booking_id = bs.booking_id
 				    WHERE b.status = 'PENDING'
-				      AND b.booking_time < (NOW() - INTERVAL ? MINUTE)
+				      AND b.booking_date < (NOW() - INTERVAL ? MINUTE)
 				""";
 
 		String cancelBookingsSql = """
 				    UPDATE bookings
 				    SET status = 'CANCELLED'
 				    WHERE status = 'PENDING'
-				      AND booking_time < (NOW() - INTERVAL ? MINUTE)
+				      AND booking_date < (NOW() - INTERVAL ? MINUTE)
 				""";
 
 		try (PreparedStatement ps1 = con.prepareStatement(deleteSeatsSql);
@@ -172,7 +172,7 @@ public class BookingSeatDAOImpl implements BookingSeatDAO {
 				      AND bs.seat_id = ?
 				      AND (
 				            b.status = 'PAID'
-				         OR (b.status = 'PENDING' AND b.booking_time >= (NOW() - INTERVAL ? MINUTE))
+				         OR (b.status = 'PENDING' AND b.booking_date >= (NOW() - INTERVAL ? MINUTE))
 				      )
 				    LIMIT 1
 				""";

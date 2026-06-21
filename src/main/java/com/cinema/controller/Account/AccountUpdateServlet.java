@@ -11,13 +11,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import com.cinema.dao.UserDAO;
+import com.cinema.dao.impl.UserDAOImpl;
 import com.cinema.model.User;
 
 @WebServlet("/account/update")
 public class AccountUpdateServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	private final UserDAO userDAO = new UserDAO();
+	private final UserDAO userDAO = new UserDAOImpl();
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

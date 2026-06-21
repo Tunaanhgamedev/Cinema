@@ -22,6 +22,10 @@ import com.cinema.model.Seat;
 import com.cinema.model.User;
 import com.cinema.utils.DBConnection;
 import com.cinema.views.BookingComboDetail;
+import com.cinema.dao.ShowtimeDAO;
+import com.cinema.dao.SeatPriceDAO;
+import com.cinema.model.Showtime;
+import com.cinema.model.SeatPrice;
 
 @WebServlet("/booking/payment")
 public class PaymentServlet extends HttpServlet {
@@ -30,11 +34,15 @@ public class PaymentServlet extends HttpServlet {
 
 	private BookingSeatDAO bookingSeatDAO;
 	private BookingComboDAO bookingComboDAO;
+	private ShowtimeDAO showtimeDAO;
+	private SeatPriceDAO seatPriceDAO;
 
 	@Override
 	public void init() {
 		bookingSeatDAO = new BookingSeatDAOImpl();
 		bookingComboDAO = new BookingComboDAOImpl();
+		showtimeDAO = new ShowtimeDAO();
+		seatPriceDAO = new SeatPriceDAO();
 	}
 
 	@Override
@@ -54,9 +62,24 @@ public class PaymentServlet extends HttpServlet {
 		// 2) COMBO theo booking
 		List<BookingComboDetail> comboList = bookingComboDAO.findDetailByBookingId(bookingId);
 
-		// 3) TÍNH TIỀN VÉ (tạm FIX 75k/ghế)
-		BigDecimal ticketPrice = new BigDecimal("75000");
-		BigDecimal ticketSubtotal = ticketPrice.multiply(new BigDecimal(seatList == null ? 0 : seatList.size()));
+		// 2.5) Lấy showtimeId từ booking
+		BookingInfo bInfo = getBookingInfoNoLock(bookingId);
+		if (bInfo == null) {
+			response.sendRedirect(request.getContextPath() + "/home");
+			return;
+		}
+		Showtime st = showtimeDAO.findShowtimeById(bInfo.showtimeId);
+		BigDecimal ticketPrice = (st != null && st.getPrice() != null) ? st.getPrice() : new BigDecimal("75000");
+
+		// 3) TÍNH TIỀN VÉ thực tế (Base Price + Phụ phí từng ghế)
+		BigDecimal ticketSubtotal = BigDecimal.ZERO;
+		if (seatList != null) {
+			for (Seat s : seatList) {
+				SeatPrice sp = seatPriceDAO.getByType(s.getSeatType());
+				BigDecimal surcharge = (sp != null) ? BigDecimal.valueOf(sp.getSurcharge()) : BigDecimal.ZERO;
+				ticketSubtotal = ticketSubtotal.add(ticketPrice.add(surcharge));
+			}
+		}
 
 		// 4) TÍNH TIỀN COMBO
 		BigDecimal comboSubtotal = BigDecimal.ZERO;
@@ -133,8 +156,17 @@ public class PaymentServlet extends HttpServlet {
 			List<Seat> seatList = bookingSeatDAO.findSeatsByBookingId(bookingId);
 			List<BookingComboDetail> comboList = bookingComboDAO.findDetailByBookingId(bookingId);
 
-			BigDecimal ticketPrice = new BigDecimal("75000");
-			BigDecimal ticketSubtotal = ticketPrice.multiply(new BigDecimal(seatList == null ? 0 : seatList.size()));
+			Showtime st = showtimeDAO.findShowtimeById(info.showtimeId);
+			BigDecimal ticketPrice = (st != null && st.getPrice() != null) ? st.getPrice() : new BigDecimal("75000");
+
+			BigDecimal ticketSubtotal = BigDecimal.ZERO;
+			if (seatList != null) {
+				for (Seat s : seatList) {
+					SeatPrice sp = seatPriceDAO.getByType(s.getSeatType());
+					BigDecimal surcharge = (sp != null) ? BigDecimal.valueOf(sp.getSurcharge()) : BigDecimal.ZERO;
+					ticketSubtotal = ticketSubtotal.add(ticketPrice.add(surcharge));
+				}
+			}
 
 			BigDecimal comboSubtotal = BigDecimal.ZERO;
 			if (comboList != null) {
@@ -145,16 +177,113 @@ public class PaymentServlet extends HttpServlet {
 			}
 			BigDecimal grandTotal = ticketSubtotal.add(comboSubtotal);
 
-			// 3) update bookings => PAID + total_price
-			updateBookingPaid(con, bookingId, grandTotal);
+			// 2.1) Áp dụng Voucher (nếu có)
+			String voucherCode = request.getParameter("voucherCode");
+			if (voucherCode != null && !voucherCode.trim().isEmpty()) {
+				com.cinema.dao.VoucherDAO voucherDAO = new com.cinema.dao.VoucherDAO();
+				com.cinema.dao.VoucherDAO.VoucherResult vResult = voucherDAO.checkVoucher(voucherCode, grandTotal.doubleValue());
+				if (vResult.isValid) {
+					BigDecimal discountAmount = BigDecimal.ZERO;
+					if ("PERCENT".equals(vResult.type)) {
+						discountAmount = grandTotal.multiply(new BigDecimal(vResult.discountAmount / 100.0));
+					} else {
+						discountAmount = new BigDecimal(vResult.discountAmount);
+					}
+					double discountAmountValue = discountAmount.doubleValue();
+					grandTotal = grandTotal.subtract(discountAmount);
+					if (grandTotal.compareTo(BigDecimal.ZERO) < 0) grandTotal = BigDecimal.ZERO;
+					
+					request.setAttribute("discountAmountValue", discountAmountValue);
+				}
+			}
+			
+			double finalDiscount = 0;
+			Object attr = request.getAttribute("discountAmountValue");
+			if(attr != null) finalDiscount = (double)attr;
+
+			// 3) update bookings => PAID + total_price + discount_amount
+			updateBookingPaid(con, bookingId, grandTotal, BigDecimal.valueOf(finalDiscount));
 
 			// 4) insert payments
 			insertPayment(con, bookingId, method);
 
 			con.commit();
+			
+			// ✅ Cộng điểm tích lũy (1000 VNĐ = 1 điểm)
+			int pointsToAdd = grandTotal.divide(new BigDecimal("1000")).intValue();
+			if (pointsToAdd > 0) {
+				com.cinema.dao.UserDAO userDAO = new com.cinema.dao.impl.UserDAOImpl();
+				userDAO.addPoints(u.getUserId(), pointsToAdd);
+				
+				// Cập nhật lại session user để hiển thị điểm mới
+				User updatedUser = userDAO.findByEmail(u.getEmail());
+				if (updatedUser != null) {
+					session.setAttribute("authUser", updatedUser);
+				}
+			}
 
-			// ✅ sau khi PAID: ghế sẽ khóa vĩnh viễn (bookedSeats query có b.status='PAID')
-			response.sendRedirect(request.getContextPath() + "/booking/payment?bookingId=" + bookingId + "&success=1");
+			// ✅ Gửi Email xác nhận & Tặng Voucher (Chạy ngầm)
+			try {
+				final BigDecimal finalTotal = grandTotal;
+				final String userEmail = u.getEmail();
+				final String userName = u.getFullName();
+				
+				new Thread(() -> {
+					try {
+						// 1. Gửi Email xác nhận đặt vé
+						StringBuilder seatsStr = new StringBuilder();
+						if (seatList != null) {
+							for (com.cinema.model.Seat seat : seatList) {
+								if (seatsStr.length() > 0) seatsStr.append(", ");
+								seatsStr.append(seat.getSeatNumber());
+							}
+						}
+
+						String confirmBody = com.cinema.utils.EmailUtil.getBookingConfirmationTemplate(
+							userName, 
+							"Vé xem phim tại BOBIXI", 
+							seatsStr.toString(), 
+							"Rạp BOBIXI Đà Nẵng", 
+							String.format("%,.0f", finalTotal)
+						);
+						com.cinema.utils.EmailUtil.sendEmail(userEmail, "Xác nhận đặt vé thành công - BOBIXI Cinema", confirmBody);
+
+						// 2. Tặng Voucher nếu hóa đơn > 200k
+						if (finalTotal.compareTo(new BigDecimal("200000")) >= 0) {
+							com.cinema.dao.VoucherDAO vDAO = new com.cinema.dao.VoucherDAO();
+							String randomCode = "GIFT" + (int)(Math.random() * 9000 + 1000);
+							
+							com.cinema.model.Voucher v = new com.cinema.model.Voucher();
+							v.setCode(randomCode);
+							v.setDiscountValue(new BigDecimal("15")); // Giảm 15%
+							v.setDiscountType("PERCENT");
+							v.setMinOrderValue(new BigDecimal("100000"));
+							v.setValidFrom(new java.sql.Timestamp(System.currentTimeMillis()));
+							v.setValidTo(new java.sql.Timestamp(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000)); // 30 ngày
+							v.setActive(true);
+							v.setUserId(u.getUserId()); // Gắn chủ sở hữu
+							v.setUsed(false);
+							
+							vDAO.insert(v);
+							
+							String voucherBody = com.cinema.utils.EmailUtil.getVoucherTemplate(
+								userName, 
+								randomCode, 
+								"15%", 
+								new java.text.SimpleDateFormat("dd/MM/yyyy").format(v.getValidTo())
+							);
+							com.cinema.utils.EmailUtil.sendEmail(userEmail, "Quà tặng đặc biệt từ BOBIXI Cinema - Voucher 15%", voucherBody);
+						}
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
+				}).start();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+
+			// ✅ sau khi PAID: Chuyển sang trang Hóa đơn
+			response.sendRedirect(request.getContextPath() + "/booking/invoice?bookingId=" + bookingId);
 
 		} catch (Exception e) {
 			if (con != null) {
@@ -178,7 +307,7 @@ public class PaymentServlet extends HttpServlet {
 
 	// Lock booking row để tránh 2 tab thanh toán cùng lúc
 	private BookingInfo getBookingInfoForUpdate(Connection con, int bookingId) {
-		String sql = "SELECT booking_id, user_id, status FROM bookings WHERE booking_id=? FOR UPDATE";
+		String sql = "SELECT booking_id, user_id, showtime_id, status FROM bookings WHERE booking_id=? FOR UPDATE";
 		try (PreparedStatement ps = con.prepareStatement(sql)) {
 			ps.setInt(1, bookingId);
 			try (ResultSet rs = ps.executeQuery()) {
@@ -187,6 +316,7 @@ public class PaymentServlet extends HttpServlet {
 				BookingInfo bi = new BookingInfo();
 				bi.bookingId = rs.getInt("booking_id");
 				bi.userId = rs.getInt("user_id");
+				bi.showtimeId = rs.getInt("showtime_id");
 				bi.status = rs.getString("status");
 				return bi;
 			}
@@ -195,11 +325,31 @@ public class PaymentServlet extends HttpServlet {
 		}
 	}
 
-	private void updateBookingPaid(Connection con, int bookingId, BigDecimal total) {
-		String sql = "UPDATE bookings SET total_price=?, status='PAID' WHERE booking_id=?";
+	private BookingInfo getBookingInfoNoLock(int bookingId) {
+		String sql = "SELECT booking_id, user_id, showtime_id, status FROM bookings WHERE booking_id=?";
+		try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+			ps.setInt(1, bookingId);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (!rs.next())
+					return null;
+				BookingInfo bi = new BookingInfo();
+				bi.bookingId = rs.getInt("booking_id");
+				bi.userId = rs.getInt("user_id");
+				bi.showtimeId = rs.getInt("showtime_id");
+				bi.status = rs.getString("status");
+				return bi;
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("getBookingInfoNoLock error", e);
+		}
+	}
+
+	private void updateBookingPaid(Connection con, int bookingId, BigDecimal total, BigDecimal discount) {
+		String sql = "UPDATE bookings SET total_price=?, discount_amount=?, status='PAID' WHERE booking_id=?";
 		try (PreparedStatement ps = con.prepareStatement(sql)) {
 			ps.setBigDecimal(1, total);
-			ps.setInt(2, bookingId);
+			ps.setBigDecimal(2, discount);
+			ps.setInt(3, bookingId);
 			int updated = ps.executeUpdate();
 			if (updated != 1)
 				throw new RuntimeException("updateBookingPaid failed");
@@ -240,6 +390,7 @@ public class PaymentServlet extends HttpServlet {
 	private static class BookingInfo {
 		int bookingId;
 		int userId;
+		int showtimeId;
 		String status;
 	}
 }

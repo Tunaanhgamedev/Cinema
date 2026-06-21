@@ -25,13 +25,39 @@ public class HomeServlet extends HttpServlet {
 			request.setAttribute("message", "Bạn đã đăng xuất.");
 		}
 
-		BannerDAO bannerDAO = new BannerDAO();
-		ShowtimeDAO showtimeDAO = new ShowtimeDAO();
+		// Sử dụng Cache để tối ưu tốc độ
+		Object movies = com.cinema.utils.CacheManager.get("nowShowingMovies");
+		Object comingSoon = com.cinema.utils.CacheManager.get("comingSoonMovies");
+		Object leftBanner = com.cinema.utils.CacheManager.get("leftBanner");
+		Object rightBanner = com.cinema.utils.CacheManager.get("rightBanner");
+		Object recentReviews = com.cinema.utils.CacheManager.get("recentReviews");
 
-		request.setAttribute("leftBanner", bannerDAO.getActiveBannerByPosition("LEFT"));
-		request.setAttribute("rightBanner", bannerDAO.getActiveBannerByPosition("RIGHT"));
-		
+		if (movies == null || comingSoon == null || leftBanner == null || rightBanner == null || recentReviews == null) {
+			BannerDAO bannerDAO = new BannerDAO();
+			com.cinema.dao.MovieDAO movieDAO = new com.cinema.dao.MovieDAO();
+			com.cinema.dao.ReviewDAO reviewDAO = new com.cinema.dao.ReviewDAO();
+
+			leftBanner = bannerDAO.getActiveBannerByPosition("LEFT");
+			rightBanner = bannerDAO.getActiveBannerByPosition("RIGHT");
+			movies = movieDAO.findNowShowing();
+			comingSoon = movieDAO.findComingSoon();
+			recentReviews = reviewDAO.findRecentReviews(10);
+
+			com.cinema.utils.CacheManager.put("leftBanner", leftBanner);
+			com.cinema.utils.CacheManager.put("rightBanner", rightBanner);
+			com.cinema.utils.CacheManager.put("nowShowingMovies", movies);
+			com.cinema.utils.CacheManager.put("comingSoonMovies", comingSoon);
+			com.cinema.utils.CacheManager.put("recentReviews", recentReviews);
+		}
+
+		request.setAttribute("leftBanner", leftBanner);
+		request.setAttribute("rightBanner", rightBanner);
+		request.setAttribute("nowShowingMovies", movies);
+		request.setAttribute("comingSoonMovies", comingSoon);
+		request.setAttribute("recentReviews", recentReviews);
+
 		// Lấy phim có suất chiếu ngày hôm nay
+		ShowtimeDAO showtimeDAO = new ShowtimeDAO();
 		String today = LocalDate.now().toString();
 		List<ShowtimeDAO.MovieWithShowtimes> data = showtimeDAO.getMoviesWithShowtimesByDate(today);
 		request.setAttribute("moviesToday", data);

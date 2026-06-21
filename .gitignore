@@ -1,12 +1,40 @@
-/build/
-/.settings/
-/.classpath
-/.project
-/bin/
-*.class
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.nextVal
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Log files
+*.log
+log/
+
+# Package Files #
+*.jar
 *.war
+*.nar
 *.ear
 /target/
 .DS_Store
 db.properties
-.antigravity/skills
+.antigravity/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# SmartTomcat
+.smarttomcat/
+
+# Local configs
+src/main/resources/config.properties
+src/main/resources/db.properties
+
+hs_err_pid*
+replay_pid*

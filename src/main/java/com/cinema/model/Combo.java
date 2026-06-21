@@ -6,16 +6,18 @@ public class Combo {
 	private int comboId;
 	private String name;
 	private String description;
-	private BigDecimal price; // DECIMAL(10,2) => BigDecimal
+	private BigDecimal price;
+	private String imageUrl;
 
 	public Combo() {
 	}
 
-	public Combo(int comboId, String name, String description, BigDecimal price) {
+	public Combo(int comboId, String name, String description, BigDecimal price, String imageUrl) {
 		this.comboId = comboId;
 		this.name = name;
 		this.description = description;
 		this.price = price;
+		this.imageUrl = imageUrl;
 	}
 
 	public int getComboId() {
@@ -48,5 +50,13 @@ public class Combo {
 
 	public void setPrice(BigDecimal price) {
 		this.price = price;
+	}
+
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
 	}
 }

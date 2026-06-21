@@ -23,6 +23,20 @@ log/
 db.properties
 .antigravity/
 
+# Eclipse
+.project
+.classpath
+.settings/
+
+# VSCode
+.vscode/
+
+# Build
+build/
+target/
+out/
+classes/
+
 # IntelliJ IDEA
 .idea/
 *.iml

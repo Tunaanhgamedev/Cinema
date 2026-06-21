@@ -87,7 +87,7 @@ public class BookingSeatServlet extends HttpServlet {
 		if (!showtimeId.isEmpty() && (movieId.isEmpty() || showDateRaw.isEmpty())) {
 			Integer stId = parseIntOrNull(showtimeId);
 			if (stId != null) {
-				ShowtimeDAO.ShowtimeView st = showtimeDAO.findById(stId);
+				ShowtimeDAO.ShowtimeView st = showtimeDAO.findShowtimeViewById(stId);
 				if (st != null) {
 					movieId = String.valueOf(st.getMovieId());
 					showDateRaw = new java.text.SimpleDateFormat("yyyy-MM-dd").format(st.getStartTime());
@@ -163,7 +163,6 @@ public class BookingSeatServlet extends HttpServlet {
 			if (!showDate.isEmpty()) {
 				req.setAttribute("showtimes", showtimeDAO.findByMovieAndDate(movieIdInt, showDate));
 			}
-		}
 		}
 
 		// ===== bookedSeats + seatList theo showtime =====

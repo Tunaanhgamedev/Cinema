@@ -117,7 +117,6 @@ public class ShowtimeDAO {
 	}
 
 	// USER: lấy suất chiếu theo movie + ngày (yyyy-MM-dd)
-	// USER: lấy suất chiếu theo movie + ngày (yyyy-MM-dd)
 	public List<ShowtimeView> findByMovieAndDate(int movieId, String showDate) {
 		String sql = """
 				    SELECT s.showtime_id, s.movie_id, s.room_id, s.start_time, s.end_time, s.price,
@@ -135,9 +134,7 @@ public class ShowtimeDAO {
 		try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
 			ps.setInt(1, movieId);
-
-			// ✅ dùng java.sql.Date để MySQL match chắc chắn
-			java.sql.Date d = java.sql.Date.valueOf(showDate); // showDate phải yyyy-MM-dd
+			java.sql.Date d = java.sql.Date.valueOf(showDate);
 			ps.setDate(2, d);
 
 			try (ResultSet rs = ps.executeQuery()) {
@@ -163,7 +160,7 @@ public class ShowtimeDAO {
 	}
 
 	public int findRoomIdByShowtime(int showtimeId) {
-		String sql = "SELECT room_id FROM showtime WHERE showtime_id = ?";
+		String sql = "SELECT room_id FROM showtimes WHERE showtime_id = ?";
 		try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 			ps.setInt(1, showtimeId);
 			ResultSet rs = ps.executeQuery();
@@ -175,4 +172,94 @@ public class ShowtimeDAO {
 		return 0;
 	}
 
+	public ShowtimeView findById(int id) {
+		String sql = """
+				    SELECT s.showtime_id, s.movie_id, s.room_id, s.start_time, s.end_time, s.price,
+				           m.title AS movie_name, r.room_name AS room_name
+				    FROM showtimes s
+				    JOIN movies m ON s.movie_id = m.movie_id
+				    JOIN rooms  r ON s.room_id  = r.room_id
+				    WHERE s.showtime_id = ?
+				""";
+		try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+			ps.setInt(1, id);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) {
+					ShowtimeView st = new ShowtimeView();
+					st.setShowtimeId(rs.getInt("showtime_id"));
+					st.setMovieId(rs.getInt("movie_id"));
+					st.setRoomId(rs.getInt("room_id"));
+					st.setStartTime(rs.getTimestamp("start_time"));
+					st.setEndTime(rs.getTimestamp("end_time"));
+					st.setPrice(rs.getBigDecimal("price"));
+					st.setMovieName(rs.getString("movie_name"));
+					st.setRoomName(rs.getString("room_name"));
+					return st;
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public List<MovieWithShowtimes> getMoviesWithShowtimesByDate(String showDate) {
+		String sql = """
+				    SELECT m.movie_id, m.title, m.poster, m.duration, m.rating,
+				           s.showtime_id, s.start_time, s.price, r.room_name
+				    FROM movies m
+				    JOIN showtimes s ON m.movie_id = s.movie_id
+				    JOIN rooms r ON s.room_id = r.room_id
+				    WHERE DATE(s.start_time) = ?
+				    ORDER BY m.movie_id, s.start_time ASC
+				""";
+
+		List<MovieWithShowtimes> result = new ArrayList<>();
+		try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+			ps.setDate(1, java.sql.Date.valueOf(showDate));
+
+			try (ResultSet rs = ps.executeQuery()) {
+				int lastMovieId = -1;
+				MovieWithShowtimes currentMovie = null;
+
+				while (rs.next()) {
+					int mid = rs.getInt("movie_id");
+					if (mid != lastMovieId) {
+						currentMovie = new MovieWithShowtimes();
+						currentMovie.setMovieId(mid);
+						currentMovie.setTitle(rs.getString("title"));
+						currentMovie.setPoster(rs.getString("poster"));
+						currentMovie.setDuration(rs.getInt("duration"));
+						currentMovie.setRating(rs.getDouble("rating"));
+						currentMovie.setShowtimes(new ArrayList<>());
+						result.add(currentMovie);
+						lastMovieId = mid;
+					}
+
+					ShowtimeView st = new ShowtimeView();
+					st.setShowtimeId(rs.getInt("showtime_id"));
+					st.setStartTime(rs.getTimestamp("start_time"));
+					st.setPrice(rs.getBigDecimal("price"));
+					st.setRoomName(rs.getString("room_name"));
+					currentMovie.getShowtimes().add(st);
+				}
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException("getMoviesWithShowtimesByDate error", e);
+		}
+		return result;
+	}
+
+	public static class MovieWithShowtimes extends com.cinema.model.Movie {
+		private List<ShowtimeView> showtimes;
+
+		public List<ShowtimeView> getShowtimes() {
+			return showtimes;
+		}
+
+		public void setShowtimes(List<ShowtimeView> showtimes) {
+			this.showtimes = showtimes;
+		}
+	}
 }

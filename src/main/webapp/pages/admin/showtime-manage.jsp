@@ -1,216 +1,215 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="java.util.*" %>
-<%@ page import="java.sql.Timestamp" %>
-<%@ page import="com.cinema.dao.ShowtimeDAO.ShowtimeView" %>
-
-<%!
-  public static String esc(String s){
-    if (s == null) return "";
-    return s.replace("&","&amp;")
-            .replace("<","&lt;")
-            .replace(">","&gt;")
-            .replace("\"","&quot;")
-            .replace("'","&#39;");
-  }
-
-  // Timestamp -> yyyy-MM-ddTHH:mm cho input datetime-local
-  public static String toDateTimeLocal(Timestamp ts){
-    if (ts == null) return "";
-    String s = ts.toString(); // yyyy-MM-dd HH:mm:ss...
-    return s.substring(0,16).replace(" ", "T"); // yyyy-MM-ddTHH:mm
-  }
-%>
-
+<%@ taglib uri="jakarta.tags.core" prefix="c" %>
+<%@ taglib uri="jakarta.tags.fmt" prefix="fmt" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8"/>
-  <title>Admin - Quản lí Suất chiếu</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body{ background: linear-gradient(180deg,#2e2a44 0%,#1f1b2e 100%); color:#e5e7eb; min-height:100vh; }
-    .cardx{ background: rgba(46,42,68,.85); border:1px solid rgba(255,255,255,.12); border-radius:16px; }
-    .btnx{ border-radius:12px; font-weight:800; }
-    .tbl th{ background: rgba(124,58,237,.25); color:#fff; }
-    .tbl td,.tbl th{ border-color: rgba(255,255,255,.12) !important; vertical-align: middle; }
-    input{ background: rgba(31,27,46,.9) !important; color:#e5e7eb !important; border:1px solid rgba(255,255,255,.15) !important; }
-    .muted{ color: rgba(229,231,235,.75); font-size: 13px; }
-  </style>
+    <meta charset="UTF-8">
+    <title>Quản lý Lịch chiếu | Admin Cinema</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+<body class="bg-[#0f172a] text-slate-200">
 
-<body class="p-4">
-<div class="container">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3 class="m-0">ADMIN • Quản lí Suất chiếu</h3>
-    <a class="btn btn-outline-light btnx" href="<%=request.getContextPath()%>/pages/admin/dashboard.jsp">Về Dashboard</a>
-  </div>
+<jsp:include page="/common/admin-sidebar.jsp">
+    <jsp:param name="activeTab" value="showtimes" />
+</jsp:include>
 
-  <%
-    String error = (String) request.getAttribute("error");
-    List<ShowtimeView> showtimeList = (List<ShowtimeView>) request.getAttribute("showtimeList");
-    if (showtimeList == null) showtimeList = new ArrayList<>();
-  %>
-
-  <% if (error != null) { %>
-    <div class="alert alert-danger"><%= error %></div>
-  <% } %>
-
-  <div class="row g-3">
-    <!-- Add -->
-    <div class="col-lg-4">
-      <div class="cardx p-3">
-        <h5 class="fw-bold">Thêm suất chiếu</h5>
-
-        <form action="<%=request.getContextPath()%>/admin/showtimes" method="post">
-          <input type="hidden" name="action" value="add"/>
-
-          <div class="mb-2">
-            <label class="form-label">ID Phim</label>
-            <input class="form-control" name="movieId" type="number" min="1" required/>
-          </div>
-
-          <div class="mb-2">
-            <label class="form-label">ID Phòng</label>
-            <input class="form-control" name="roomId" type="number" min="1" required/>
-          </div>
-
-          <div class="mb-2">
-            <label class="form-label">Bắt đầu</label>
-            <input class="form-control" name="startTime" type="datetime-local" required/>
-          </div>
-
-          <div class="mb-2">
-            <label class="form-label">Kết thúc</label>
-            <input class="form-control" name="endTime" type="datetime-local" required/>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Giá tiền</label>
-            <input class="form-control" name="price" type="number" min="0" step="0.01" value="0.00" required/>
-          </div>
-
-          <button class="btn btn-primary btnx w-100" type="submit">Thêm</button>
-        </form>
-      </div>
+<div class="main-content min-h-screen">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
+        <div>
+            <h1 class="text-3xl font-black text-white tracking-tight">Điều phối Lịch chiếu</h1>
+            <p class="text-slate-400 mt-1">Sắp xếp suất chiếu, quản lý phòng và giá vé cơ bản.</p>
+        </div>
+        <button class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 px-8 rounded-2xl flex items-center gap-2 transition-all shadow-xl shadow-indigo-600/20 group"
+                data-bs-toggle="modal" data-bs-target="#showtimeModal" onclick="prepareAdd()">
+            <i class="fas fa-calendar-plus group-hover:scale-110 transition-transform"></i>
+            <span>Tạo Suất Chiếu Mới</span>
+        </button>
     </div>
 
-    <!-- List + Edit -->
-    <div class="col-lg-8">
-      <div class="cardx p-3">
-        <h5 class="fw-bold">Danh sách suất chiếu</h5>
-
-        <div class="table-responsive">
-          <table class="table table-dark table-hover tbl">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Movie</th>
-                <th>Room</th>
-                <th>Start</th>
-                <th>End</th>
-                <th>Price</th>
-                <th style="width:220px;">Thao tác</th>
-              </tr>
-            </thead>
-
-            <tbody>
-            <% if (showtimeList.isEmpty()) { %>
-              <tr><td colspan="7" class="text-center text-white-50">Chưa có suất chiếu</td></tr>
-            <% } else {
-                 for (ShowtimeView s : showtimeList) {
-                   int id = s.getShowtimeId();
-                   String startLocal = toDateTimeLocal(s.getStartTime());
-                   String endLocal = toDateTimeLocal(s.getEndTime());
-                   String movieText = (s.getMovieName() == null ? ("Movie#" + s.getMovieId()) : s.getMovieName()) + " (ID " + s.getMovieId() + ")";
-                   String roomText = (s.getRoomName() == null ? ("Room#" + s.getRoomId()) : s.getRoomName()) + " (ID " + s.getRoomId() + ")";
-            %>
-              <tr>
-                <td><%= id %></td>
-                <td><%= esc(movieText) %></td>
-                <td><%= esc(roomText) %></td>
-                <td><%= esc(startLocal.replace("T"," ")) %></td>
-                <td><%= esc(endLocal.replace("T"," ")) %></td>
-                <td><%= s.getPrice() %></td>
-
-                <td>
-                  <!-- hidden: JS lấy dữ liệu để fill form sửa -->
-                  <input type="hidden" id="m_<%=id%>" value="<%= s.getMovieId() %>"/>
-                  <input type="hidden" id="r_<%=id%>" value="<%= s.getRoomId() %>"/>
-                  <input type="hidden" id="st_<%=id%>" value="<%= esc(startLocal) %>"/>
-                  <input type="hidden" id="et_<%=id%>" value="<%= esc(endLocal) %>"/>
-                  <input type="hidden" id="p_<%=id%>" value="<%= s.getPrice() %>"/>
-
-                  <button type="button" class="btn btn-warning btnx" onclick="fillEdit(<%=id%>)">Sửa</button>
-
-                  <form class="d-inline" action="<%=request.getContextPath()%>/admin/showtimes" method="post"
-                        onsubmit="return confirm('Xóa suất chiếu này?');">
-                    <input type="hidden" name="action" value="delete"/>
-                    <input type="hidden" name="showtimeId" value="<%= id %>"/>
-                    <button class="btn btn-danger btnx" type="submit">Xóa</button>
-                  </form>
-                </td>
-              </tr>
-            <% } } %>
-            </tbody>
-          </table>
+    <!-- Data Table Card -->
+    <div class="glass-effect rounded-[2.5rem] overflow-hidden border border-slate-800 shadow-2xl">
+        <div class="p-8 border-b border-slate-800 flex items-center justify-between bg-slate-800/20">
+            <h3 class="font-bold text-white flex items-center gap-2">
+                <i class="fas fa-list-ul text-indigo-500"></i>
+                Danh sách suất chiếu hệ thống
+            </h3>
         </div>
-
-        <!-- Edit form -->
-        <div class="cardx p-3 mt-3">
-          <h5 class="fw-bold">Sửa suất chiếu</h5>
-
-          <form action="<%=request.getContextPath()%>/admin/showtimes" method="post">
-            <input type="hidden" name="action" value="update"/>
-
-            <div class="row g-2">
-              <div class="col-md-2">
-                <label class="form-label">ID Xuất Chiếu</label>
-                <input id="editId" class="form-control" name="showtimeId" readonly/>
-              </div>
-              <div class="col-md-2">
-                <label class="form-label">ID Phim</label>
-                <input id="editMovieId" class="form-control" name="movieId" type="number" min="1" required/>
-              </div>
-              <div class="col-md-2">
-                <label class="form-label">ID Phòng</label>
-                <input id="editRoomId" class="form-control" name="roomId" type="number" min="1" required/>
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">Bắt đầu</label>
-                <input id="editStart" class="form-control" name="startTime" type="datetime-local" required/>
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">Kết thúc</label>
-                <input id="editEnd" class="form-control" name="endTime" type="datetime-local" required/>
-              </div>
-            </div>
-
-            <div class="mt-2">
-              <label class="form-label">Giá tiền</label>
-              <input id="editPrice" class="form-control" name="price" type="number" min="0" step="0.01" required/>
-            </div>
-
-            <button class="btn btn-success btnx w-100 mt-3" type="submit">Cập nhật</button>
-          </form>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-900/50">
+                        <th class="p-6 text-[11px] font-black text-slate-500 uppercase tracking-widest">Phim & Thời gian</th>
+                        <th class="p-6 text-[11px] font-black text-slate-500 uppercase tracking-widest text-center">Phòng</th>
+                        <th class="p-6 text-[11px] font-black text-slate-500 uppercase tracking-widest text-center">Giá vé gốc</th>
+                        <th class="p-6 text-[11px] font-black text-slate-500 uppercase tracking-widest text-center">Trạng thái</th>
+                        <th class="p-6 text-[11px] font-black text-slate-500 uppercase tracking-widest text-right">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/50">
+                    <c:forEach var="s" items="${showtimeList}">
+                        <tr class="hover:bg-slate-800/30 transition-all group">
+                            <td class="p-6">
+                                <div class="flex items-center gap-5">
+                                    <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 flex flex-col items-center justify-center text-indigo-400 border border-indigo-500/20">
+                                        <span class="text-[10px] font-black leading-none uppercase"><fmt:formatDate value="${s.startTime}" pattern="MMM" /></span>
+                                        <span class="text-lg font-black leading-none mt-1"><fmt:formatDate value="${s.startTime}" pattern="dd" /></span>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-white font-bold text-base group-hover:text-indigo-400 transition-colors">${s.movieTitle}</h4>
+                                        <p class="text-slate-500 text-xs mt-1 font-medium">
+                                            <i class="far fa-clock mr-1 text-indigo-500/50"></i>
+                                            <fmt:formatDate value="${s.startTime}" pattern="HH:mm" /> - <fmt:formatDate value="${s.endTime}" pattern="HH:mm" />
+                                        </p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-6 text-center">
+                                <span class="bg-slate-800 text-slate-300 text-[11px] font-black px-4 py-2 rounded-xl border border-slate-700">
+                                    ${s.roomName}
+                                </span>
+                            </td>
+                            <td class="p-6 text-center">
+                                <span class="text-emerald-400 font-black text-sm tracking-tight">
+                                    <fmt:formatNumber value="${s.basePrice}" type="currency" currencySymbol="₫" />
+                                </span>
+                            </td>
+                            <td class="p-6 text-center">
+                                <span class="bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase px-3 py-1.5 rounded-full border border-indigo-500/20">
+                                    Công chiếu
+                                </span>
+                            </td>
+                            <td class="p-6">
+                                <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                                    <div class="hidden" id="data-${s.showtimeId}">
+                                        <span class="d-movie">${s.movieId}</span>
+                                        <span class="d-room">${s.roomId}</span>
+                                        <span class="d-start"><fmt:formatDate value="${s.startTime}" pattern="yyyy-MM-dd'T'HH:mm" /></span>
+                                        <span class="d-end"><fmt:formatDate value="${s.endTime}" pattern="yyyy-MM-dd'T'HH:mm" /></span>
+                                        <span class="d-price">${s.basePrice}</span>
+                                    </div>
+                                    <button class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500 hover:text-white transition-all flex items-center justify-center border border-indigo-500/20"
+                                            onclick="prepareEdit('${s.showtimeId}')">
+                                        <i class="fas fa-edit text-xs"></i>
+                                    </button>
+                                    <form action="${pageContext.request.contextPath}/admin/showtimes" method="POST" class="inline" onsubmit="return confirm('Xóa suất chiếu này?')">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="id" value="${s.showtimeId}">
+                                        <button class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center border border-rose-500/20">
+                                            <i class="fas fa-trash text-xs"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    </c:forEach>
+                </tbody>
+            </table>
         </div>
-
-      </div>
     </div>
-  </div>
 </div>
 
+<!-- Showtime Modal -->
+<div class="modal fade" id="showtimeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <form action="${pageContext.request.contextPath}/admin/showtimes" method="POST" class="modal-content !bg-[#1e293b] !rounded-[2.5rem] border-none shadow-2xl overflow-hidden">
+            <input type="hidden" name="action" id="modalAction" value="add">
+            <input type="hidden" name="showtimeId" id="modalShowtimeId">
+            
+            <div class="bg-indigo-600 p-10 text-white relative">
+                <div class="absolute top-8 right-8">
+                    <button type="button" class="w-10 h-10 rounded-full bg-black/20 hover:bg-black/40 flex items-center justify-center text-white transition-colors" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <h5 class="text-3xl font-black tracking-tight" id="modalTitle">Thiết lập Suất chiếu</h5>
+                <p class="text-indigo-200 mt-2 font-medium opacity-80">Cấu hình thời gian và giá vé cho phim</p>
+            </div>
+
+            <div class="modal-body p-10">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <label class="block text-[11px] font-black text-slate-500 uppercase tracking-widest mb-3">Chọn phim công chiếu</label>
+                        <select name="movieId" id="inputMovie" class="w-full bg-slate-900 border-2 border-slate-800 rounded-2xl px-5 py-4 text-white focus:border-indigo-600 focus:outline-none transition-all appearance-none cursor-pointer" required>
+                            <option value="">-- Chọn phim --</option>
+                            <c:forEach var="m" items="${movieList}">
+                                <option value="${m.movieId}">${m.title}</option>
+                            </c:forEach>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black text-slate-500 uppercase tracking-widest mb-3">Phòng chiếu</label>
+                        <select name="roomId" id="inputRoom" class="w-full bg-slate-900 border-2 border-slate-800 rounded-2xl px-5 py-4 text-white focus:border-indigo-600 focus:outline-none transition-all appearance-none cursor-pointer" required>
+                            <option value="">-- Chọn phòng --</option>
+                            <c:forEach var="r" items="${roomList}">
+                                <option value="${r.roomId}">${r.roomName} (${r.seatCount} ghế)</option>
+                            </c:forEach>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black text-slate-500 uppercase tracking-widest mb-3">Thời gian bắt đầu</label>
+                        <input type="datetime-local" name="startTime" id="inputStart" 
+                               class="w-full bg-slate-900 border-2 border-slate-800 rounded-2xl px-5 py-4 text-white focus:border-indigo-600 focus:outline-none transition-all" required>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black text-slate-500 uppercase tracking-widest mb-3">Thời gian kết thúc (Dự kiến)</label>
+                        <input type="datetime-local" name="endTime" id="inputEnd" 
+                               class="w-full bg-slate-900 border-2 border-slate-800 rounded-2xl px-5 py-4 text-white focus:border-indigo-600 focus:outline-none transition-all" required>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-[11px] font-black text-slate-500 uppercase tracking-widest mb-3">Giá vé cơ bản (VNĐ)</label>
+                        <div class="relative group">
+                            <div class="absolute left-5 top-1/2 -translate-y-1/2 text-emerald-500 font-bold group-focus-within:text-indigo-500">₫</div>
+                            <input type="number" name="basePrice" id="inputPrice" 
+                                   class="w-full bg-slate-900 border-2 border-slate-800 rounded-2xl pl-10 pr-5 py-4 text-white focus:border-indigo-600 focus:outline-none transition-all font-bold text-lg" 
+                                   placeholder="Ví dụ: 80000" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-none p-10 pt-0 flex gap-4">
+                <button type="button" class="flex-1 py-4 px-6 rounded-2xl text-slate-400 font-bold hover:bg-slate-700/50 transition-all uppercase tracking-widest text-[11px]" data-bs-dismiss="modal">Hủy bỏ</button>
+                <button type="submit" class="flex-[2] py-4 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black transition-all shadow-2xl shadow-indigo-600/30 uppercase tracking-widest text-[11px]">
+                    Xác nhận thiết lập
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-  function fillEdit(id){
-    document.getElementById('editId').value = id;
-    document.getElementById('editMovieId').value = document.getElementById('m_' + id).value;
-    document.getElementById('editRoomId').value = document.getElementById('r_' + id).value;
-    document.getElementById('editStart').value = document.getElementById('st_' + id).value;
-    document.getElementById('editEnd').value = document.getElementById('et_' + id).value;
-    document.getElementById('editPrice').value = document.getElementById('p_' + id).value;
+    function prepareAdd() {
+        document.getElementById('modalTitle').innerText = 'Thiết lập Suất chiếu';
+        document.getElementById('modalAction').value = 'add';
+        document.getElementById('modalShowtimeId').value = '';
+        document.getElementById('inputMovie').value = '';
+        document.getElementById('inputRoom').value = '';
+        document.getElementById('inputStart').value = '';
+        document.getElementById('inputEnd').value = '';
+        document.getElementById('inputPrice').value = '';
+    }
 
-    window.scrollTo(0, document.body.scrollHeight);
-  }
+    function prepareEdit(id) {
+        const container = document.getElementById('data-' + id);
+        
+        document.getElementById('modalTitle').innerText = 'Chỉnh sửa Suất chiếu';
+        document.getElementById('modalAction').value = 'update';
+        document.getElementById('modalShowtimeId').value = id;
+        
+        document.getElementById('inputMovie').value = container.querySelector('.d-movie').innerText;
+        document.getElementById('inputRoom').value = container.querySelector('.d-room').innerText;
+        document.getElementById('inputStart').value = container.querySelector('.d-start').innerText;
+        document.getElementById('inputEnd').value = container.querySelector('.d-end').innerText;
+        document.getElementById('inputPrice').value = container.querySelector('.d-price').innerText;
+        
+        var myModal = new bootstrap.Modal(document.getElementById('showtimeModal'));
+        myModal.show();
+    }
 </script>
-
 </body>
 </html>

@@ -5,11 +5,11 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import com.cinema.dao.ShowtimeDAO;
 import com.cinema.model.Showtime;
@@ -19,10 +19,14 @@ public class AdminShowtimeServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	private final ShowtimeDAO showtimeDAO = new ShowtimeDAO();
+	private final com.cinema.dao.MovieDAO movieDAO = new com.cinema.dao.MovieDAO();
+	private final com.cinema.dao.RoomDAO roomDAO = new com.cinema.dao.RoomDAO();
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		req.setAttribute("showtimeList", showtimeDAO.getAll());
+		req.setAttribute("movieList", movieDAO.findAll());
+		req.setAttribute("roomList", roomDAO.findAll());
 		req.getRequestDispatcher("/pages/admin/showtime-manage.jsp").forward(req, resp);
 	}
 

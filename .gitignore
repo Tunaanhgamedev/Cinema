@@ -8,31 +8,5 @@
 *.ear
 /target/
 .DS_Store
-
-# IntelliJ IDEA
-.idea/
-*.iml
-
-# Build
-target/
-out/
-
-# Logs
-*.log
-
-# OS
-.DS_Store
-Thumbs.db
-
-# VSCode
-.vscode/
-
-.idea/
-*.iml
-
-.antigravity/
-.smarttomcat/
-
-# Local configuration
-src/main/resources/config.properties
-src/main/resources/db.properties
+db.properties
+.antigravity/skills

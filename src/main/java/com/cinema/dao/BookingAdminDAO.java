@@ -408,6 +408,32 @@ public class BookingAdminDAO {
 		}
 	}
 
+	public int countTotalBookings() {
+		String sql = "SELECT COUNT(*) FROM bookings";
+		try (Connection con = DBConnection.getConnection();
+				PreparedStatement ps = con.prepareStatement(sql);
+				ResultSet rs = ps.executeQuery()) {
+			if (rs.next())
+				return rs.getInt(1);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	public BigDecimal calculateTotalRevenue() {
+		String sql = "SELECT SUM(total_price) FROM bookings WHERE status = 'PAID'";
+		try (Connection con = DBConnection.getConnection();
+				PreparedStatement ps = con.prepareStatement(sql);
+				ResultSet rs = ps.executeQuery()) {
+			if (rs.next())
+				return nvl(rs.getBigDecimal(1));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return BigDecimal.ZERO;
+	}
+
 	private static BigDecimal nvl(BigDecimal v) {
 		return v == null ? BigDecimal.ZERO : v;
 	}

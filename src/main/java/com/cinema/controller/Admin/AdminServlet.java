@@ -2,11 +2,11 @@ package com.cinema.controller.Admin;
 
 import java.io.IOException;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Servlet implementation class AdminServlet
@@ -17,6 +17,12 @@ public class AdminServlet extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		com.cinema.dao.MovieDAO movieDAO = new com.cinema.dao.MovieDAO();
+		com.cinema.dao.BookingAdminDAO bookingDAO = new com.cinema.dao.BookingAdminDAO();
+
+		req.setAttribute("totalMovies", movieDAO.countTotalMovies());
+		req.setAttribute("totalBookings", bookingDAO.countTotalBookings());
+		req.setAttribute("totalRevenue", bookingDAO.calculateTotalRevenue());
 
 		req.getRequestDispatcher("/pages/admin/dashboard.jsp").forward(req, resp);
 	}

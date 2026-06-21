@@ -53,9 +53,92 @@
   </div>
 
   <div class="payment-container">
-
-    <!-- OVERVIEW -->
-    <section class="payment-overview">
+    <% if ("1".equals(request.getParameter("success"))) { %>
+      <!-- SUCCESS TICKET VIEW -->
+      <section class="success-ticket-section">
+        <div class="ticket-wrapper">
+            <div class="ticket-card">
+                <div class="ticket-left">
+                    <div class="ticket-header">
+                        <div class="brand">BOBIXI CINEMA</div>
+                        <div class="ticket-type">VÉ XEM PHIM</div>
+                    </div>
+                    <div class="ticket-body">
+                        <div class="movie-title">Phim: ${seatList[0].movieName != null ? seatList[0].movieName : "Phim đang đặt"}</div>
+                        <div class="ticket-info-grid">
+                            <div class="info-item">
+                                <div class="info-label">NGÀY</div>
+                                <div class="info-value">Hôm nay</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">SUẤT CHIẾU</div>
+                                <div class="info-value">Theo lịch</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">PHÒNG</div>
+                                <div class="info-value"><%= (seatList != null && !seatList.isEmpty()) ? seatList.get(0).getRoomId() : "1" %></div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">GHẾ</div>
+                                <div class="info-value">
+                                    <% if (seatList != null) { 
+                                        for(int i=0; i<seatList.size(); i++) {
+                                            out.print(seatList.get(i).getSeatRow() + seatList.get(i).getSeatNumber() + (i < seatList.size()-1 ? ", " : ""));
+                                        }
+                                    } %>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ticket-footer">
+                            <div class="booking-id">Mã vé: #<%= bookingIdStr %></div>
+                            <div class="expiry-note">Hạn dùng: Đến khi suất chiếu kết thúc</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ticket-right">
+                    <div class="qr-container">
+                        <img src="https://chart.googleapis.com/chart?chs=180x180&cht=qr&chl=BOBIXI-<%= bookingIdStr %>-SUCCESS" alt="QR Code">
+                        <div class="qr-label">QUÉT MÃ VÀO RẠP</div>
+                    </div>
+                    <div class="cut-line"></div>
+                </div>
+            </div>
+            <div class="ticket-actions mt-5">
+                <a href="<%= ctx %>/home" class="btn-confirm" style="text-decoration:none; display:inline-block; text-align:center;">VỀ TRANG CHỦ</a>
+                <a href="<%= ctx %>/profile" class="btn-outline" style="text-decoration:none; display:inline-block; text-align:center;">XEM VÉ ĐÃ MUA</a>
+            </div>
+        </div>
+      </section>
+      
+      <style>
+          .ticket-wrapper { max-width: 800px; margin: 40px auto; }
+          .ticket-card { display: flex; background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.2); min-height: 350px; position: relative; }
+          .ticket-left { flex: 1; padding: 40px; border-right: 2px dashed #eee; background: #fff; }
+          .ticket-right { width: 240px; background: #0f172a; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; position: relative; }
+          .ticket-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+          .brand { font-weight: 900; color: #e71a0f; font-size: 1.2rem; }
+          .ticket-type { background: #0f172a; color: #fff; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; }
+          .movie-title { font-size: 2rem; font-weight: 900; color: #0f172a; margin-bottom: 25px; line-height: 1.1; }
+          .ticket-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+          .info-label { font-size: 0.7rem; color: #94a3b8; font-weight: 800; }
+          .info-value { font-size: 1.1rem; color: #0f172a; font-weight: 800; }
+          .ticket-footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
+          .booking-id { font-weight: 900; color: #64748b; }
+          .expiry-note { font-size: 0.75rem; color: #ef4444; font-weight: 700; font-style: italic; }
+          .qr-container { text-align: center; }
+          .qr-container img { background: #fff; padding: 10px; border-radius: 12px; margin-bottom: 15px; width: 100%; }
+          .qr-label { font-weight: 900; font-size: 0.8rem; letter-spacing: 2px; opacity: 0.8; }
+          .cut-line { position: absolute; left: -10px; top: 0; bottom: 0; width: 20px; background-image: radial-gradient(#f5f5f5 5px, transparent 5px); background-size: 20px 20px; }
+          .mt-5 { margin-top: 30px; }
+          @media (max-width: 768px) {
+              .ticket-card { flex-direction: column; }
+              .ticket-right { width: 100%; border-left: none; border-top: 2px dashed #eee; }
+              .cut-line { display: none; }
+          }
+      </style>
+    <% } else { %>
+      <!-- OVERVIEW (Original Payment Content) -->
+      <section class="payment-overview">
       <h2>Thanh toán nhanh – gọn – an toàn</h2>
       <p class="overview-text">
         Bạn vui lòng kiểm tra lại ghế, combo và tổng tiền trước khi xác nhận.
@@ -196,61 +279,81 @@
       </div>
     </section>
 
-    <!-- PAYMENT METHODS GRID (giống mẫu) -->
+    <!-- PAYMENT METHODS GRID -->
     <section class="payment-methods-section">
-      <h2>Các phương thức thanh toán</h2>
+      <h2>Phương thức thanh toán</h2>
 
       <div class="payment-grid">
-        <div class="payment-card">
+        <div class="payment-card method-card" onclick="selectMethod('ATM', this)">
           <div class="card-header">
             <div class="fake-img">🏦</div>
-            <h3>Thẻ ATM nội địa</h3>
+            <h3>Thẻ ATM / Internet Banking</h3>
           </div>
           <div class="card-body">
-            <p class="card-description">
-              Thanh toán qua cổng VNPay với nhiều ngân hàng nội địa hỗ trợ.
-            </p>
+            <p class="card-description">Thanh toán qua cổng nội địa an toàn.</p>
+          </div>
+        </div>
+
+        <div class="payment-card method-card active" onclick="selectMethod('QR', this)" style="border: 2px solid #e71a0f;">
+          <div class="card-header" style="background: linear-gradient(135deg, #fff5f5 0%, #ffe3e3 100%);">
+            <div class="fake-img" style="background: #fff; border: 1px solid #ffc9c9;">📸</div>
+            <h3>Chuyển khoản QR</h3>
+          </div>
+          <div class="card-body">
+            <p class="card-description">Quét mã VietQR bằng ứng dụng Ngân hàng.</p>
             <div class="features">
-              <div class="feature-item"><span class="dot ok"></span><span>Bảo mật OTP</span></div>
-              <div class="feature-item"><span class="dot ok"></span><span>Xác nhận nhanh</span></div>
-              <div class="feature-item"><span class="dot ok"></span><span>Hạn chế rủi ro</span></div>
+               <div class="feature-item"><span class="dot ok"></span><span>Xác thực tức thì</span></div>
+               <div class="feature-item"><span class="dot ok"></span><span>Không phí giao dịch</span></div>
             </div>
           </div>
         </div>
 
-        <div class="payment-card">
-          <div class="card-header">
-            <div class="fake-img">📱</div>
-            <h3>Ví điện tử</h3>
-          </div>
-          <div class="card-body">
-            <p class="card-description">
-              Thanh toán nhanh với các ví điện tử phổ biến (MoMo, ZaloPay, VNPay…).
-            </p>
-            <div class="features">
-              <div class="feature-item"><span class="dot ok"></span><span>Thanh toán 1 chạm</span></div>
-              <div class="feature-item"><span class="dot ok"></span><span>Nhiều ưu đãi</span></div>
-              <div class="feature-item"><span class="dot ok"></span><span>Hoàn tiền tuỳ chính sách</span></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="payment-card">
+        <div class="payment-card method-card" onclick="selectMethod('CASH', this)">
           <div class="card-header">
             <div class="fake-img">🎫</div>
             <h3>Thanh toán tại quầy</h3>
           </div>
           <div class="card-body">
-            <p class="card-description">
-              Đặt vé online và thanh toán trực tiếp tại rạp trong thời gian giữ chỗ.
-            </p>
-            <div class="features">
-              <div class="feature-item"><span class="dot ok"></span><span>Linh hoạt</span></div>
-              <div class="feature-item"><span class="dot ok"></span><span>Nhận vé nhanh</span></div>
-              <div class="feature-item"><span class="dot ok"></span><span>Hỗ trợ tại rạp</span></div>
-            </div>
+            <p class="card-description">Nhận vé và trả tiền trực tiếp tại rạp.</p>
           </div>
         </div>
+      </div>
+
+      <!-- QR Display Area (Show when method is QR) -->
+      <div id="qrDisplay" class="mt-5 text-center" style="display: block;">
+          <div class="glass-card d-inline-block p-4" style="background: #fff; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+              <h4 class="text-dark fw-bold mb-3">QUÉT MÃ ĐỂ THANH TOÁN</h4>
+              <img id="vietqrImg" src="https://img.vietqr.io/image/MB-0348259461-compact.png?amount=<%= grandTotal %>&addInfo=BOBIXI%20<%= bookingIdStr %>&accountName=TRAN%20VAN%20ANH" 
+                   alt="VietQR" style="width: 300px; border-radius: 10px;">
+              <div class="mt-3 text-muted small">Nội dung: <b>BOBIXI <%= bookingIdStr %></b></div>
+          </div>
+      </div>
+
+      <script>
+          function selectMethod(method, el) {
+              document.querySelectorAll('.method-card').forEach(c => {
+                  c.style.border = 'none';
+                  c.classList.remove('active');
+              });
+              el.style.border = '2px solid #e71a0f';
+              el.classList.add('active');
+              document.getElementById('selectedMethod').value = method;
+              
+              const qrDisplay = document.getElementById('qrDisplay');
+              if (method === 'QR') {
+                  qrDisplay.style.display = 'block';
+              } else {
+                  qrDisplay.style.display = 'none';
+              }
+          }
+      </script>
+
+      <div class="cta-row mt-5">
+        <form action="<%= ctx %>/booking/payment/confirm" method="post" class="cta-form" style="max-width: 500px; margin: 0 auto;">
+          <input type="hidden" name="bookingId" value="<%= bookingIdStr %>">
+          <input type="hidden" name="method" id="selectedMethod" value="QR">
+          <button type="submit" class="btn-confirm" style="font-size: 1.2rem; padding: 20px;">XÁC NHẬN ĐÃ THANH TOÁN</button>
+        </form>
       </div>
     </section>
 

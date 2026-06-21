@@ -3,12 +3,12 @@ package com.cinema.controller.Account;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import com.cinema.dao.UserDAO;
 import com.cinema.model.User;
@@ -76,7 +76,11 @@ public class LoginServlet extends HttpServlet {
 		if (isSafeReturnUrl(returnUrl)) {
 			resp.sendRedirect(req.getContextPath() + returnUrl);
 		} else {
-			resp.sendRedirect(req.getContextPath() + "/home");
+			if ("ADMIN".equals(u.getRole())) {
+				resp.sendRedirect(req.getContextPath() + "/admin");
+			} else {
+				resp.sendRedirect(req.getContextPath() + "/home");
+			}
 		}
 	}
 

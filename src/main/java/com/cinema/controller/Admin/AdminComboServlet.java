@@ -3,11 +3,11 @@ package com.cinema.controller.Admin;
 import java.io.IOException;
 import java.math.BigDecimal;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import com.cinema.dao.impl.ComboDAOImpl;
 
@@ -47,9 +47,6 @@ public class AdminComboServlet extends HttpServlet {
 				String description = req.getParameter("description");
 				BigDecimal price = new BigDecimal(req.getParameter("price"));
 				comboDAO.updateCombo(comboId, name, description, price);
-
-				comboDAO.updateCombo(comboId, name, description, price);
-
 			} else if ("delete".equals(action)) {
 				int comboId = Integer.parseInt(req.getParameter("comboId"));
 				comboDAO.deleteCombo(comboId);
